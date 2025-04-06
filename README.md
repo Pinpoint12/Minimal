@@ -1,29 +1,64 @@
-# Minimal Master
+# 🔍 Minimal
+
+A browser extension that creates a cleaner, more focused web experience by removing distractions, unnecessary UI elements, and the bane of our existence - *ALGORITHM DRIVEN CONTENT*.
+
+## ✨ Recent Updates & Roadmap
+
+### Done
+- ✅ Fixed YouTube homepage with minimal search-only interface
+- ✅ Added browser tab title cleanup (removes notification numbers)
+- ✅ Removed Reddit side tabs with recommended posts, etc
+- ✅ Centered YouTube video content after removing recommended videos
+
+### Todo:
+- 🔜 Minimalist Reddit homepage
+- 🔜 Support for additional websites
+- 🔜 Settings panel for specific user control
+
+## 🚀 Features
+
+Minimal transforms popular websites by:
+
+- **Removing distractions** - hides sidebars, notifications, and other attention-grabbing elements
+- **Focusing on content** - prioritizes what you came to see, not what sites want to show you
+- **Simplifying interfaces** - cleans up cluttered designs for a more peaceful browsing experience
+
+## 📱 Supported Websites
+
+- YouTube
+- Twitter/X
+- Reddit
+- Amazon
+- Google
+- Yahoo
+- Netflix
+- Facebook
+
+## 💡 How It Works
+
+Minimal uses targeted CSS and JavaScript to modify the appearance and behavior of websites. The extension automatically activates when you visit supported sites, immediately cleaning up the interface.
+
+### YouTube
+Transforms the homepage into a clean search interface and centers video content.
+
+### Reddit
+Hides distracting elements and ensures proper responsiveness across all device sizes.
+
+### Twitter/X
+Removes suggested content and notifications to help you focus on the timeline.
+
+## 💻 Installation
+
+1. Clone this repository
+2. Load as an unpacked extension in your browser:
+   - Chrome: Open Extensions → Enable Developer Mode → Load Unpacked
+   - Firefox: Open about:debugging → This Firefox → Load Temporary Add-on
+
+## 📝 License & Attribution
+
+This project is licensed under the GNU General Public License v3.
 
 This is a GitHub mirror of the Minimal Master browser extension, originally created by [AUPYA](https://gitlab.com/aupya). The original project is hosted on [GitLab](https://gitlab.com/aupya/minimal).
-
-## About Minimal Master
-A browser extension that makes web interfaces more minimal and helps you focus on content. It works on various websites like YouTube, Twitter, Reddit, Amazon, Yahoo, Google, and Netflix.
-
-### Key Features
-- Removes distracting elements from popular websites - no more algorithms feeding you content!
-- Simplifies YouTube homepage with a clean search interface
-- Hides sidebars, notifications, and other distracting UI elements
-- Makes websites more focused on content
-
-### Improvements Since Mirror:
-- Added a cleaner YouTube homepage replacement
-- Removed tabs notifying you on Reddit and YouTube
-- Improved Reddit minimalism
-- Fixed and cleaned up a number of visual improvements across YouTube and Reddit
-
-## Original Project
-This repository maintains the GPL v3 license of the original project. All copyright notices and attributions have been preserved.
-
-## License
-GNU General Public License v3 - see the [LICENSE](LICENSE) file for details.
-
-![minimal logo](./pictures/logo/minimalAvatar512.png)
 
 # Minimal, the browser extension for peace of mind
 Minimal is a browser extension to experience a minimal, less attention grabbing internet experience. Internet should be a tool, not a trap.
