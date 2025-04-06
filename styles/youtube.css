@@ -1,0 +1,251 @@
+/* - Remove useless suggestion around the video description - C2 */
+#related, #ticket-shelf, #merch-shelf {
+  display: none !important;
+}
+#secondary{
+  width: auto!important;
+  min-width: 0!important;
+}
+.ytd-horizontal-card-list-renderer {
+  display: none !important;
+}
+
+/* - Center video content with max-width - C2 */
+#columns {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#primary {
+  max-width: 900px !important;
+  width: 80% !important;
+}
+
+/* - Fix channel page grid layout - C2 */
+#contents.ytd-rich-grid-renderer {
+  --ytd-rich-grid-items-per-row: 4 !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+  grid-gap: 16px !important;
+  max-width: 1284px !important;
+  margin: 35px auto !important;
+  padding: 0 24px !important;
+}
+
+/* Ensure grid items have appropriate sizing */
+ytd-rich-item-renderer {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Make channel page container wider */
+ytd-browse[page-subtype="channels"] #primary {
+  max-width: 1284px !important;
+  width: 100% !important;
+}
+
+/* - Hide notification bell - U2 P1 */
+#notification-count, ytd-notification-topbar-button-renderer {
+  display: none !important;
+}
+
+/* - Hide reel shelf - U2 P1 */
+ytd-reel-shelf-renderer {
+  display: none !important;
+}
+
+#guide-button, #voice-search-button, ytd-mini-guide-renderer, tp-yt-app-drawer {
+    display: none !important;
+}
+
+/* - Styles for minimal homepage - U2 C2 */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: var(--yt-spec-general-background-a);
+  color: var(--yt-spec-text-primary);
+}
+
+.logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+.search-group {
+  display: flex;
+  width: 580px;
+  max-width: 90%;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 16px;
+  border: 1px solid var(--yt-spec-10-percent-layer);
+  border-radius: 24px;
+  outline: none;
+  background-color: var(--yt-spec-general-background-a);
+  color: var(--yt-spec-text-primary);
+}
+
+.search-input:focus {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  border-color: var(--yt-spec-touch-response);
+}
+
+.search-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 60px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-icon-container {
+  width: 20px;
+  height: 20px;
+  color: var(--yt-spec-icon-inactive);
+}
+
+/* - Fallback colors for browsers/instances without CSS variables */
+html[dark] .home-container {
+  background-color: #0f0f0f;
+  color: #f1f1f1;
+}
+
+html:not([dark]) .home-container {
+  background-color: #fff;
+  color: #0f0f0f;
+}
+
+html[dark] .search-input {
+  background-color: #0f0f0f;
+  color: #f1f1f1;
+  border-color: #333;
+}
+
+html:not([dark]) .search-input {
+  background-color: #fff;
+  color: #0f0f0f;
+  border-color: #ccc;
+}
+
+html[dark] .search-icon-container {
+  color: #aaa;
+}
+
+html:not([dark]) .search-icon-container {
+  color: #666;
+}
+
+#page-manager{
+  margin: 0 24px 0 0;
+}
+
+/* - Simplify youtube logo to make it more discrete - P1 */
+#country-code, #logo-container .content-region{
+  display: none !important;
+}
+#logo svg, #logo-container .logo, #footer-logo{
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+/* - YouTube logo handling for minimal homepage - P1 */
+.youtube-logo {
+  width: 100%;
+  height: 100%;
+}
+
+html[dark] .logo-text path {
+  fill: #FFFFFF;
+}
+
+html:not([dark]) .logo-text path {
+  fill: #0F0F0F;
+}
+
+/* - Remove end screen video suggestions - P2 C1 */
+.watch-sidebar{
+  /*display: none !important;*/
+}
+.videowall-endscreen{
+  display: none !important;
+}
+
+/* - Desaturate thumbnails - U1 */
+.ytd-thumbnail img.yt-img-shadow,
+.ytp-cued-thumbnail-overlay-image{
+  filter: saturate(0.8) contrast(0.8)
+}
+
+/* - Use a neutral color for the bottom video progress bar - P1 */
+.ytp-swatch-background-color {
+  /* background-color: #fff !important; */
+}
+
+/* - Use a neutral color for the subscribe button - P1 C3 */
+button.yt-spec-button-shape-next.yt-spec-button-shape-next--filled.yt-spec-button-shape-next--mono {
+  background-color: grey;
+  color:white;
+}
+
+/* - Remove bottom right video branding - U3 */
+.iv-branding{
+  display: none
+}
+
+/* - Remove the theater button - U2 */
+.ytp-size-button{
+  display: none !important;
+}
+
+/* - Remove the minify button - U2 */
+.ytp-miniplayer-button{
+  display: none !important;
+}
+
+/* - Remove the "next video" button when the video is not in a playlist - C2 C3 */
+.ytp-next-button{
+  display: none !important;
+}
+.ytp-play-button-playlist+.ytp-next-button{
+  display: inline-block  !important;
+}
+
+/* - Remove video thumbnail autoplay - C3 */
+.ytd-moving-thumbnail-renderer{
+  display: none!important
+}
+
+/* - Remove autoplay toggle button - C3 */
+button[data-tooltip-target-id="ytp-autonav-toggle-button"] {
+  display: none !important;
+}
+
+/* - Remove misleading or unrelated sections from the search page - U2 C3 */
+ytd-two-column-search-results-renderer[is-search="true"] .ytd-item-section-renderer[thumbnail-style=""]{
+  display:none !important
+}
+
+/* - Stop unwanted focus effects - P1 */
+#logo, #logo-icon, #logo-icon-container, #masthead-logo, .logo, .ytd-logo {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+#masthead-logo a, #masthead a, #logo a {
+  outline: none !important;
+}

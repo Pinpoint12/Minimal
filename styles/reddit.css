@@ -1,0 +1,57 @@
+/* Hide most UI - focus on single post */
+
+/* Hide and collapse left sidebar */
+#left-sidebar-container {
+  width: 0 !important;
+  min-width: 0 !important;
+  display: none !important;
+  --expanded: 0 !important;
+}
+
+/* Hide NSFW content toggles */
+#nsfw {
+  display: none !important;
+}
+
+/* Hide menu button */
+#hamburger-button-tooltip {
+  display: none !important;
+}
+
+div:has(label[data-testid="is-nsfw-shown"]) {
+  display: none !important;
+}
+
+/* Hide advertising elements */
+span[data-part="advertise"] {
+  display: none !important;
+}
+
+.pr-lg.flex.gap-xs.items-center.justify-start{
+  pointer-events: none;
+}
+
+/* - Hide the total karma, on top right corner under username - C3 */
+.Rz5N3cHNgTGZsIQJqBfgk { /* FRAGILE */
+  display: none;
+}
+
+/* - De-emphasize the "Get coin" button, on the top right corner - U1*/
+.jEUbSHJJx8vISKpWirlfx { /* FRAGILE */
+  border: none;
+}
+.jEUbSHJJx8vISKpWirlfx svg{ /* FRAGILE */
+  display: none;
+}
+
+/* Ensure post content is centered when sidebar is collapsed by letting 
+   Reddit's default responsive behavior work after sidebar removal */
+
+/* - Hide the right panel until hover - C2 P2 */
+._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5{ /* FRAGILE */
+  opacity:0.2;
+  transition: 200ms all ease;
+}
+._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5:hover{ /* FRAGILE */
+  opacity:1
+}

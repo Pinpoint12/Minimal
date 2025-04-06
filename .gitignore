@@ -1,0 +1,5 @@
+*.xcf
+*.zip
+preprocessing/preprocess
+preprocessing/*.o
+build/

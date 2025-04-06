@@ -1,0 +1,127 @@
+{
+	"manifest_version": 2,
+	"name": "minimal",
+	"version": "1.0.4",
+
+	"default_locale": "en",
+
+	"description": "A browser extension that simplifies popular websites by removing distracting elements and focusing on core content",
+
+	"icons": {
+		"48": "icons/icon.png",
+		"96": "icons/icon@2x.png",
+		"128": "icons/icon128.png",
+		"192": "icons/icon@4x.png"
+	},
+
+	"developer": {
+		"name": "AUPYA with edits by @pinpoint24",
+		"url": "https://minimal.aupya.org"
+	},
+	
+	"background": {
+		"scripts": ["main.js"]
+	},
+
+	"content_scripts": [
+		{
+			"matches": ["*://*.youtube.com/*"],
+			"css": ["styles/youtube.css"],
+			"js": ["scripts/youtube.js"],
+			"run_at": "document_start"
+		},
+		{
+			"matches": ["*://*.facebook.com/*"],
+			"css": ["styles/facebook.css"],
+			"js": ["scripts/facebook.js"]
+		},
+		{
+			"matches": ["*://*.twitter.com/*"],
+			"css": ["styles/twitter.css"],
+			"js": ["scripts/twitter.js"]
+		},
+		{
+			"matches": [
+				"*://*.amazon.com/*", 
+				"*://*.amazon.ca/*", 
+				"*://*.amazon.co.uk/*", 
+				"*://*.amazon.de/*", 
+				"*://*.amazon.fr/*", 
+				"*://*.amazon.it/*", 
+				"*://*.amazon.es/*", 
+				"*://*.amazon.co.jp/*", 
+				"*://*.amazon.cn/*", 
+				"*://*.amazon.in/*", 
+				"*://*.amazon.com.br/*", 
+				"*://*.amazon.com.mx/*", 
+				"*://*.amazon.com.au/*", 
+				"*://*.amazon.nl/*"
+			],
+			"css": ["styles/amazon.css"]
+		},
+		{
+			"matches": [
+				"*://*.google.com/*",
+				"*://*.google.co.uk/*",
+				"*://*.google.ca/*",
+				"*://*.google.de/*",
+				"*://*.google.fr/*",
+				"*://*.google.es/*",
+				"*://*.google.it/*",
+				"*://*.google.nl/*",
+				"*://*.google.com.au/*",
+				"*://*.google.co.jp/*",
+				"*://*.google.co.in/*",
+				"*://*.google.com.br/*",
+				"*://*.google.com.mx/*",
+				"*://*.google.ru/*",
+				"*://*.google.cn/*"
+			],
+			"css": ["styles/google.css"]
+		},
+		{
+			"matches": ["*://*.yahoo.com/*"],
+			"css": ["styles/yahoo.css"]
+		},
+		{
+			"matches": ["*://*.netflix.com/*"],
+			"css": ["styles/netflix.css"],
+			"js": ["scripts/netflix.js"]
+		},
+		{
+			"matches": [
+				"*://*.reddit.com/*",
+				"*://reddit.com/*"
+			],
+			"css": ["styles/reddit.css"],
+			"js": ["scripts/reddit.js"]
+		}
+	],
+	
+	"permissions": [
+		"<all_urls>",
+		"storage",
+		"tabs"
+	],
+	"page_action": {
+		"browser_style": true,
+		"default_icon": "icons/pageAction.png",
+		"default_title": "__MSG_pageActionDefaultTitle__",
+		"default_popup": "pages/badgePopup.html"
+	},
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "{80699c7e-6ff6-440b-9ab4-dd6337651e9d}"
+		}
+	},
+	"chrome": {
+		"page_action": {
+			"default_icon": {
+				"19": "icons/pageAction.png",
+				"38": "icons/pageAction@2x.png"
+			},
+			"default_title": "__MSG_pageActionDefaultTitle__",
+			"default_popup": "pages/badgePopup.html"
+		}
+	}
+}

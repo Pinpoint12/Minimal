@@ -1,0 +1,28 @@
+{
+	"addonDescription": {
+		"message": "Una experiencia mínima del internet que atrae menos la atención",
+		"description": "Describe la extensión"
+	},
+	"pageActionDefaultTitle": {
+		"message": "Sitio web soportado por minimal",
+		"description": "Visualizado sobre el icono de la extensión"
+	},
+	"toggleOn": {
+		"message": "Activar",
+		"description": "Se muestra en un elemento de conmutación cuando se apaga"
+	},
+	"toggleOff": {
+		"message": "Desactivar",
+		"description": "Se muestra en un elemento de conmutación cuando se activa"
+	},
+	"videoRecommendations": {
+		"message": "recomendaciones de vídeo",
+		"description": "Recomendaciones de vídeo"
+	},
+	"reportIssue": {
+		"message": "Notificar un problema"
+	},
+	"minimalStyle": {
+		"message": "Estilo minimal"
+	}
+}

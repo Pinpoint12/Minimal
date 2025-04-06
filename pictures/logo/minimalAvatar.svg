@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 26.458333 26.458334"
+   height="100"
+   width="100"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient4902">
+      <stop
+         id="stop4898"
+         offset="0"
+         style="stop-color:#364eff;stop-opacity:1" />
+      <stop
+         id="stop4900"
+         offset="1"
+         style="stop-color:#00e8ff;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient4616">
+      <stop
+         id="stop4612"
+         offset="0"
+         style="stop-color:#1812ff;stop-opacity:1" />
+      <stop
+         id="stop4614"
+         offset="1"
+         style="stop-color:#00f9eb;stop-opacity:0" />
+    </linearGradient>
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(3.2128877,0.60786555,-0.48411104,2.5587808,116.52047,-458.7217)"
+       r="10.583333"
+       fy="291.14468"
+       fx="10.744637"
+       cy="291.14468"
+       cx="10.744637"
+       id="radialGradient4906"
+       xlink:href="#linearGradient4902" />
+    <radialGradient
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.8622744,-1.0336154e-7,1.3438765e-7,2.4212746,-11.435727,-408.47179)"
+       r="5.5615406"
+       fy="288.74121"
+       fx="13.262239"
+       cy="288.74121"
+       cx="13.262239"
+       id="radialGradient4955"
+       xlink:href="#linearGradient4616" />
+  </defs>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-270.54165)"
+     id="layer1">
+    <rect
+       y="270.54166"
+       x="0"
+       height="26.458313"
+       width="26.458332"
+       id="rect828"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.87196338;stroke-miterlimit:4;stroke-dasharray:none" />
+    <path
+       id="path3718-37"
+       d="m 8.1944069,275.21174 c -1.2586904,0 -2.0139012,0.50345 -2.5173807,1.00695 -1.006949,1.00693 -1.0069523,2.0139 -1.0069523,7.55214 0,5.53822 3.3e-6,6.54518 1.0069523,7.55213 0.5034795,0.5035 1.2586902,1.00695 2.5173807,1.00695 1.2586892,0 2.0139031,-0.50348 2.5173791,-1.00695 0.387283,-0.38728 0.624774,-0.77732 0.77144,-1.42242 0.442478,0.23389 0.988024,0.41547 1.74594,0.41547 0.758154,0 1.303536,-0.18275 1.74594,-0.41694 0.146641,0.64591 0.383883,1.03634 0.771439,1.42389 0.503477,0.50347 1.258691,1.00695 2.51738,1.00695 1.258691,0 2.013903,-0.50345 2.517381,-1.00695 1.006949,-1.00695 1.006952,-2.01391 1.006952,-7.55213 0,-5.53824 -3e-6,-6.54521 -1.006952,-7.55214 -0.503478,-0.5035 -1.25869,-1.00695 -2.517381,-1.00695 -1.258689,0 -2.013903,0.50348 -2.51738,1.00695 -0.503475,0.50346 -1.25869,1.00695 -2.517379,1.00695 -1.25869,0 -2.013904,-0.50349 -2.51738,-1.00695 -0.503476,-0.50347 -1.25869,-1.00695 -2.5173791,-1.00695 z"
+       style="fill:none;fill-opacity:0.26548671;stroke:#0c0c0d;stroke-width:1.26376843;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal;opacity:0.83" />
+    <text
+       id="text832-6"
+       y="296.22137"
+       x="25.774471"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;line-height:1.25;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans';text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;opacity:0.83;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.76389px;font-family:'URW Gothic L';-inkscape-font-specification:'URW Gothic L';text-align:end;text-anchor:end;fill:#000000;fill-opacity:1;stroke-width:0.264583"
+         y="296.22137"
+         x="25.774471"
+         id="tspan830-7">1.0</tspan></text>
+  </g>
+</svg>

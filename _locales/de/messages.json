@@ -1,0 +1,28 @@
+{
+	"addonDescription": {
+		"message": "Eine minimale, weniger Aufmerksamkeit vereinnahmende Interneterfahrung.",
+		"description": "Beschreibung des Add-on."
+	},
+	"pageActionDefaultTitle": {
+		"message": "Website wird von minimal unterstützt.",
+		"description": "Wird angezeigt, wenn Sie mit der Maus über das Seitenaktions-Emblem fahren."
+	},
+	"toggleOn": {
+		"message": "Einschalten",
+		"description": "Wird bei Deaktivierung in einem Aktivierungs-/Deaktivierungselement angezeigt"
+	},
+	"toggleOff": {
+		"message": "Abbiegen",
+		"description": "Wird in einem Aktivierungs-/Deaktivierungselement angezeigt, wenn es aktiviert ist"
+	},
+	"videoRecommendations": {
+		"message": "Video-Empfehlungen",
+		"description": "Video-Empfehlungen"
+	},
+	"reportIssue": {
+		"message": "Ein Problem melden"
+	},
+	"minimalStyle": {
+		"message": "Minimal stil"
+	}
+}

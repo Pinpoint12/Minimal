@@ -1,0 +1,28 @@
+{
+	"addonDescription": {
+		"message": "A minimal, less attention grabbing, internet experience.",
+		"description": "Describe the add-on."
+	},
+	"pageActionDefaultTitle": {
+		"message": "Website supported by minimal",
+		"description": "Displayed when hovering the page action badge."
+	},
+	"toggleOn": {
+		"message": "Turn on",
+		"description": "Displayed in an toggle element when turned off"
+	},
+	"toggleOff": {
+		"message": "Turn off",
+		"description": "Displayed in an toggle element when turned on"
+	},
+	"videoRecommendations": {
+		"message": "video recommendations",
+		"description": "Video recommendations"
+	},
+	"reportIssue": {
+		"message": "Report an issue"
+	},
+	"minimalStyle": {
+		"message": "Minimal style"
+	}
+}

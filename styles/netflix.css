@@ -1,0 +1,38 @@
+/* - Desaturate logo - P1 */
+.pinning-header .main-header .logo {
+    color: lightgrey;
+}
+
+/* - Use neutral color for progression bars - P1 */
+/* On Homepage */
+.progress-completed {
+    background-color: white;
+}
+/* On Player */
+.ltr-1xfifdu { /* current-progress */
+    background: white;
+}
+.ltr-1gidbvb { /* scrubber-head */
+    background: white;
+}
+.ltr-1jssjem { /* cached */
+    background: grey;
+}
+.ltr-yzurhj { /* bar */
+    background: #444;
+}
+
+/* - Remove full width suggestions - U1 */
+.billboard-row, .lolomoBigRow{
+    display: none !important
+}
+
+/* - Make homepage tiles more sober - U1 */
+.title-card{
+    transition: 400ms all ease;
+    opacity:  0.8
+}
+.title-card.is-bob-open{
+    opacity: 1
+}
+

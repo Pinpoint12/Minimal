@@ -1,0 +1,72 @@
+/* - Make content elements discrete unless user hover them - U2 */
+
+#feat-bar,
+#Stream>*,
+.stream-items>*,
+.tdv2-wafer-ntk-desktop>*,
+.aside-sticky-col>*,
+.ntk-filmstrip>ul>*,
+.ntk-lead {
+    transition: 400ms all ease !important;
+    opacity: 0.15;
+    filter: saturate(0);
+}
+
+#Stream:hover>*,
+.stream-items:hover>*,
+.tdv2-wafer-ntk-desktop:hover>*,
+.aside-sticky-col:hover>*,
+.ntk-filmstrip>ul:hover>* {
+    opacity: 0.3;
+}
+
+#feat-bar:hover,
+#Stream>*:hover,
+.stream-items>*:hover,
+.tdv2-wafer-ntk-desktop>*:hover,
+.aside-sticky-col>*:hover,
+.ntk-filmstrip>ul>*:hover,
+.ntk-lead:hover {
+    opacity: 1;
+    filter: saturate(1);
+}
+
+
+/* - Desaturate logo, links and icons - P1 */
+#ybar-logo {
+    filter: grayscale(100%) brightness(300%);
+}
+
+:root, html[data-color-scheme="dark"] [data-maintain-color], html[data-color-theme-enabled] [data-color-scheme="light"], html[data-color-theme-enabled][data-color-scheme="light"] {
+    --grape-jelly: grey;
+    --hulk-pants: grey;
+}
+
+#ybarMailLink svg {
+    filter: grayscale(100%);
+}
+
+/* - Desaturate search bar and remove glowing effect when landing on the page - U1 */
+
+#ybar-search {
+  animation: none;
+  background-color: slategrey !important;
+  border: none;
+}
+#ybar-search:hover {
+  background-color: lightslategrey !important;
+}
+#ybar-sbq {
+    border-color: #b0b0b0 !important;
+}
+
+/* - Remove duplicate shortcut for mail - U3 */
+
+a[data-ylk*=MAIL],
+#ybar-navigation-item-mail {
+  display: none
+}
+
+li._yb_y3byc:nth-child(2) {
+  padding-left: 0;
+}

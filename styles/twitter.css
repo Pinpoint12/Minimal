@@ -1,0 +1,11 @@
+/* - Twitter logo is more discrete - P1 */
+div.css-901oao.r-1awozwy>svg{ /* FRAGILE */
+    filter: grayscale(1);
+    opacity: 0.5
+}
+
+/* - Hide the Home tab's "new content" bubble - C3 */
+a[data-testid="AppTabBar_Home_Link"] div div div {
+    display: none;
+}
+

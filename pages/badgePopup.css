@@ -1,0 +1,48 @@
+:root {
+	--background-color: #f3f3f3;
+	--subtle-font-color: #babdb6;
+}
+
+html, body {
+	min-width: 20em;
+	background-color: var(--background-color);
+}
+
+main{
+	margin: 0 1em;
+}
+
+header{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+header h1{
+	font-weight: normal;
+	margin: 1rem;
+}
+
+footer{
+	margin: 1em 0 .5em;
+	color: var(--subtle-font-color);
+	text-align: center;
+}
+footer a{
+	text-decoration: none;
+	color: inherit;
+}
+a.help{
+	text-decoration: none;
+	background: var(--subtle-font-color);
+	color: var(--background-color);
+	cursor: pointer;
+	height: 1.4em;
+	width: 1.4em;
+	text-align: center;
+	border-radius: 1em;
+	padding: 0;
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0;
+}
+
