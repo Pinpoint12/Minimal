@@ -1,6 +1,6 @@
 # Minimal Master
 
-This is a GitHub mirror of the Minimal Master browser extension, originally created by [Edouard Mathieu](https://gitlab.com/eedomus). The original project is hosted on [GitLab](https://gitlab.com/eedomus/minimal).
+This is a GitHub mirror of the Minimal Master browser extension, originally created by [AUPYA](https://gitlab.com/aupya). The original project is hosted on [GitLab](https://gitlab.com/aupya/minimal).
 
 ## About Minimal Master
 A browser extension that makes web interfaces more minimal and helps you focus on content. It works on various websites like YouTube, Twitter, Reddit, Amazon, Yahoo, Google, and Netflix.
