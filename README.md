@@ -1,8 +1,8 @@
-# 🔍 Minimal
+# Minimal
 
 A browser extension that creates a cleaner, more focused web experience by removing distractions, unnecessary UI elements, and the bane of our existence - *ALGORITHM DRIVEN CONTENT*.
 
-## ✨ Recent Updates & Roadmap
+## Recent Updates & Roadmap
 
 ### Done
 - ✅ Fixed YouTube homepage with minimal search-only interface
@@ -15,7 +15,7 @@ A browser extension that creates a cleaner, more focused web experience by remov
 - 🔜 Support for additional websites
 - 🔜 Settings panel for specific user control
 
-## 🚀 Features
+## Features
 
 Minimal transforms popular websites by:
 
@@ -23,7 +23,7 @@ Minimal transforms popular websites by:
 - **Focusing on content** - prioritizes what you came to see, not what sites want to show you
 - **Simplifying interfaces** - cleans up cluttered designs for a more peaceful browsing experience
 
-## 📱 Supported Websites
+## Supported Websites
 
 - YouTube
 - Twitter/X
@@ -34,7 +34,7 @@ Minimal transforms popular websites by:
 - Netflix
 - Facebook
 
-## 💡 How It Works
+## How It Works
 
 Minimal uses targeted CSS and JavaScript to modify the appearance and behavior of websites. The extension automatically activates when you visit supported sites, immediately cleaning up the interface.
 
@@ -47,14 +47,14 @@ Hides distracting elements and ensures proper responsiveness across all device s
 ### Twitter/X
 Removes suggested content and notifications to help you focus on the timeline.
 
-## 💻 Installation
+## Installation
 
 1. Clone this repository
 2. Load as an unpacked extension in your browser:
    - Chrome: Open Extensions → Enable Developer Mode → Load Unpacked
    - Firefox: Open about:debugging → This Firefox → Load Temporary Add-on
 
-## 📝 License & Attribution
+## License & Attribution
 
 This project is licensed under the GNU General Public License v3.
 
@@ -71,9 +71,7 @@ Minimal is driven by core values:
 - A user should easily find the content they are searching for on a page, not the content a platform wants them to see.
 - A service provider can convince the user to use their platform, but only through their services' inner quality.
 
-[![Get the add-on](https://addons.cdn.mozilla.net/static/img/addons-buttons/AMO-button_1.png)](https://addons.mozilla.org/firefox/addon/minimal-internet-experience/)
-
-To get a complete list of the changes made to the user experience by the minimal browser extension, check the [Changes page](https://minimal.aupya.org/#about_changes). Those changes are following [minimal's manifesto](MANIFESTO.md).
+To get a (mostly) complete list of the changes made to the user experience by the minimal browser extension, check the [Changes page](https://minimal.aupya.org/#about_changes). Those changes are following [minimal's manifesto](MANIFESTO.md).
 
 This extension is being developed for the greater good, it is an open source project, you can check its code and contribute.
 
@@ -127,3 +125,23 @@ Exemples of the comment pattern:
 # How to build the extension?
 
 Put everything inside a .zip and you should be able to use it [as described here](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Your_first_WebExtension#installing).
+
+## Install on Chrome/Chromium browsers
+
+### Chrome
+1. Download the latest release .zip file
+2. Go to `chrome://extensions/`
+3. Enable "Developer mode" in the top right corner
+4. Click "Load unpacked" in the top left
+5. Select the unzipped folder containing the extension files
+6. The extension should now be installed and active
+
+### Brave
+1. Download the latest release .zip file
+2. Go to `brave://extensions/`
+3. Enable "Developer mode" in the top right corner
+4. Click "Load unpacked" in the top left
+5. Select the unzipped folder containing the extension files
+6. The extension should now be installed and active
+
+Note: For both browsers, you may need to approve permissions when first using the extension on supported sites.
