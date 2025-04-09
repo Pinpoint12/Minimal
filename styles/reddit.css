@@ -18,6 +18,14 @@
   display: none !important;
 }
 
+chat-channel-recommendations-wrapper {
+  display: none !important;
+}
+
+div.pt-\[6px\].px-md.xs\:px-0 {
+  display: none !important;
+}
+
 div:has(label[data-testid="is-nsfw-shown"]) {
   display: none !important;
 }
