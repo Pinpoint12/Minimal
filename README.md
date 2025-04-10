@@ -6,12 +6,13 @@ A browser extension that creates a cleaner, more focused web experience by remov
 
 ### Done
 - ✅ Fixed YouTube homepage with minimal search-only interface
+- ✅ Minimalist Reddit homepage mirroring the custom YouTube design
 - ✅ Added browser tab title cleanup (removes notification numbers)
 - ✅ Removed Reddit side tabs with recommended posts, etc
 - ✅ Centered YouTube video content after removing recommended videos
 
 ### Todo:
-- 🔜 Minimalist Reddit homepage
+- 🔜 Fix FOUC (Flash Of Unstyled Content) for the Reddit homepage
 - 🔜 Support for additional websites
 - 🔜 Settings panel for specific user control
 
