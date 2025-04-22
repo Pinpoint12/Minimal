@@ -14,10 +14,8 @@
 		"192": "icons/icon@4x.png"
 	},
 
-	"developer": {
-		"name": "AUPYA with edits by @pinpoint24",
-		"url": "https://minimal.aupya.org"
-	},
+	"author": "AUPYA with edits by @pinpoint24",
+	"homepage_url": "https://minimal.aupya.org",
 	
 	"background": {
 		"scripts": ["main.js"]
@@ -104,24 +102,11 @@
 		"tabs"
 	],
 	"page_action": {
-		"browser_style": true,
-		"default_icon": "icons/pageAction.png",
+		"default_icon": {
+			"19": "icons/pageAction.png",
+			"38": "icons/icon@2x.png"
+		},
 		"default_title": "__MSG_pageActionDefaultTitle__",
 		"default_popup": "pages/badgePopup.html"
-	},
-	"browser_specific_settings": {
-		"gecko": {
-			"id": "{80699c7e-6ff6-440b-9ab4-dd6337651e9d}"
-		}
-	},
-	"chrome": {
-		"page_action": {
-			"default_icon": {
-				"19": "icons/pageAction.png",
-				"38": "icons/pageAction@2x.png"
-			},
-			"default_title": "__MSG_pageActionDefaultTitle__",
-			"default_popup": "pages/badgePopup.html"
-		}
 	}
 }

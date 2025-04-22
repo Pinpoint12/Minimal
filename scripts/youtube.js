@@ -105,28 +105,91 @@ if(!deactivateAutoplay()){
 
 /* - Replace the subscription list from the side menu by a link to the subscription manager - U3 */
 function replaceSubscriptionManager(){
-	if(document.getElementById("avatar-btn") || document.getElementById("yt-masthead-account-picker")){
-		let subGuide =
-			document.getElementsByTagName("ytd-guide-section-renderer").length ?
-				document.getElementsByTagName("ytd-guide-section-renderer")[1] :
-				document.getElementById("guide-subscriptions-section");
+	// Try to find user profile indicators
+	if(document.getElementById("avatar-btn") || document.getElementById("yt-masthead-account-picker") || document.querySelector("yt-img-shadow.ytd-topbar-menu-button-renderer")) {
+		// More modern selector approach for YouTube's current structure
+		let subGuide = null;
+		
+		// Try various potential selectors in order of likelihood
+		const guideSelectors = [
+			// Find ytd-guide-section with "Subscriptions" title
+			'ytd-guide-section-renderer h3:contains("Subscriptions"), ytd-guide-section-renderer #endpoint-title:contains("Subscriptions")',
+			// Fallback to second guide section (if structure follows old pattern)
+			'ytd-guide-section-renderer:nth-child(2)',
+			// Original fallback
+			'#guide-subscriptions-section'
+		];
+		
+		// Custom contains selector implementation
+		const findElementContainingText = (selector, text) => {
+			const elements = document.querySelectorAll(selector);
+			for (const el of elements) {
+				if (el.textContent.includes(text)) {
+					// Find the parent guide section
+					return el.closest('ytd-guide-section-renderer');
+				}
+			}
+			return null;
+		};
+		
+		// First try to find section with "Subscriptions" text
+		subGuide = findElementContainingText('ytd-guide-section-renderer h3, ytd-guide-section-renderer #endpoint-title', 'Subscriptions');
+		
+		// If not found, try fallbacks
+		if (!subGuide && document.getElementsByTagName("ytd-guide-section-renderer").length > 1) {
+			subGuide = document.getElementsByTagName("ytd-guide-section-renderer")[1];
+		}
+		
+		if (!subGuide) {
+			subGuide = document.getElementById("guide-subscriptions-section");
+		}
+
+		// Add null check for subGuide
+		if (!subGuide) {
+			console.log("[minimal] Could not find subscription guide element");
+			return;
+		}
 
 		let subManagerLink = document.createElement('a');
 		subManagerLink.setAttribute('href', 'https://www.youtube.com/subscription_manager');
-		subGuide.getElementsByTagName("div")[0].style.display="none";
+		
+		// Find the subscription items container and hide it
+		let subscriptionContainer = subGuide.querySelector('ytd-guide-collapsible-section-entry-renderer') || 
+									subGuide.querySelector('#sections') ||
+									subGuide.getElementsByTagName("div")[0];
+									
+		if (subscriptionContainer) {
+			subscriptionContainer.style.display = "none";
+		}
 
-		let subGuideTitle = subGuide.getElementsByTagName("h3")[0];
+		// Find the title element
+		let subGuideTitle = subGuide.querySelector('h3') || 
+							subGuide.querySelector('#endpoint-title') ||
+							subGuide.getElementsByTagName("h3")[0];
+		
+		// Add null check for subGuideTitle
+		if (!subGuideTitle) {
+			console.log("[minimal] Could not find subscription guide title");
+			return;
+		}
 
-		if(subGuideTitle.getElementsByTagName("yt-formatted-string").length > 0){
-			subGuideTitle.getElementsByTagName("yt-formatted-string")[0].style.textTransform="capitalize";
-		} else{
+		// Format title
+		const formattedStringEl = subGuideTitle.querySelector('yt-formatted-string') || 
+								 subGuideTitle.querySelector('span');
+								 
+		if (formattedStringEl) {
+			formattedStringEl.style.textTransform = "capitalize";
+		} else {
 			subGuideTitle.style.textTransform = "capitalize";
 			subGuideTitle.style.color = "dimgrey";
 		}
 
-		subManagerLink.appendChild(subGuideTitle);
+		// Clone the title to avoid removing it from the original location
+		const titleClone = subGuideTitle.cloneNode(true);
+		subManagerLink.appendChild(titleClone);
 
-		if(subGuide.getElementsByTagName("hr").length){
+		// Find a good insertion point
+		if (subGuide.getElementsByTagName("hr").length) {
 			subGuide.insertBefore(subManagerLink, subGuide.getElementsByTagName("hr")[0]);
 		} else {
 			subGuide.appendChild(subManagerLink);
