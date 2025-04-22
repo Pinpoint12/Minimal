@@ -55,11 +55,21 @@ function interceptTheaterModeKeypress() {
     if (e.key === 't' || e.key === 'T') {
       // Only prevent on video pages
       if (window.location.pathname === "/watch") {
-        // Prevent default behavior and stop propagation
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        return false;
+        // Check if user is typing in an input field, textarea, or contenteditable element
+        const activeElement = document.activeElement;
+        const isTypingInField = activeElement.tagName === 'INPUT' || 
+                                activeElement.tagName === 'TEXTAREA' || 
+                                activeElement.isContentEditable || 
+                                activeElement.getAttribute('role') === 'textbox';
+        
+        // Only intercept if NOT typing in a field
+        if (!isTypingInField) {
+          // Prevent default behavior and stop propagation
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          return false;
+        }
       }
     }
   }, true); // Use capturing phase to intercept before YouTube handlers
