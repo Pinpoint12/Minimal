@@ -34,6 +34,12 @@
   padding: 0 24px !important;
 }
 
+/* Hide the "Shorts" button on channel pages */
+yt-tab-shape[tab-title="Shorts"] {
+  display: none !important;
+}
+
+
 /* Ensure grid items have appropriate sizing */
 ytd-rich-item-renderer {
   width: 100% !important;
