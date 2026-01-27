@@ -1,54 +1,69 @@
-if (typeof browser === 'undefined') {
-	browser = chrome
-}
+/* Manifest V3 Popup - Uses messaging instead of getBackgroundPage() */
 
-let enable_button = document.getElementById("enable");
-let background = browser.extension.getBackgroundPage();
+const enable_button = document.getElementById("enable");
+let currentTabId = null;
+let currentTabName = null;
 
-/* Guard against undefined tab - fixes potential null reference error */
-let tabInfo = background.tabs[background.current_tab_id];
-if (!tabInfo) {
-	console.warn('[minimal] Tab not tracked yet');
-	enable_button.disabled = true;
-}
-let tabName = tabInfo ? tabInfo.tabName : null;
-
-if (tabName) {
-	browser.storage.sync.get(tabName, function(storage) {
-		let minimalState = storage[tabName] || "enabled"; //todo default state
-
-		if(minimalState === "enabled") {
-			enable_button.checked = true;
-		} else {
-			enable_button.checked = false;
+/* Initialize popup */
+async function init() {
+	try {
+		/* Get current tab */
+		const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+		if (!tab) {
+			enable_button.disabled = true;
+			return;
 		}
-	});
+
+		currentTabId = tab.id;
+
+		/* Request tab info from service worker */
+		const response = await chrome.runtime.sendMessage({
+			type: "getTabInfo",
+			tabId: currentTabId
+		});
+
+		if (!response || !response.tabInfo) {
+			console.warn('[minimal] Tab not tracked');
+			enable_button.disabled = true;
+			return;
+		}
+
+		currentTabName = response.tabInfo.tabName;
+		enable_button.checked = response.enabled;
+		enable_button.disabled = false;
+
+	} catch (error) {
+		console.error('[minimal] Popup init error:', error);
+		enable_button.disabled = true;
+	}
 }
 
-enable_button.addEventListener("change", function(e){
-	if (!tabName) return; /* Guard against undefined tabName */
+/* Handle toggle change */
+enable_button.addEventListener("change", async function() {
+	if (!currentTabId || !currentTabName) return;
 
-	if(this.checked){
-
-		let keys = {};
-		keys[tabName] = "enabled";
-		browser.storage.sync.set(keys);
-
-		background.enable(tabName);
-	}
-	else {
-
-		let keys = {};
-		keys[tabName] = "disabled";
-		browser.storage.sync.set(keys);
-
-		background.disable(tabName);
+	try {
+		if (this.checked) {
+			await chrome.runtime.sendMessage({
+				type: "enable",
+				tabId: currentTabId
+			});
+		} else {
+			await chrome.runtime.sendMessage({
+				type: "disable",
+				tabId: currentTabId
+			});
+		}
+	} catch (error) {
+		console.error('[minimal] Toggle error:', error);
 	}
 });
 
-// i18n
-var to_i18n = document.querySelectorAll('*[data-i18n]');
-
-for(let i = 0; i < to_i18n.length; ++i) {
-	to_i18n[i].textContent = browser.i18n.getMessage(to_i18n[i].dataset.i18n);
+/* i18n */
+const to_i18n = document.querySelectorAll('*[data-i18n]');
+for (const el of to_i18n) {
+	el.textContent = chrome.i18n.getMessage(el.dataset.i18n);
 }
+
+/* Initialize on load */
+init();

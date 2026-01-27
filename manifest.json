@@ -1,7 +1,7 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"name": "minimal",
-	"version": "1.0.4",
+	"version": "1.1.0",
 
 	"default_locale": "en",
 
@@ -16,9 +16,9 @@
 
 	"author": "AUPYA with edits by @pinpoint24",
 	"homepage_url": "https://minimal.aupya.org",
-	
+
 	"background": {
-		"scripts": ["main.js"]
+		"service_worker": "main.js"
 	},
 
 	"content_scripts": [
@@ -40,19 +40,19 @@
 		},
 		{
 			"matches": [
-				"*://*.amazon.com/*", 
-				"*://*.amazon.ca/*", 
-				"*://*.amazon.co.uk/*", 
-				"*://*.amazon.de/*", 
-				"*://*.amazon.fr/*", 
-				"*://*.amazon.it/*", 
-				"*://*.amazon.es/*", 
-				"*://*.amazon.co.jp/*", 
-				"*://*.amazon.cn/*", 
-				"*://*.amazon.in/*", 
-				"*://*.amazon.com.br/*", 
-				"*://*.amazon.com.mx/*", 
-				"*://*.amazon.com.au/*", 
+				"*://*.amazon.com/*",
+				"*://*.amazon.ca/*",
+				"*://*.amazon.co.uk/*",
+				"*://*.amazon.de/*",
+				"*://*.amazon.fr/*",
+				"*://*.amazon.it/*",
+				"*://*.amazon.es/*",
+				"*://*.amazon.co.jp/*",
+				"*://*.amazon.cn/*",
+				"*://*.amazon.in/*",
+				"*://*.amazon.com.br/*",
+				"*://*.amazon.com.mx/*",
+				"*://*.amazon.com.au/*",
 				"*://*.amazon.nl/*"
 			],
 			"css": ["styles/amazon.css"]
@@ -95,13 +95,15 @@
 			"js": ["scripts/reddit.js"]
 		}
 	],
-	
+
 	"permissions": [
-		"<all_urls>",
 		"storage",
-		"tabs"
+		"scripting"
 	],
-	"page_action": {
+	"host_permissions": [
+		"<all_urls>"
+	],
+	"action": {
 		"default_icon": {
 			"19": "icons/pageAction.png",
 			"38": "icons/icon@2x.png"

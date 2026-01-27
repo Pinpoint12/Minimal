@@ -1,6 +1,4 @@
-if (typeof browser === 'undefined') {
-	browser = chrome
-}
+/* MV3: Use chrome namespace directly */
 
 /* - Prevent flash of unstyled content - P1 */
 (function() {
@@ -254,23 +252,23 @@ function addRecommendedVideoToggle(){
 	});
 	let show_videos_button = document.createElement("button");
 
-	show_videos_button.appendChild(document.createTextNode(browser.i18n.getMessage("toggleOn") + " " + browser.i18n.getMessage("videoRecommendations")));
+	show_videos_button.appendChild(document.createTextNode(chrome.i18n.getMessage("toggleOn") + " " + chrome.i18n.getMessage("videoRecommendations")));
 	show_videos_button.style.position="fixed";
 	show_videos_button.style.bottom="1em";
 	show_videos_button.style.right="1em";
 	show_videos_button.addEventListener("click", function(event){
-		if(event.target.textContent == browser.i18n.getMessage("toggleOn") + " " + browser.i18n.getMessage("videoRecommendations")){
+		if(event.target.textContent == chrome.i18n.getMessage("toggleOn") + " " + chrome.i18n.getMessage("videoRecommendations")){
 				home_page_children.forEach(function(child){
 					child.style.visibility = "";
 					child.style.height = "";
 				});
-			event.target.textContent = browser.i18n.getMessage("toggleOff") + " " + browser.i18n.getMessage("videoRecommendations");
+			event.target.textContent = chrome.i18n.getMessage("toggleOff") + " " + chrome.i18n.getMessage("videoRecommendations");
 		} else {
 				home_page_children.forEach(function(child){
 					child.style.visibility = "hidden";
 					child.style.height = "0";
 				});
-			event.target.textContent = browser.i18n.getMessage("toggleOn") + " " + browser.i18n.getMessage("videoRecommendations");
+			event.target.textContent = chrome.i18n.getMessage("toggleOn") + " " + chrome.i18n.getMessage("videoRecommendations");
 		}
 	})
 	home_page.appendChild(show_videos_button);

@@ -4,16 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Minimal is a Firefox/Chrome browser extension (Manifest V2) that removes distractions from popular websites by hiding algorithm-driven content, notifications, and attention-grabbing elements. It follows a philosophical framework defined in MANIFESTO.md.
+Minimal is a Chrome/Chromium browser extension (Manifest V3) that removes distractions from popular websites by hiding algorithm-driven content, notifications, and attention-grabbing elements. It follows a philosophical framework defined in MANIFESTO.md.
 
 ## Architecture
 
 ### Extension Structure
-- **manifest.json** - Extension configuration, content script injection rules, permissions
-- **main.js** - Background script handling enable/disable state, tab tracking, dynamic injection
+- **manifest.json** - Extension configuration (MV3), content script injection rules, permissions
+- **main.js** - Service worker handling enable/disable state, tab tracking, messaging
 - **scripts/*.js** - Site-specific content scripts (YouTube, Reddit, Twitter, Facebook, Netflix)
 - **styles/*.css** - Site-specific stylesheets (YouTube, Reddit, Twitter, Facebook, Netflix, Amazon, Google, Yahoo)
-- **pages/** - Popup UI for toggling extension per-site
+- **pages/** - Popup UI for toggling extension per-site (uses messaging API)
 - **_locales/** - i18n translations (en, de, es, fr)
 
 ### Content Script Patterns
@@ -21,15 +21,17 @@ Minimal is a Firefox/Chrome browser extension (Manifest V2) that removes distrac
 2. **CSS + Light JS** (Twitter, Facebook, Netflix) - Interval-based DOM monitoring
 3. **Complex JS** (YouTube, Reddit) - MutationObserver, custom homepage replacement, FOUC prevention
 
-### Browser Compatibility Shim
-All scripts start with:
-```javascript
-if (typeof browser === 'undefined') { browser = chrome; }
-```
+### Manifest V3 Architecture
+- Service worker (`main.js`) instead of persistent background page
+- Uses `chrome.scripting.executeScript/insertCSS` instead of `chrome.tabs.executeScript/insertCSS`
+- Popup communicates with service worker via `chrome.runtime.sendMessage`
+- Tab state stored in `chrome.storage.session` for service worker persistence
+- Uses `chrome.action` API instead of `chrome.pageAction`
 
 ### State Management
-- Per-site enabled/disabled state stored in `browser.storage.sync`
-- Background script tracks tabs in global `tabs` object: `{tabId: {tabName, enable, js, css}}`
+- Per-site enabled/disabled state stored in `chrome.storage.sync`
+- Tab metadata stored in `chrome.storage.session` (survives service worker restarts)
+- Messaging-based communication between popup and service worker
 
 ## Build & Install
 
