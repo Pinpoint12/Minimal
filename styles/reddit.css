@@ -47,11 +47,6 @@ body[data-block-on-url] > * {
   display: none !important;
 }
 
-/* Hide inbox spans */
-span[data-part="inbox"] {
-  display: none !important;
-}
-
 chat-channel-recommendations-wrapper {
   display: none !important;
 }
