@@ -1,5 +1,20 @@
 /* Manifest V3 Service Worker for Minimal Extension */
 
+/* Badge colors for different states */
+const BADGE_COLORS = {
+	active: '#4CAF50',      /* Green - extension active */
+	disabled: '#9E9E9E',    /* Gray - extension disabled */
+	blocked: '#4CAF50',     /* Green - showing blocked count */
+	error: '#F44336'        /* Red - error state */
+};
+
+/* Badge text for status indicators */
+const BADGE_STATUS = {
+	active: '✓',
+	disabled: '✗',
+	error: '!'
+};
+
 const resources = [
 	{"name": "youtube", "url": "https*:\/\/(www\.)?youtube\.(com)\/.*", "style": "youtube.css", "script": "youtube.js"},
 	{"name": "facebook", "url": "https*:\/\/(www\.)?facebook\.(com)\/.*", "style": "facebook.css", "script": "facebook.js"},
@@ -10,6 +25,43 @@ const resources = [
 	{"name": "netflix", "url": "https*:\/\/(www\.)?netflix\.(com)\/.*", "style": "netflix.css", "script": "netflix.js"},
 	{"name": "reddit", "url": "https*:\/\/(www\.)?reddit\.(com)\/.*", "style": "reddit.css", "script": "reddit.js"},
 ];
+
+/* Update badge to show active status */
+async function setBadgeActive(tabId) {
+	try {
+		await chrome.action.setBadgeText({ text: BADGE_STATUS.active, tabId: tabId });
+		await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.active, tabId: tabId });
+		await chrome.action.setTitle({ title: 'Minimal: Active', tabId: tabId });
+	} catch (e) { /* Ignore badge errors */ }
+}
+
+/* Update badge to show disabled status */
+async function setBadgeDisabled(tabId) {
+	try {
+		await chrome.action.setBadgeText({ text: BADGE_STATUS.disabled, tabId: tabId });
+		await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.disabled, tabId: tabId });
+		await chrome.action.setTitle({ title: 'Minimal: Disabled', tabId: tabId });
+	} catch (e) { /* Ignore badge errors */ }
+}
+
+/* Update badge to show blocked count */
+async function setBadgeBlockedCount(tabId, count) {
+	try {
+		if (count > 0) {
+			const text = count > 99 ? '99+' : count.toString();
+			await chrome.action.setBadgeText({ text: text, tabId: tabId });
+			await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.blocked, tabId: tabId });
+			await chrome.action.setTitle({ title: `Minimal: ${count} distractions blocked`, tabId: tabId });
+		}
+	} catch (e) { /* Ignore badge errors */ }
+}
+
+/* Clear badge */
+async function clearBadge(tabId) {
+	try {
+		await chrome.action.setBadgeText({ text: '', tabId: tabId });
+	} catch (e) { /* Ignore badge errors */ }
+}
 
 /* Enable minimal style for a tab using MV3 scripting API */
 async function enable(tabId, tabInfo) {
@@ -26,15 +78,21 @@ async function enable(tabId, tabInfo) {
 			files: [tabInfo.js]
 		});
 
-		/* Update icon to show enabled state */
+		/* Update icon and badge to show enabled state */
 		await chrome.action.setIcon({
 			path: "./icons/pageAction_on.png",
 			tabId: tabId
 		});
+		await setBadgeActive(tabId);
 
 		return true;
 	} catch (error) {
 		console.error('[minimal] Error enabling:', error);
+		/* Show error badge */
+		try {
+			await chrome.action.setBadgeText({ text: BADGE_STATUS.error, tabId: tabId });
+			await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.error, tabId: tabId });
+		} catch (e) { /* Ignore */ }
 		return false;
 	}
 }
@@ -42,11 +100,12 @@ async function enable(tabId, tabInfo) {
 /* Disable minimal style for a tab by reloading */
 async function disable(tabId) {
 	try {
-		/* Update icon to show disabled state */
+		/* Update icon and badge to show disabled state */
 		await chrome.action.setIcon({
 			path: "./icons/pageAction.png",
 			tabId: tabId
 		});
+		await setBadgeDisabled(tabId);
 
 		/* Reload the tab to remove injected content */
 		await chrome.tabs.reload(tabId);
@@ -96,11 +155,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 				css: "styles/" + siteInfo.style
 			});
 		} else {
-			/* Just update icon to show disabled state */
+			/* Update icon and badge to show disabled state */
 			await chrome.action.setIcon({
 				path: "./icons/pageAction.png",
 				tabId: tabId
 			});
+			await setBadgeDisabled(tabId);
 		}
 	} catch (error) {
 		console.error('[minimal] Error handling tab update:', error);
@@ -116,20 +176,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				const tabId = sender.tab?.id;
 				if (tabId && message.count > 0) {
 					/* Update badge with blocked count */
-					await chrome.action.setBadgeText({
-						text: message.count.toString(),
-						tabId: tabId
-					});
-					await chrome.action.setBadgeBackgroundColor({
-						color: '#4CAF50',
-						tabId: tabId
-					});
+					await setBadgeBlockedCount(tabId, message.count);
 				} else if (tabId) {
-					/* Clear badge if count is 0 */
-					await chrome.action.setBadgeText({
-						text: '',
-						tabId: tabId
-					});
+					/* Show active checkmark if no blocked count */
+					await setBadgeActive(tabId);
 				}
 				sendResponse({ success: true });
 				return;
