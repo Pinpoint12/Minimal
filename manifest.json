@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "minimal",
-	"version": "1.1.0",
+	"version": "1.2.0",
 
 	"default_locale": "en",
 
@@ -25,18 +25,18 @@
 		{
 			"matches": ["*://*.youtube.com/*"],
 			"css": ["styles/youtube.css"],
-			"js": ["scripts/youtube.js"],
+			"js": ["scripts/youtube.js", "scripts/blocker-tracker.js"],
 			"run_at": "document_start"
 		},
 		{
 			"matches": ["*://*.facebook.com/*"],
 			"css": ["styles/facebook.css"],
-			"js": ["scripts/facebook.js"]
+			"js": ["scripts/facebook.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": ["*://*.twitter.com/*", "*://*.x.com/*"],
 			"css": ["styles/twitter.css"],
-			"js": ["scripts/twitter.js"]
+			"js": ["scripts/twitter.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": [
@@ -55,7 +55,8 @@
 				"*://*.amazon.com.au/*",
 				"*://*.amazon.nl/*"
 			],
-			"css": ["styles/amazon.css"]
+			"css": ["styles/amazon.css"],
+			"js": ["scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": [
@@ -75,16 +76,18 @@
 				"*://*.google.ru/*",
 				"*://*.google.cn/*"
 			],
-			"css": ["styles/google.css"]
+			"css": ["styles/google.css"],
+			"js": ["scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": ["*://*.yahoo.com/*"],
-			"css": ["styles/yahoo.css"]
+			"css": ["styles/yahoo.css"],
+			"js": ["scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": ["*://*.netflix.com/*"],
 			"css": ["styles/netflix.css"],
-			"js": ["scripts/netflix.js"]
+			"js": ["scripts/netflix.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": [
@@ -92,7 +95,7 @@
 				"*://reddit.com/*"
 			],
 			"css": ["styles/reddit.css"],
-			"js": ["scripts/reddit.js"]
+			"js": ["scripts/reddit.js", "scripts/blocker-tracker.js"]
 		}
 	],
 

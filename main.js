@@ -107,10 +107,34 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 	}
 });
 
-/* Handle messages from popup */
+/* Handle messages from popup and content scripts */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	(async () => {
 		try {
+			/* Handle blocked count updates from content scripts */
+			if (message.type === "updateBlockedCount") {
+				const tabId = sender.tab?.id;
+				if (tabId && message.count > 0) {
+					/* Update badge with blocked count */
+					await chrome.action.setBadgeText({
+						text: message.count.toString(),
+						tabId: tabId
+					});
+					await chrome.action.setBadgeBackgroundColor({
+						color: '#4CAF50',
+						tabId: tabId
+					});
+				} else if (tabId) {
+					/* Clear badge if count is 0 */
+					await chrome.action.setBadgeText({
+						text: '',
+						tabId: tabId
+					});
+				}
+				sendResponse({ success: true });
+				return;
+			}
+
 			if (message.type === "getTabInfo") {
 				const tabId = message.tabId;
 				const storage = await chrome.storage.session.get(`tab_${tabId}`);
