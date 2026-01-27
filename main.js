@@ -242,3 +242,262 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 		/* Ignore errors during cleanup */
 	}
 });
+
+/* ========== CONTEXT MENU SUPPORT ========== */
+
+/* Create context menus on extension install/update */
+chrome.runtime.onInstalled.addListener(() => {
+	/* Remove existing menus first */
+	chrome.contextMenus.removeAll(() => {
+		/* Parent menu */
+		chrome.contextMenus.create({
+			id: 'minimal-parent',
+			title: 'Minimal',
+			contexts: ['all']
+		});
+
+		/* Hide this element */
+		chrome.contextMenus.create({
+			id: 'minimal-hide-element',
+			parentId: 'minimal-parent',
+			title: 'Hide this element',
+			contexts: ['all']
+		});
+
+		/* Toggle for current site */
+		chrome.contextMenus.create({
+			id: 'minimal-toggle',
+			parentId: 'minimal-parent',
+			title: 'Toggle Minimal for this site',
+			contexts: ['all']
+		});
+
+		/* Separator */
+		chrome.contextMenus.create({
+			id: 'minimal-separator-1',
+			parentId: 'minimal-parent',
+			type: 'separator',
+			contexts: ['all']
+		});
+
+		/* Report as distraction */
+		chrome.contextMenus.create({
+			id: 'minimal-report',
+			parentId: 'minimal-parent',
+			title: 'Report as distraction',
+			contexts: ['all']
+		});
+
+		/* Whitelist domain */
+		chrome.contextMenus.create({
+			id: 'minimal-whitelist',
+			parentId: 'minimal-parent',
+			title: 'Whitelist this domain',
+			contexts: ['all']
+		});
+	});
+});
+
+/* Handle context menu clicks */
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+	if (!tab?.id) return;
+
+	try {
+		switch (info.menuItemId) {
+			case 'minimal-hide-element':
+				/* Inject script to hide the clicked element */
+				await chrome.scripting.executeScript({
+					target: { tabId: tab.id },
+					func: hideClickedElement,
+					args: [info.targetElementId]
+				});
+				break;
+
+			case 'minimal-toggle':
+				/* Toggle minimal for this site */
+				const storage = await chrome.storage.session.get(`tab_${tab.id}`);
+				const tabInfo = storage[`tab_${tab.id}`];
+
+				if (tabInfo) {
+					const stateStorage = await chrome.storage.sync.get({ [tabInfo.tabName]: "enabled" });
+					const currentState = stateStorage[tabInfo.tabName] || "enabled";
+
+					if (currentState === "enabled") {
+						await chrome.storage.sync.set({ [tabInfo.tabName]: "disabled" });
+						await disable(tab.id);
+					} else {
+						await chrome.storage.sync.set({ [tabInfo.tabName]: "enabled" });
+						await enable(tab.id, tabInfo);
+					}
+				}
+				break;
+
+			case 'minimal-report':
+				/* Open issue reporter with pre-filled info */
+				const url = new URL(tab.url);
+				const reportUrl = `https://gitlab.com/aupya/minimal/-/issues/new?issue[title]=Distraction%20report%20for%20${encodeURIComponent(url.hostname)}&issue[description]=URL:%20${encodeURIComponent(tab.url)}%0A%0AElement%20to%20hide:%20%0A%0ADescription:%20`;
+				await chrome.tabs.create({ url: reportUrl });
+				break;
+
+			case 'minimal-whitelist':
+				/* Add domain to whitelist (disable for this domain) */
+				const hostname = new URL(tab.url).hostname.replace('www.', '');
+				const siteInfo = getSiteInfo(tab.url);
+
+				if (siteInfo) {
+					await chrome.storage.sync.set({ [siteInfo.name]: "disabled" });
+					await disable(tab.id);
+
+					/* Show notification */
+					await chrome.scripting.executeScript({
+						target: { tabId: tab.id },
+						func: showWhitelistNotification,
+						args: [hostname]
+					});
+				}
+				break;
+		}
+	} catch (error) {
+		console.error('[minimal] Context menu error:', error);
+	}
+});
+
+/* Function to hide clicked element (injected into page) */
+function hideClickedElement(targetElementId) {
+	/* Find element under cursor or use last right-clicked element */
+	let element = null;
+
+	/* Try to find by targetElementId if available (Chrome 92+) */
+	if (targetElementId) {
+		/* targetElementId is not directly usable, we need to find another way */
+	}
+
+	/* Fallback: Use the element that was right-clicked (stored by content script) */
+	element = window.minimalLastRightClickedElement;
+
+	if (element) {
+		/* Generate a unique selector for this element */
+		const selector = generateUniqueSelector(element);
+
+		/* Hide the element */
+		element.style.setProperty('display', 'none', 'important');
+
+		/* Store the hidden element selector for persistence */
+		const hostname = window.location.hostname;
+		chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
+			const hidden = data.hiddenElements;
+			if (!hidden[hostname]) hidden[hostname] = [];
+			if (!hidden[hostname].includes(selector)) {
+				hidden[hostname].push(selector);
+				chrome.storage.sync.set({ hiddenElements: hidden });
+			}
+		});
+
+		/* Show confirmation */
+		showHideConfirmation(element);
+	}
+
+	function generateUniqueSelector(el) {
+		if (el.id) return `#${el.id}`;
+
+		const path = [];
+		while (el && el.nodeType === Node.ELEMENT_NODE) {
+			let selector = el.nodeName.toLowerCase();
+			if (el.id) {
+				selector = `#${el.id}`;
+				path.unshift(selector);
+				break;
+			} else {
+				let sibling = el;
+				let nth = 1;
+				while (sibling = sibling.previousElementSibling) {
+					if (sibling.nodeName.toLowerCase() === selector) nth++;
+				}
+				if (nth > 1) selector += `:nth-of-type(${nth})`;
+			}
+			path.unshift(selector);
+			el = el.parentNode;
+		}
+		return path.join(' > ');
+	}
+
+	function showHideConfirmation(el) {
+		const rect = el.getBoundingClientRect();
+		const toast = document.createElement('div');
+		toast.textContent = 'Element hidden by Minimal';
+		toast.style.cssText = `
+			position: fixed;
+			top: ${Math.max(10, rect.top)}px;
+			left: ${Math.max(10, rect.left)}px;
+			background: rgba(0,0,0,0.8);
+			color: #4CAF50;
+			padding: 8px 16px;
+			border-radius: 4px;
+			font-family: sans-serif;
+			font-size: 13px;
+			z-index: 2147483647;
+			animation: minimalFadeOut 2s forwards;
+		`;
+
+		const style = document.createElement('style');
+		style.textContent = `
+			@keyframes minimalFadeOut {
+				0%, 70% { opacity: 1; }
+				100% { opacity: 0; }
+			}
+		`;
+		document.head.appendChild(style);
+		document.body.appendChild(toast);
+
+		setTimeout(() => {
+			toast.remove();
+			style.remove();
+		}, 2000);
+	}
+}
+
+/* Function to show whitelist notification (injected into page) */
+function showWhitelistNotification(hostname) {
+	const toast = document.createElement('div');
+	toast.innerHTML = `
+		<div style="display:flex;align-items:center;gap:10px;">
+			<span style="font-size:18px;">✓</span>
+			<span>${hostname} whitelisted</span>
+		</div>
+		<div style="font-size:11px;color:#aaa;margin-top:4px;">
+			Minimal is now disabled for this site
+		</div>
+	`;
+	toast.style.cssText = `
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		background: rgba(0,0,0,0.9);
+		color: #fff;
+		padding: 16px 20px;
+		border-radius: 8px;
+		font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+		font-size: 14px;
+		z-index: 2147483647;
+		box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+		animation: minimalSlideIn 0.3s ease;
+	`;
+
+	const style = document.createElement('style');
+	style.textContent = `
+		@keyframes minimalSlideIn {
+			from { transform: translateX(100px); opacity: 0; }
+			to { transform: translateX(0); opacity: 1; }
+		}
+	`;
+	document.head.appendChild(style);
+	document.body.appendChild(toast);
+
+	setTimeout(() => {
+		toast.style.animation = 'minimalSlideIn 0.3s ease reverse';
+		setTimeout(() => {
+			toast.remove();
+			style.remove();
+		}, 300);
+	}, 3000);
+}

@@ -286,4 +286,34 @@
 	window.addEventListener('unload', () => {
 		observer.disconnect();
 	});
+
+	/* Track right-clicked element for context menu "Hide this element" feature */
+	document.addEventListener('contextmenu', (e) => {
+		window.minimalLastRightClickedElement = e.target;
+	}, true);
+
+	/* Apply previously hidden elements from storage */
+	function applyHiddenElements() {
+		const hostname = window.location.hostname;
+		chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
+			const hidden = data.hiddenElements[hostname] || [];
+			for (const selector of hidden) {
+				try {
+					const elements = document.querySelectorAll(selector);
+					elements.forEach(el => {
+						el.style.setProperty('display', 'none', 'important');
+					});
+				} catch (e) {
+					/* Invalid selector, ignore */
+				}
+			}
+		});
+	}
+
+	/* Apply hidden elements after DOM is ready */
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', applyHiddenElements);
+	} else {
+		applyHiddenElements();
+	}
 })();
