@@ -124,6 +124,38 @@ main {
 .status.disabled { color: var(--danger-color); }
 .status.unsupported { color: #ff9800; }
 
+/* Element Picker Button */
+.btn-picker {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	margin-top: 12px;
+	padding: 12px;
+	background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+	border: 1px solid var(--accent-color);
+	border-radius: 8px;
+	color: var(--accent-color);
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.btn-picker:hover {
+	background: linear-gradient(135deg, #333 0%, #252525 100%);
+	box-shadow: 0 0 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-picker:active {
+	transform: scale(0.98);
+}
+
+.picker-icon {
+	font-size: 16px;
+}
+
 /* Hidden Elements Section */
 .hidden-section {
 	margin-top: 16px;

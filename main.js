@@ -142,6 +142,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 				} else {
 					sendResponse({ enabled: false, siteName: null });
 				}
+			} else if (message.type === "startElementPicker") {
+				await chrome.scripting.executeScript({
+					target: { tabId: message.tabId },
+					func: startElementPicker
+				});
+				sendResponse({ success: true });
 			}
 		} catch (error) {
 			console.error('[minimal] Message error:', error);
@@ -342,7 +348,7 @@ async function showToast(tabId, message) {
 	} catch (e) { /* Ignore */ }
 }
 
-/* Injected function to hide clicked element */
+/* Injected function to hide clicked element (from context menu) */
 function hideClickedElement() {
 	const element = window.minimalLastRightClickedElement;
 	if (!element) return;
@@ -394,4 +400,198 @@ function hideClickedElement() {
 	document.head.appendChild(style);
 	document.body.appendChild(toast);
 	setTimeout(() => { toast.remove(); style.remove(); }, 2000);
+}
+
+/* Injected function to start element picker mode (uBlock style) */
+function startElementPicker() {
+	/* Prevent multiple pickers */
+	if (window.minimalPickerActive) return;
+	window.minimalPickerActive = true;
+
+	let hoveredElement = null;
+	let overlay = null;
+	let infoBox = null;
+
+	/* Create overlay for highlighting */
+	function createOverlay() {
+		overlay = document.createElement('div');
+		overlay.id = 'minimal-picker-overlay';
+		overlay.style.cssText = `
+			position: fixed;
+			pointer-events: none;
+			z-index: 2147483646;
+			border: 2px solid #4CAF50;
+			background: rgba(76, 175, 80, 0.15);
+			box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.3);
+			transition: all 0.05s ease-out;
+		`;
+		document.body.appendChild(overlay);
+	}
+
+	/* Create info box showing element tag/selector */
+	function createInfoBox() {
+		infoBox = document.createElement('div');
+		infoBox.id = 'minimal-picker-info';
+		infoBox.style.cssText = `
+			position: fixed;
+			bottom: 20px;
+			left: 50%;
+			transform: translateX(-50%);
+			z-index: 2147483647;
+			background: rgba(0, 0, 0, 0.95);
+			color: #fff;
+			padding: 12px 20px;
+			border-radius: 8px;
+			font: 13px -apple-system, BlinkMacSystemFont, sans-serif;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+			max-width: 500px;
+		`;
+		infoBox.innerHTML = `
+			<div style="display: flex; align-items: center; gap: 10px;">
+				<span style="color: #4CAF50; font-weight: 600;">◎ Element Picker</span>
+				<span style="color: #888;">Click to hide • ESC to cancel • Scroll to select parent</span>
+			</div>
+			<div id="minimal-picker-selector" style="color: #4CAF50; font-family: monospace; font-size: 12px; word-break: break-all;"></div>
+		`;
+		document.body.appendChild(infoBox);
+	}
+
+	/* Generate CSS selector for element */
+	function generateSelector(el) {
+		if (el.id) return `#${el.id}`;
+		const path = [];
+		while (el && el.nodeType === Node.ELEMENT_NODE) {
+			let selector = el.nodeName.toLowerCase();
+			if (el.id) {
+				path.unshift(`#${el.id}`);
+				break;
+			}
+			let sibling = el, nth = 1;
+			while (sibling = sibling.previousElementSibling) {
+				if (sibling.nodeName.toLowerCase() === selector) nth++;
+			}
+			if (nth > 1) selector += `:nth-of-type(${nth})`;
+			path.unshift(selector);
+			el = el.parentNode;
+		}
+		return path.join(' > ');
+	}
+
+	/* Update overlay position */
+	function updateOverlay(el) {
+		if (!el || !overlay) return;
+		const rect = el.getBoundingClientRect();
+		overlay.style.top = rect.top + 'px';
+		overlay.style.left = rect.left + 'px';
+		overlay.style.width = rect.width + 'px';
+		overlay.style.height = rect.height + 'px';
+
+		/* Update selector display */
+		const selectorDisplay = document.getElementById('minimal-picker-selector');
+		if (selectorDisplay) {
+			const selector = generateSelector(el);
+			const tag = el.tagName.toLowerCase();
+			const classes = el.className ? '.' + el.className.split(' ').filter(c => c).join('.') : '';
+			selectorDisplay.textContent = `<${tag}${el.id ? '#' + el.id : ''}${classes.substring(0, 50)}> → ${selector.substring(0, 80)}${selector.length > 80 ? '...' : ''}`;
+		}
+	}
+
+	/* Mouse move handler */
+	function onMouseMove(e) {
+		const el = document.elementFromPoint(e.clientX, e.clientY);
+		if (el && el !== overlay && el !== infoBox && !infoBox?.contains(el)) {
+			hoveredElement = el;
+			updateOverlay(el);
+		}
+	}
+
+	/* Scroll handler to select parent element */
+	function onScroll(e) {
+		if (!hoveredElement) return;
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (e.deltaY > 0 && hoveredElement.parentElement && hoveredElement.parentElement !== document.body) {
+			/* Scroll down = select parent */
+			hoveredElement = hoveredElement.parentElement;
+		} else if (e.deltaY < 0) {
+			/* Scroll up = try to select child (first child) */
+			const firstChild = hoveredElement.firstElementChild;
+			if (firstChild) hoveredElement = firstChild;
+		}
+		updateOverlay(hoveredElement);
+	}
+
+	/* Click handler to hide element */
+	function onClick(e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (!hoveredElement) {
+			cleanup();
+			return;
+		}
+
+		/* Hide the element */
+		const selector = generateSelector(hoveredElement);
+		hoveredElement.style.setProperty('display', 'none', 'important');
+
+		/* Save to storage */
+		const hostname = window.location.hostname;
+		chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
+			const hidden = data.hiddenElements;
+			if (!hidden[hostname]) hidden[hostname] = [];
+			if (!hidden[hostname].includes(selector)) {
+				hidden[hostname].push(selector);
+				chrome.storage.sync.set({ hiddenElements: hidden });
+			}
+		});
+
+		/* Show toast */
+		const toast = document.createElement('div');
+		toast.textContent = 'Element hidden';
+		toast.style.cssText = `
+			position: fixed; top: 20px; right: 20px; z-index: 2147483647;
+			background: rgba(0,0,0,0.9); color: #4CAF50; padding: 12px 20px;
+			border-radius: 6px; font: 14px sans-serif;
+			animation: minimalFade 2s forwards;
+		`;
+		const style = document.createElement('style');
+		style.textContent = '@keyframes minimalFade { 0%,70% { opacity:1 } 100% { opacity:0 } }';
+		document.head.appendChild(style);
+		document.body.appendChild(toast);
+		setTimeout(() => { toast.remove(); style.remove(); }, 2000);
+
+		cleanup();
+	}
+
+	/* Escape key handler */
+	function onKeyDown(e) {
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			cleanup();
+		}
+	}
+
+	/* Cleanup and exit picker mode */
+	function cleanup() {
+		window.minimalPickerActive = false;
+		document.removeEventListener('mousemove', onMouseMove, true);
+		document.removeEventListener('click', onClick, true);
+		document.removeEventListener('keydown', onKeyDown, true);
+		document.removeEventListener('wheel', onScroll, { passive: false, capture: true });
+		if (overlay) overlay.remove();
+		if (infoBox) infoBox.remove();
+	}
+
+	/* Initialize */
+	createOverlay();
+	createInfoBox();
+	document.addEventListener('mousemove', onMouseMove, true);
+	document.addEventListener('click', onClick, true);
+	document.addEventListener('keydown', onKeyDown, true);
+	document.addEventListener('wheel', onScroll, { passive: false, capture: true });
 }

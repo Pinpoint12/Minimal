@@ -8,6 +8,7 @@ const hiddenContent = document.getElementById("hidden-content");
 const hiddenList = document.getElementById("hidden-list");
 const hiddenCount = document.getElementById("hidden-count");
 const clearAllBtn = document.getElementById("clear-all-hidden");
+const pickElementBtn = document.getElementById("pick-element");
 
 let currentTabId = null;
 let currentSiteName = null;
@@ -145,6 +146,21 @@ hiddenHeader.addEventListener('click', () => {
 
 /* Clear all button */
 clearAllBtn.addEventListener('click', clearAllHiddenElements);
+
+/* Pick element button */
+pickElementBtn.addEventListener('click', async () => {
+	if (!currentTabId) return;
+
+	try {
+		await chrome.runtime.sendMessage({
+			type: "startElementPicker",
+			tabId: currentTabId
+		});
+		window.close();
+	} catch (error) {
+		console.error('[minimal] Error starting element picker:', error);
+	}
+});
 
 /* Initialize popup */
 async function init() {
