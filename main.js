@@ -169,9 +169,9 @@ chrome.runtime.onInstalled.addListener(() => {
 		});
 
 		chrome.contextMenus.create({
-			id: 'minimal-toggle',
+			id: 'minimal-clear-hidden',
 			parentId: 'minimal-parent',
-			title: 'Toggle Minimal for this site',
+			title: 'Clear hidden elements for this site',
 			contexts: ['all']
 		});
 
@@ -183,9 +183,44 @@ chrome.runtime.onInstalled.addListener(() => {
 		});
 
 		chrome.contextMenus.create({
-			id: 'minimal-whitelist',
+			id: 'minimal-toggle',
+			parentId: 'minimal-parent',
+			title: 'Toggle Minimal for this site',
+			contexts: ['all']
+		});
+
+		chrome.contextMenus.create({
+			id: 'minimal-enable-site',
+			parentId: 'minimal-parent',
+			title: 'Enable for this site',
+			contexts: ['all']
+		});
+
+		chrome.contextMenus.create({
+			id: 'minimal-disable-site',
 			parentId: 'minimal-parent',
 			title: 'Disable for this site',
+			contexts: ['all']
+		});
+
+		chrome.contextMenus.create({
+			id: 'minimal-separator-2',
+			parentId: 'minimal-parent',
+			type: 'separator',
+			contexts: ['all']
+		});
+
+		chrome.contextMenus.create({
+			id: 'minimal-enable-all',
+			parentId: 'minimal-parent',
+			title: 'Enable for all sites',
+			contexts: ['all']
+		});
+
+		chrome.contextMenus.create({
+			id: 'minimal-disable-all',
+			parentId: 'minimal-parent',
+			title: 'Disable for all sites',
 			contexts: ['all']
 		});
 	});
@@ -195,6 +230,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 	if (!tab?.id || !tab?.url) return;
 
 	const siteInfo = getSiteInfo(tab.url);
+	let hostname;
+	try {
+		hostname = new URL(tab.url).hostname;
+	} catch (e) {
+		hostname = null;
+	}
 
 	try {
 		switch (info.menuItemId) {
@@ -203,6 +244,19 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 					target: { tabId: tab.id },
 					func: hideClickedElement
 				});
+				break;
+
+			case 'minimal-clear-hidden':
+				if (hostname) {
+					const data = await chrome.storage.sync.get({ hiddenElements: {} });
+					const hidden = data.hiddenElements;
+					if (hidden[hostname]) {
+						delete hidden[hostname];
+						await chrome.storage.sync.set({ hiddenElements: hidden });
+						await chrome.tabs.reload(tab.id);
+						await showToast(tab.id, 'Hidden elements cleared');
+					}
+				}
 				break;
 
 			case 'minimal-toggle':
@@ -220,17 +274,73 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 				}
 				break;
 
-			case 'minimal-whitelist':
+			case 'minimal-enable-site':
+				if (siteInfo) {
+					await chrome.storage.sync.set({ [siteInfo.name]: "enabled" });
+					await enableForTab(tab.id);
+				}
+				break;
+
+			case 'minimal-disable-site':
 				if (siteInfo) {
 					await chrome.storage.sync.set({ [siteInfo.name]: "disabled" });
 					await disableForTab(tab.id);
 				}
+				break;
+
+			case 'minimal-enable-all':
+				const enableAll = {};
+				for (const resource of resources) {
+					enableAll[resource.name] = "enabled";
+				}
+				await chrome.storage.sync.set(enableAll);
+				if (siteInfo) {
+					await enableForTab(tab.id);
+				}
+				await showToast(tab.id, 'Minimal enabled for all sites');
+				break;
+
+			case 'minimal-disable-all':
+				const disableAll = {};
+				for (const resource of resources) {
+					disableAll[resource.name] = "disabled";
+				}
+				await chrome.storage.sync.set(disableAll);
+				if (siteInfo) {
+					await disableForTab(tab.id);
+				}
+				await showToast(tab.id, 'Minimal disabled for all sites');
 				break;
 		}
 	} catch (error) {
 		console.error('[minimal] Context menu error:', error);
 	}
 });
+
+/* Show toast notification in tab */
+async function showToast(tabId, message) {
+	try {
+		await chrome.scripting.executeScript({
+			target: { tabId },
+			func: (msg) => {
+				const toast = document.createElement('div');
+				toast.textContent = msg;
+				toast.style.cssText = `
+					position: fixed; top: 20px; right: 20px; z-index: 2147483647;
+					background: rgba(0,0,0,0.9); color: #4CAF50; padding: 12px 20px;
+					border-radius: 6px; font: 14px sans-serif;
+					animation: minimalFade 2s forwards;
+				`;
+				const style = document.createElement('style');
+				style.textContent = '@keyframes minimalFade { 0%,70% { opacity:1 } 100% { opacity:0 } }';
+				document.head.appendChild(style);
+				document.body.appendChild(toast);
+				setTimeout(() => { toast.remove(); style.remove(); }, 2000);
+			},
+			args: [message]
+		});
+	} catch (e) { /* Ignore */ }
+}
 
 /* Injected function to hide clicked element */
 function hideClickedElement() {

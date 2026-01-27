@@ -1,8 +1,10 @@
 :root {
 	--bg-color: #1a1a1a;
+	--bg-secondary: #252525;
 	--text-color: #ffffff;
 	--text-muted: #888888;
 	--accent-color: #4CAF50;
+	--danger-color: #f44336;
 	--border-color: #333333;
 }
 
@@ -13,7 +15,7 @@
 }
 
 html, body {
-	width: 280px;
+	width: 300px;
 	background-color: var(--bg-color);
 	color: var(--text-color);
 	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -34,8 +36,8 @@ header {
 }
 
 header img {
-	width: 32px;
-	height: 32px;
+	width: 28px;
+	height: 28px;
 }
 
 header h1 {
@@ -48,7 +50,7 @@ main {
 	padding: 8px 0;
 }
 
-/* Toggle Switch Styling */
+/* Toggle Switch */
 .toggle-container {
 	display: flex;
 	align-items: center;
@@ -69,12 +71,10 @@ main {
 	font-size: 14px;
 }
 
-/* Hide default checkbox */
 .toggle-label input[type="checkbox"] {
 	display: none;
 }
 
-/* Custom toggle switch */
 .toggle-switch {
 	position: relative;
 	width: 44px;
@@ -110,7 +110,7 @@ main {
 	cursor: not-allowed;
 }
 
-/* Status indicator */
+/* Status */
 .status {
 	font-size: 12px;
 	color: var(--text-muted);
@@ -120,18 +120,151 @@ main {
 	border-radius: 6px;
 }
 
-.status.active {
+.status.active { color: var(--accent-color); }
+.status.disabled { color: var(--danger-color); }
+.status.unsupported { color: #ff9800; }
+
+/* Hidden Elements Section */
+.hidden-section {
+	margin-top: 16px;
+	border-top: 1px solid var(--border-color);
+	padding-top: 12px;
+}
+
+.section-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	padding: 8px 0;
+	user-select: none;
+}
+
+.section-header:hover {
 	color: var(--accent-color);
 }
 
-.status.disabled {
-	color: #f44336;
+.section-header .badge {
+	background: var(--bg-secondary);
+	color: var(--text-muted);
+	font-size: 11px;
+	padding: 2px 8px;
+	border-radius: 10px;
+	margin-left: auto;
 }
 
-.status.unsupported {
-	color: #ff9800;
+.section-header .chevron {
+	font-size: 10px;
+	color: var(--text-muted);
+	transition: transform 0.2s;
 }
 
+.section-header.expanded .chevron {
+	transform: rotate(180deg);
+}
+
+.section-content {
+	display: none;
+	padding: 8px 0;
+}
+
+.section-content.visible {
+	display: block;
+}
+
+/* Hidden List */
+.hidden-list {
+	max-height: 200px;
+	overflow-y: auto;
+	margin-bottom: 12px;
+}
+
+.hidden-list::-webkit-scrollbar {
+	width: 6px;
+}
+
+.hidden-list::-webkit-scrollbar-track {
+	background: var(--bg-secondary);
+	border-radius: 3px;
+}
+
+.hidden-list::-webkit-scrollbar-thumb {
+	background: #444;
+	border-radius: 3px;
+}
+
+.hidden-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 10px;
+	background: var(--bg-secondary);
+	border-radius: 6px;
+	margin-bottom: 6px;
+	font-size: 12px;
+}
+
+.hidden-item:last-child {
+	margin-bottom: 0;
+}
+
+.hidden-item-selector {
+	flex: 1;
+	color: var(--text-muted);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-family: monospace;
+	font-size: 11px;
+	margin-right: 8px;
+}
+
+.hidden-item-remove {
+	background: none;
+	border: none;
+	color: var(--danger-color);
+	cursor: pointer;
+	font-size: 16px;
+	padding: 0 4px;
+	opacity: 0.7;
+	transition: opacity 0.2s;
+}
+
+.hidden-item-remove:hover {
+	opacity: 1;
+}
+
+.empty-state {
+	color: var(--text-muted);
+	font-size: 12px;
+	text-align: center;
+	padding: 16px;
+}
+
+/* Buttons */
+.btn-secondary {
+	width: 100%;
+	padding: 10px;
+	background: var(--bg-secondary);
+	border: 1px solid var(--border-color);
+	border-radius: 6px;
+	color: var(--text-color);
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-secondary:hover {
+	background: #333;
+	border-color: #444;
+}
+
+.btn-secondary:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Footer */
 footer {
 	margin-top: 16px;
 	padding-top: 12px;
@@ -139,18 +272,7 @@ footer {
 	text-align: center;
 }
 
-footer a {
+.version {
 	color: var(--text-muted);
-	text-decoration: none;
-	font-size: 12px;
-	transition: color 0.2s;
-}
-
-footer a:hover {
-	color: var(--text-color);
-}
-
-footer span {
-	color: var(--text-muted);
-	margin: 0 8px;
+	font-size: 11px;
 }

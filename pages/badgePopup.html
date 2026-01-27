@@ -10,6 +10,7 @@
 			<img src="../icons/icon.png" alt="Minimal"/>
 			<h1>Minimal</h1>
 		</header>
+
 		<main>
 			<div class="toggle-container">
 				<label class="toggle-label" for="enable">
@@ -20,9 +21,23 @@
 			</div>
 			<div id="status" class="status"></div>
 		</main>
+
+		<section id="hidden-section" class="hidden-section">
+			<div class="section-header" id="hidden-header">
+				<span>Hidden Elements</span>
+				<span class="badge" id="hidden-count">0</span>
+				<span class="chevron">▼</span>
+			</div>
+			<div class="section-content" id="hidden-content">
+				<div id="hidden-list" class="hidden-list"></div>
+				<button id="clear-all-hidden" class="btn-secondary">Clear All</button>
+			</div>
+		</section>
+
 		<footer>
-			<a href="https://minimal.aupya.org" target="_blank">minimal.aupya.org</a>
+			<span class="version">v1.5.0</span>
 		</footer>
+
 		<script src="./badgePopup.js"></script>
 	</body>
 </html>
