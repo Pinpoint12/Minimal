@@ -1,319 +1,299 @@
-/* Blocked Content Tracker - Counts hidden elements and reports to service worker */
+/* Blocked Content Tracker & State Manager */
 
 (function() {
 	'use strict';
 
-	/* Prevent multiple initializations */
 	if (window.minimalBlockerTracker) return;
 	window.minimalBlockerTracker = true;
 
-	let blockedCount = 0;
-	let lastReportedCount = 0;
-	let notificationWidget = null;
-	let hideTimeout = null;
-
-	/* Selectors for elements we hide (site-agnostic common patterns) */
-	const blockedSelectors = {
-		youtube: [
-			'#related',
-			'#ticket-shelf',
-			'#merch-shelf',
-			'.ytd-horizontal-card-list-renderer',
-			'ytd-reel-shelf-renderer',
-			'#notification-count',
-			'ytd-notification-topbar-button-renderer',
-			'.videowall-endscreen',
-			'.ytp-ce-element'
-		],
-		reddit: [
-			'#left-sidebar-container',
-			'chat-channel-recommendations-wrapper',
-			'[data-faceplate-tracking-context*="nsfw"]',
-			'span[data-part="advertise"]'
-		],
-		twitter: [
-			'[data-testid="AppTabBar_Home_Link"] div div div'
-		],
-		facebook: [
-			'#stories_pagelet_rhc',
-			'#createNav',
-			'div[aria-label="Messenger"][role="dialog"]'
-		],
-		amazon: [
-			'#nav-swmslot',
-			'#desktop-banner',
-			'div[data-feature-name="similarities"]',
-			'#sims-consolidated-1_feature_div',
-			'#sims-consolidated-2_feature_div',
-			'#rhf'
-		],
-		netflix: [
-			'.billboard-row',
-			'.lolomoBigRow'
-		],
-		google: [],
-		yahoo: []
+	/* Site detection */
+	const sitePatterns = {
+		youtube: /youtube\.com/,
+		facebook: /facebook\.com/,
+		twitter: /(twitter\.com|x\.com)/,
+		google: /google\./,
+		amazon: /amazon\./,
+		yahoo: /yahoo\.com/,
+		netflix: /netflix\.com/,
+		reddit: /reddit\.com/
 	};
 
-	/* Detect current site */
 	function getCurrentSite() {
-		const hostname = window.location.hostname;
-		if (hostname.includes('youtube')) return 'youtube';
-		if (hostname.includes('reddit')) return 'reddit';
-		if (hostname.includes('twitter') || hostname.includes('x.com')) return 'twitter';
-		if (hostname.includes('facebook')) return 'facebook';
-		if (hostname.includes('amazon')) return 'amazon';
-		if (hostname.includes('netflix')) return 'netflix';
-		if (hostname.includes('google')) return 'google';
-		if (hostname.includes('yahoo')) return 'yahoo';
+		const url = window.location.href;
+		for (const [name, pattern] of Object.entries(sitePatterns)) {
+			if (pattern.test(url)) return name;
+		}
 		return null;
 	}
 
-	/* Count blocked elements */
-	function countBlockedElements() {
-		const site = getCurrentSite();
-		if (!site || !blockedSelectors[site]) return 0;
+	const currentSite = getCurrentSite();
+	if (!currentSite) return;
 
-		let count = 0;
-		for (const selector of blockedSelectors[site]) {
-			try {
-				const elements = document.querySelectorAll(selector);
-				for (const el of elements) {
-					const style = window.getComputedStyle(el);
-					if (style.display === 'none' || style.visibility === 'hidden') {
-						count++;
-					}
-				}
-			} catch (e) {
-				/* Ignore invalid selectors */
-			}
+	/* Check if Minimal is enabled for this site */
+	chrome.storage.sync.get({ [currentSite]: "enabled" }, (data) => {
+		const isEnabled = data[currentSite] === "enabled";
+
+		if (!isEnabled) {
+			/* Inject reset CSS to undo all Minimal styling */
+			injectResetCSS();
+			return;
 		}
-		return count;
-	}
 
-	/* Create notification widget */
-	function createNotificationWidget() {
-		if (notificationWidget) return notificationWidget;
+		/* Minimal is enabled - run normal tracking */
+		initBlockerTracker();
+	});
 
-		notificationWidget = document.createElement('div');
-		notificationWidget.id = 'minimal-notification-widget';
-		notificationWidget.innerHTML = `
-			<style>
-				#minimal-notification-widget {
-					position: fixed;
-					bottom: 20px;
-					left: 20px;
-					background: rgba(0, 0, 0, 0.85);
-					color: #fff;
-					padding: 12px 16px;
-					border-radius: 8px;
-					font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-					font-size: 13px;
-					z-index: 2147483646;
-					display: none;
-					align-items: center;
-					gap: 10px;
-					box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-					transition: opacity 0.3s ease, transform 0.3s ease;
-					opacity: 0;
-					transform: translateY(10px);
-				}
-				#minimal-notification-widget.visible {
-					display: flex;
-					opacity: 1;
-					transform: translateY(0);
-				}
-				#minimal-notification-widget .icon {
-					width: 20px;
-					height: 20px;
-					background: #4CAF50;
-					border-radius: 50%;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					font-size: 12px;
-				}
-				#minimal-notification-widget .count {
-					font-weight: 600;
-					color: #4CAF50;
-				}
-				#minimal-notification-widget .action {
-					margin-left: 8px;
-					padding: 4px 10px;
-					background: rgba(255,255,255,0.15);
-					border: none;
-					border-radius: 4px;
-					color: #fff;
-					cursor: pointer;
-					font-size: 12px;
-				}
-				#minimal-notification-widget .action:hover {
-					background: rgba(255,255,255,0.25);
-				}
-				#minimal-notification-widget .close {
-					margin-left: 4px;
-					padding: 2px 6px;
-					background: transparent;
-					border: none;
-					color: #888;
-					cursor: pointer;
-					font-size: 16px;
-				}
-				#minimal-notification-widget .close:hover {
-					color: #fff;
-				}
-			</style>
-			<span class="icon">✓</span>
-			<span>Minimal blocked <span class="count">0</span> distractions</span>
-			<button class="action" id="minimal-show-blocked">Show</button>
-			<button class="close" id="minimal-close-notification">×</button>
+	/* Reset CSS that undoes all Minimal styling when disabled */
+	function injectResetCSS() {
+		const resetStyle = document.createElement('style');
+		resetStyle.id = 'minimal-reset-css';
+		resetStyle.textContent = `
+			/* Reset all Minimal CSS when disabled */
+
+			/* YouTube resets */
+			#related, #ticket-shelf, #merch-shelf,
+			.ytd-horizontal-card-list-renderer,
+			ytd-reel-shelf-renderer,
+			#notification-count, ytd-notification-topbar-button-renderer,
+			.videowall-endscreen,
+			#guide-button, #voice-search-button, ytd-mini-guide-renderer, tp-yt-app-drawer,
+			yt-tab-shape[tab-title="Shorts"] {
+				display: revert !important;
+			}
+
+			#columns, #primary, #secondary {
+				width: revert !important;
+				max-width: revert !important;
+				min-width: revert !important;
+			}
+
+			/* Reddit resets */
+			#left-sidebar-container {
+				width: revert !important;
+				min-width: revert !important;
+				display: revert !important;
+			}
+
+			/* Twitter resets */
+			div.css-901oao.r-1awozwy>svg {
+				filter: none !important;
+				opacity: 1 !important;
+			}
+
+			a[data-testid="AppTabBar_Home_Link"] div div div {
+				display: revert !important;
+			}
+
+			/* Facebook resets */
+			#stories_pagelet_rhc,
+			#createNav,
+			div[aria-label="Messenger"][role="dialog"],
+			a[data-testid="left_nav_item_Watch"],
+			a[data-testid="left_nav_item_Marketplace"],
+			a[data-testid="left_nav_item_Messenger"] {
+				display: revert !important;
+			}
+
+			/* Amazon resets */
+			#nav-swmslot, #desktop-banner,
+			div[data-feature-name="similarities"],
+			#sims-consolidated-1_feature_div,
+			#sims-consolidated-2_feature_div,
+			#rhf {
+				display: revert !important;
+			}
+
+			#navbar *, #nav-belt, #nav-main, #nav-subnav {
+				background-color: revert !important;
+				color: revert !important;
+			}
+
+			/* Netflix resets */
+			.billboard-row, .lolomoBigRow {
+				display: revert !important;
+			}
+
+			/* Google resets */
+			#hplogo, #logo, #navcnt, .cOl4Id {
+				filter: none !important;
+				opacity: 1 !important;
+			}
+
+			/* Yahoo resets */
+			#feat-bar, #Stream>*, .stream-items>*,
+			.tdv2-wafer-ntk-desktop>*, .aside-sticky-col>*,
+			.ntk-filmstrip>ul>*, .ntk-lead {
+				opacity: 1 !important;
+				filter: none !important;
+			}
+
+			/* Hide any Minimal UI elements */
+			#minimal-notification-widget,
+			#minimal-preload-style {
+				display: none !important;
+			}
 		`;
 
-		document.body.appendChild(notificationWidget);
-
-		/* Show blocked content temporarily */
-		document.getElementById('minimal-show-blocked').addEventListener('click', () => {
-			toggleBlockedContent(true);
-			setTimeout(() => toggleBlockedContent(false), 10000); /* Hide again after 10s */
-		});
-
-		/* Close notification */
-		document.getElementById('minimal-close-notification').addEventListener('click', () => {
-			hideNotification();
-		});
-
-		return notificationWidget;
+		/* Insert at highest priority */
+		if (document.head) {
+			document.head.appendChild(resetStyle);
+		} else {
+			document.addEventListener('DOMContentLoaded', () => {
+				document.head.appendChild(resetStyle);
+			});
+		}
 	}
 
-	/* Toggle visibility of blocked content */
-	function toggleBlockedContent(show) {
-		const site = getCurrentSite();
-		if (!site || !blockedSelectors[site]) return;
+	/* Main blocker tracker functionality */
+	function initBlockerTracker() {
+		let blockedCount = 0;
+		let lastReportedCount = 0;
+		let notificationWidget = null;
+		let hideTimeout = null;
 
-		for (const selector of blockedSelectors[site]) {
-			try {
-				const elements = document.querySelectorAll(selector);
-				for (const el of elements) {
-					if (show) {
-						el.style.setProperty('display', 'block', 'important');
-						el.style.setProperty('visibility', 'visible', 'important');
-					} else {
-						el.style.removeProperty('display');
-						el.style.removeProperty('visibility');
+		const blockedSelectors = {
+			youtube: ['#related', '#ticket-shelf', '#merch-shelf', 'ytd-reel-shelf-renderer', '#notification-count', '.videowall-endscreen'],
+			reddit: ['#left-sidebar-container', 'chat-channel-recommendations-wrapper', 'span[data-part="advertise"]'],
+			twitter: ['[data-testid="AppTabBar_Home_Link"] div div div'],
+			facebook: ['#stories_pagelet_rhc', '#createNav', 'div[aria-label="Messenger"][role="dialog"]'],
+			amazon: ['#nav-swmslot', '#desktop-banner', 'div[data-feature-name="similarities"]', '#rhf'],
+			netflix: ['.billboard-row', '.lolomoBigRow'],
+			google: [],
+			yahoo: []
+		};
+
+		function countBlockedElements() {
+			if (!blockedSelectors[currentSite]) return 0;
+			let count = 0;
+			for (const selector of blockedSelectors[currentSite]) {
+				try {
+					const elements = document.querySelectorAll(selector);
+					for (const el of elements) {
+						const style = window.getComputedStyle(el);
+						if (style.display === 'none' || style.visibility === 'hidden') {
+							count++;
+						}
 					}
-				}
-			} catch (e) {
-				/* Ignore */
+				} catch (e) { /* Ignore */ }
+			}
+			return count;
+		}
+
+		function createNotificationWidget() {
+			if (notificationWidget) return notificationWidget;
+
+			notificationWidget = document.createElement('div');
+			notificationWidget.id = 'minimal-notification-widget';
+			notificationWidget.innerHTML = `
+				<style>
+					#minimal-notification-widget {
+						position: fixed;
+						bottom: 20px;
+						left: 20px;
+						background: rgba(0, 0, 0, 0.9);
+						color: #fff;
+						padding: 12px 16px;
+						border-radius: 8px;
+						font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+						font-size: 13px;
+						z-index: 2147483646;
+						display: none;
+						align-items: center;
+						gap: 10px;
+						box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+						transition: opacity 0.3s, transform 0.3s;
+						opacity: 0;
+						transform: translateY(10px);
+					}
+					#minimal-notification-widget.visible {
+						display: flex;
+						opacity: 1;
+						transform: translateY(0);
+					}
+					#minimal-notification-widget .icon { color: #4CAF50; font-size: 16px; }
+					#minimal-notification-widget .count { font-weight: 600; color: #4CAF50; }
+					#minimal-notification-widget .close {
+						margin-left: 8px;
+						background: none;
+						border: none;
+						color: #666;
+						cursor: pointer;
+						font-size: 18px;
+						padding: 0 4px;
+					}
+					#minimal-notification-widget .close:hover { color: #fff; }
+				</style>
+				<span class="icon">✓</span>
+				<span>Minimal blocked <span class="count">0</span> distractions</span>
+				<button class="close" id="minimal-close-notification">×</button>
+			`;
+
+			document.body.appendChild(notificationWidget);
+
+			document.getElementById('minimal-close-notification').addEventListener('click', hideNotification);
+
+			return notificationWidget;
+		}
+
+		function showNotification(count) {
+			if (count === 0) return;
+			const widget = createNotificationWidget();
+			widget.querySelector('.count').textContent = count;
+			requestAnimationFrame(() => widget.classList.add('visible'));
+			if (hideTimeout) clearTimeout(hideTimeout);
+			hideTimeout = setTimeout(hideNotification, 4000);
+		}
+
+		function hideNotification() {
+			if (notificationWidget) notificationWidget.classList.remove('visible');
+		}
+
+		function reportBlockedCount(count) {
+			if (count === lastReportedCount) return;
+			lastReportedCount = count;
+			try {
+				chrome.runtime.sendMessage({ type: 'updateBlockedCount', count });
+			} catch (e) { /* Ignore */ }
+		}
+
+		function updateBlockedCount() {
+			blockedCount = countBlockedElements();
+			reportBlockedCount(blockedCount);
+			if (blockedCount > 0 && !sessionStorage.getItem('minimal-notified')) {
+				sessionStorage.setItem('minimal-notified', 'true');
+				setTimeout(() => showNotification(blockedCount), 1500);
 			}
 		}
-	}
 
-	/* Show notification */
-	function showNotification(count) {
-		if (count === 0) return;
+		const observer = new MutationObserver(updateBlockedCount);
 
-		const widget = createNotificationWidget();
-		widget.querySelector('.count').textContent = count;
+		function init() {
+			if (document.body) {
+				observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+				setTimeout(updateBlockedCount, 1000);
+			} else {
+				document.addEventListener('DOMContentLoaded', init);
+			}
+		}
 
-		/* Show with animation */
-		requestAnimationFrame(() => {
-			widget.classList.add('visible');
+		init();
+		window.addEventListener('unload', () => observer.disconnect());
+
+		/* Apply previously hidden elements */
+		chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
+			const hidden = data.hiddenElements[window.location.hostname] || [];
+			for (const selector of hidden) {
+				try {
+					document.querySelectorAll(selector).forEach(el => {
+						el.style.setProperty('display', 'none', 'important');
+					});
+				} catch (e) { /* Ignore */ }
+			}
 		});
-
-		/* Auto-hide after 5 seconds */
-		if (hideTimeout) clearTimeout(hideTimeout);
-		hideTimeout = setTimeout(hideNotification, 5000);
 	}
 
-	/* Hide notification */
-	function hideNotification() {
-		if (notificationWidget) {
-			notificationWidget.classList.remove('visible');
-		}
-	}
-
-	/* Report count to service worker for badge */
-	function reportBlockedCount(count) {
-		if (count === lastReportedCount) return;
-		lastReportedCount = count;
-
-		try {
-			chrome.runtime.sendMessage({
-				type: 'updateBlockedCount',
-				count: count
-			});
-		} catch (e) {
-			/* Extension context may be invalidated */
-		}
-	}
-
-	/* Main update function */
-	function updateBlockedCount() {
-		blockedCount = countBlockedElements();
-		reportBlockedCount(blockedCount);
-
-		/* Show notification on first significant count */
-		if (blockedCount > 0 && !sessionStorage.getItem('minimal-notified')) {
-			sessionStorage.setItem('minimal-notified', 'true');
-			setTimeout(() => showNotification(blockedCount), 1500);
-		}
-	}
-
-	/* Observe DOM changes to track new blocked elements */
-	const observer = new MutationObserver(() => {
-		updateBlockedCount();
-	});
-
-	/* Initialize when DOM is ready */
-	function init() {
-		if (document.body) {
-			observer.observe(document.body, {
-				childList: true,
-				subtree: true,
-				attributes: true,
-				attributeFilter: ['style', 'class']
-			});
-			/* Initial count after a short delay for CSS to apply */
-			setTimeout(updateBlockedCount, 1000);
-		} else {
-			document.addEventListener('DOMContentLoaded', init);
-		}
-	}
-
-	init();
-
-	/* Clean up on unload */
-	window.addEventListener('unload', () => {
-		observer.disconnect();
-	});
-
-	/* Track right-clicked element for context menu "Hide this element" feature */
+	/* Track right-clicked element for context menu */
 	document.addEventListener('contextmenu', (e) => {
 		window.minimalLastRightClickedElement = e.target;
 	}, true);
-
-	/* Apply previously hidden elements from storage */
-	function applyHiddenElements() {
-		const hostname = window.location.hostname;
-		chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
-			const hidden = data.hiddenElements[hostname] || [];
-			for (const selector of hidden) {
-				try {
-					const elements = document.querySelectorAll(selector);
-					elements.forEach(el => {
-						el.style.setProperty('display', 'none', 'important');
-					});
-				} catch (e) {
-					/* Invalid selector, ignore */
-				}
-			}
-		});
-	}
-
-	/* Apply hidden elements after DOM is ready */
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', applyHiddenElements);
-	} else {
-		applyHiddenElements();
-	}
 })();
