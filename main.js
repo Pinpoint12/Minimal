@@ -9,7 +9,7 @@ let resources = [
 	{"name": "reddit", "url": "https*:\/\/(www\.)?reddit\.(com)\/.*", "style": "reddit.css", "script": "reddit.js"},
 ]
 
-tabs = {}
+let tabs = {}
 
 if (typeof browser === 'undefined') {
 	browser = chrome
@@ -17,7 +17,7 @@ if (typeof browser === 'undefined') {
 
 function enable(tabName) {
 	for(const [tabId, tabInfo] of Object.entries(tabs)) {
-		if(tabInfo.tabName == tabName){
+		if(tabInfo.tabName === tabName){
 			if(!("enable" in tabInfo) || !tabInfo.enable){
 				tabInfo["enable"] = true
 				let executing = browser.tabs.executeScript(
@@ -42,7 +42,7 @@ function enable(tabName) {
 }
 function disable(tabName) {
 	for(const [tabId, tabInfo] of Object.entries(tabs)) {
-		if(tabInfo.tabName == tabName){
+		if(tabInfo.tabName === tabName){
 			console.log(tabInfo)
 			
 			tabInfo.enable = false

@@ -12,7 +12,36 @@
 #nsfw {
   display: none !important;
 }
+[data-faceplate-tracking-context*='"type":"nsfw"'] {
+  display: none !important;
+}
 
+/**
+  PAGE CONTENT BLOCKING FOR PORN/NSFW WORDS IN URL
+
+  JS should add the "block-all-content" class to <html> (document.documentElement)
+  when the URL matches the blocklist regex, and can optionally set
+  body[data-block-on-url] to hide children.
+*/
+
+:root.block-all-content {
+  /* Prevent scroll and layout jank behind the overlay */
+  overflow: hidden !important;
+}
+
+:root.block-all-content::before {
+  content: "";
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: #fff;
+}
+
+/* Optional extra belt-and-suspenders: hide body children if flagged */
+body[data-block-on-url] > * {
+  display: none !important;
+}
 /* Hide menu button */
 #hamburger-button-tooltip {
   display: none !important;

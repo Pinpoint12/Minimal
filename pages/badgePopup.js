@@ -5,34 +5,43 @@ if (typeof browser === 'undefined') {
 let enable_button = document.getElementById("enable");
 let background = browser.extension.getBackgroundPage();
 
-let tabName = background.tabs[background.current_tab_id].tabName // todo if tab object doesn't exist
+/* Guard against undefined tab - fixes potential null reference error */
+let tabInfo = background.tabs[background.current_tab_id];
+if (!tabInfo) {
+	console.warn('[minimal] Tab not tracked yet');
+	enable_button.disabled = true;
+}
+let tabName = tabInfo ? tabInfo.tabName : null;
 
-browser.storage.sync.get(tabName, function(storage) {
-	let minimalState = storage[tabName] || "enabled"; //todo default state
-	
-	if(minimalState == "enabled") {
-		enable_button.checked = true
-	} else {
-		enable_button.checked = false
-	}
-});
+if (tabName) {
+	browser.storage.sync.get(tabName, function(storage) {
+		let minimalState = storage[tabName] || "enabled"; //todo default state
+
+		if(minimalState === "enabled") {
+			enable_button.checked = true;
+		} else {
+			enable_button.checked = false;
+		}
+	});
+}
 
 enable_button.addEventListener("change", function(e){
-	
+	if (!tabName) return; /* Guard against undefined tabName */
+
 	if(this.checked){
-	
-		let keys = {}
-		keys[tabName] = "enabled"
-		browser.storage.sync.set(keys)
-	
+
+		let keys = {};
+		keys[tabName] = "enabled";
+		browser.storage.sync.set(keys);
+
 		background.enable(tabName);
 	}
 	else {
-	
-		let keys = {}
-		keys[tabName] = "disabled"
-		browser.storage.sync.set(keys)
-		
+
+		let keys = {};
+		keys[tabName] = "disabled";
+		browser.storage.sync.set(keys);
+
 		background.disable(tabName);
 	}
 });

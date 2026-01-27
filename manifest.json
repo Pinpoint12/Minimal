@@ -34,7 +34,7 @@
 			"js": ["scripts/facebook.js"]
 		},
 		{
-			"matches": ["*://*.twitter.com/*"],
+			"matches": ["*://*.twitter.com/*", "*://*.x.com/*"],
 			"css": ["styles/twitter.css"],
 			"js": ["scripts/twitter.js"]
 		},

@@ -9,4 +9,9 @@ function removeAutoPlayingTrailer(){
 		}
 	);
 }
-setInterval(removeAutoPlayingTrailer, 100) /* 100ms was arbitrary chosen */
+let autoplayInterval = setInterval(removeAutoPlayingTrailer, 100); /* 100ms was arbitrary chosen */
+
+/* Clean up interval when page unloads to prevent memory leaks */
+window.addEventListener('unload', () => {
+	clearInterval(autoplayInterval);
+});

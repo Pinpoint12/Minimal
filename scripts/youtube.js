@@ -276,7 +276,11 @@ function addRecommendedVideoToggle(){
 	home_page.appendChild(show_videos_button);
 }
 
+let videoToggleRetries = 0;
+const MAX_VIDEO_TOGGLE_RETRIES = 20;
+
 function addRecommendedVideoToggleTry(){
+	if(videoToggleRetries++ > MAX_VIDEO_TOGGLE_RETRIES) return; /* Prevent infinite retries */
 	let home_page = document.querySelector('[page-subtype="home"]');
 	if(home_page){
 		addRecommendedVideoToggle();
@@ -447,8 +451,11 @@ function setupTitleObserver() {
 }
 
 // Execute all the functions here
+let hasExecuted = false;
 function execute(){
+  if(hasExecuted) return; /* Prevent duplicate execution from multiple triggers */
   if(document.readyState === "complete"){
+    hasExecuted = true;
     // Remove the flash of unstyled content style
     window.revealPage();
     

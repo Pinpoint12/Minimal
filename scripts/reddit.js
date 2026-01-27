@@ -1,5 +1,25 @@
 // Simple Reddit sidebar controller - Set collapsed state once
 
+const PORN_BLOCKLIST_RE = /(nsfw|porn|porno|pornography|pr0n|p0rn|\bsex(?!y)|sexy|s3x|xxx|xvideos|xhamster|xnx|xnxx|goon|gooning|naked|nude|nud3|nudes|butt|booty|nalgas|nipple|nippl|areola|breast|boob|boobs|boobies|booby|bazongas|\btits?\b|\bt1ts\b|\bt!ts\b|\bcum\b|cumming|c\*m|k\*m|orgasm|orgasim|orgazm|ejaculat|masturbat|masturb8|fap|fapping|f4p|jerkoff|jerkin|cock|c0ck|kawk|dick|d1ck|d!ck|penis|phallus|dong|schlong|shaft|puss(?:y|ies)|pussi|vagina|vajayjay|clit|clitoris|cl1t|asshole|a-hole|a55hole|assfuck(?:ing|ed)?|(?:^|[^a-z0-9])ass\b|bootyhole|brownstar|backdoor|anilingus|rimming|rimjob|dildo|\banal(?!ysis|ytics|ogue|ogues)|buttplug|buttsex|milf|gilf|teen\b|blowjob|blowie|bl0wj0b|bj\b|bjs|bjob|gagging|deepthroat|handjob|hand[-_]?job|hand%20 job|fuck(?:ing|er|ed)?|fucking|fuk|fuking|f\*ck|screw(?:ing)?|rawdog|rawdogging|suck(?:ing)?|suckoff|sucked|dps|dp\b|doublepenetration|double[-_]?penetration|gangbang|grouphump|grouplove|creampie|creampied|threesome|foursome|orgy|bdsm|bondage|shibari|fetish|kink|spank(?:ing)?|whip(?:ping)?|slut|sl00t|sloot|whore|h0e|\bhoe\b|cumslut|cumdump|busty|bimbo|hotwife|cuckold|cuckquean|cuck\b|cucking|incest|inbreeding|stepsis|stepbro|stepmom|stepdad|stepbro(?:ther)?|stepfather|stepmother|stepparent|taboo|forbidden|gaysex|gayporn|lesbiansex|lesbianporn|homosex|homosexual|samesex|transsexual|tranny|shemale|futa(?:nari)?|ladyboy|tgirl|hentai|h3ntai|ecchi|yaoi|yuri|lewd|lewdies|strip(?:per|ping)?|striptease|pissing|peeing|piss|goldenshower|watersports|scat\b|scatplay|cumshot|bukkake|facial\b|spitroast|bbw\b|chubbysex|thicc|th1cc|creaming|titfuck|boobjob|titty|titties|t1tties|bangbus|cameltoe|milking|lactat(?:e|ing)|nursingfetish|edging|chok(?:e|ing)|facesit(?:ting)?|smothering|publicsex|publicfuck|outdoorsex|exhibition|voyeur(?:ism)?|amateur(?!-radio)|prostitute|escort|callgirl|hooker|sugarbaby|sugardaddy|onlyfans|ofgirl|ofleak|prostitution|69ing|\b69\b|sixty[-_]?nine|cunnilingus|tonguejob|raping|rapist|molest(?:er|ation)?|sexual\s+predator|child\s+predator|nonconsensual|non[-_]?con|ncsex|flasher|flashing|exhibition(?:ist)?|pant(?:ies|y|yhose)|panty|pantie|pantyhose|crotchless|lingerie|thong|gstring|g-string|latex(?:girl)?|fetishwear|fingering|fisting|playboy|centerfold|playmate|genitals?|sodomy|doggystyle|doggy-style|suckjob|blowjobs?|fucktoy|fuckhole|fuckdoll|wank(?:ing)?|jerk(?:ing|off|\-off)?|pegging|strap[-_]?ons?|straponsex|strap[-_]?on|cumloads?|splooge|poon(?:ani|any)?|vajayjay|vaj\b|muff|snatch|beaver|twat|minge|g-?spot|felch(?:ing)?|snowball(?:ing)?|spankbank|moneyshot|money[-_]?shot|balls\b|testicles?|scrotum|taint|gooch|perineum|vibrator|sex[-_]?toy|dild0|d1ldo|sexshop|adult[-_]?toy|adultvideo|sextape|sex[-_]?tape|fleshlight|prolapse|rosebud|anal[-_]?beads|cumtribute|tributevid|cum[-_]?tribute|tittydrop|pegged|queef(?:ing)?|wetdream|wet[-_]?dream|sensual|nippleplay|analplay|oralplay|oralsex|sensualmassage|dirtytalk|talkdirty|camgirl|camwhore|webcamsex|livesex|pornvid|pornclip|faphouse|faptube|rule34|r34|deepfakeporn|vrporn|\berp\b|sext|sexting|freakytext|bootycall|slidein|nsfl|clussy|boink|humpday|smut|smutt|smexy)/i;
+(function () {
+  try {
+    if (PORN_BLOCKLIST_RE.test(window.location.href)) {
+      // Block at the <html> level
+      document.documentElement.classList.add('block-all-content');
+
+      // Optional: mark the body for any extra CSS rules
+      document.addEventListener('DOMContentLoaded', function () {
+        if (document.body) {
+          document.body.setAttribute('data-block-on-url', '1');
+        }
+      });
+    }
+  } catch (e) {
+    // Swallow errors, you do not want to break the page if something goes wrong
+    console.error('NSFW URL blocker error', e);
+  }
+})();
+
 // Function to close the sidebar and handle preferences page
 function setupLayout() {
   // Add CSS to handle layout permanently - only include what's needed in JS
