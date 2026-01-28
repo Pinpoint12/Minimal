@@ -2,16 +2,8 @@
 
 /* Badge colors for different states */
 const BADGE_COLORS = {
-	active: '#4CAF50',
 	disabled: '#9E9E9E',
-	blocked: '#4CAF50',
-	error: '#F44336'
-};
-
-const BADGE_STATUS = {
-	active: '✓',
-	disabled: '✗',
-	error: '!'
+	userHidden: '#4CAF50'
 };
 
 const resources = [
@@ -36,11 +28,10 @@ function getSiteInfo(url) {
 	return null;
 }
 
-/* Update badge to show active status */
+/* Update badge to show active status (no badge text, just icon) */
 async function setBadgeActive(tabId) {
 	try {
-		await chrome.action.setBadgeText({ text: BADGE_STATUS.active, tabId });
-		await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.active, tabId });
+		await chrome.action.setBadgeText({ text: '', tabId });
 		await chrome.action.setTitle({ title: 'Minimal: Active', tabId });
 		await chrome.action.setIcon({ path: "./icons/pageAction_on.png", tabId });
 	} catch (e) { /* Ignore */ }
@@ -49,21 +40,25 @@ async function setBadgeActive(tabId) {
 /* Update badge to show disabled status */
 async function setBadgeDisabled(tabId) {
 	try {
-		await chrome.action.setBadgeText({ text: BADGE_STATUS.disabled, tabId });
+		await chrome.action.setBadgeText({ text: '✗', tabId });
 		await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.disabled, tabId });
 		await chrome.action.setTitle({ title: 'Minimal: Disabled', tabId });
 		await chrome.action.setIcon({ path: "./icons/pageAction.png", tabId });
 	} catch (e) { /* Ignore */ }
 }
 
-/* Update badge to show blocked count */
-async function setBadgeBlockedCount(tabId, count) {
+/* Update badge to show user-hidden element count */
+async function setBadgeUserHiddenCount(tabId, count) {
 	try {
 		if (count > 0) {
 			const text = count > 99 ? '99+' : count.toString();
 			await chrome.action.setBadgeText({ text, tabId });
-			await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.blocked, tabId });
-			await chrome.action.setTitle({ title: `Minimal: ${count} distractions blocked`, tabId });
+			await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.userHidden, tabId });
+			await chrome.action.setTitle({ title: `Minimal: ${count} element${count > 1 ? 's' : ''} hidden by you`, tabId });
+			await chrome.action.setIcon({ path: "./icons/pageAction_on.png", tabId });
+		} else {
+			/* No user-hidden elements - just show active icon without badge */
+			await setBadgeActive(tabId);
 		}
 	} catch (e) { /* Ignore */ }
 }
@@ -117,12 +112,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	(async () => {
 		try {
-			if (message.type === "updateBlockedCount") {
+			if (message.type === "updateUserHiddenCount") {
 				const tabId = sender.tab?.id;
-				if (tabId && message.count > 0) {
-					await setBadgeBlockedCount(tabId, message.count);
-				} else if (tabId) {
-					await setBadgeActive(tabId);
+				if (tabId) {
+					await setBadgeUserHiddenCount(tabId, message.count);
 				}
 				sendResponse({ success: true });
 			} else if (message.type === "enable") {
