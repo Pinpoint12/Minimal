@@ -147,14 +147,6 @@
 			}
 
 			/* Reddit resets */
-			faceplate-number {
-				font-size: revert !important;
-				letter-spacing: revert !important;
-			}
-			faceplate-number::after {
-				content: none !important;
-			}
-
 			#left-sidebar-container {
 				width: revert !important;
 				min-width: revert !important;

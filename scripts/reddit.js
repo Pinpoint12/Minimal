@@ -273,6 +273,59 @@
 		}, 100);
 	}
 
+	/* - Replace vote/comment counts with dots to prevent social proof bias - C3 P1 */
+	function hideVoteCounts() {
+		const DOT_HTML = '<span class="minimal-dots" style="opacity:0.4;letter-spacing:2px;font-size:12px">···</span>';
+
+		function processNumber(el) {
+			if (el.dataset.minimalHidden) return;
+			el.dataset.minimalHidden = '1';
+
+			const original = el.textContent.trim();
+			el.dataset.minimalOriginal = original;
+			el.innerHTML = DOT_HTML;
+
+			el.addEventListener('mouseenter', () => {
+				el.textContent = el.dataset.minimalOriginal;
+			});
+			el.addEventListener('mouseleave', () => {
+				el.innerHTML = DOT_HTML;
+			});
+		}
+
+		/* Find faceplate-number elements, including inside shadow DOMs */
+		function findAllFaceplateNumbers(root) {
+			root.querySelectorAll('faceplate-number:not([data-minimal-hidden])').forEach(processNumber);
+			/* Traverse into shadow roots of custom elements */
+			root.querySelectorAll('*').forEach(el => {
+				if (el.shadowRoot) {
+					findAllFaceplateNumbers(el.shadowRoot);
+				}
+			});
+		}
+
+		function scanAll() {
+			findAllFaceplateNumbers(document);
+		}
+
+		/* Process existing elements */
+		scanAll();
+
+		/* Watch for new elements (SPA navigation, infinite scroll) */
+		let scanTimer = null;
+		const observer = new MutationObserver(() => {
+			if (scanTimer) return;
+			scanTimer = setTimeout(() => {
+				scanTimer = null;
+				scanAll();
+			}, 200);
+		});
+
+		if (document.body) {
+			observer.observe(document.body, { childList: true, subtree: true });
+		}
+	}
+
 	/* Main initialization - checks enabled state before running modifications */
 	function init() {
 		/* NSFW blocking always runs for safety */
@@ -295,10 +348,12 @@
 				document.addEventListener('DOMContentLoaded', () => {
 					setupLayout();
 					replaceRedditHomePage();
+					hideVoteCounts();
 				});
 			} else {
 				setupLayout();
 				replaceRedditHomePage();
+				hideVoteCounts();
 			}
 		});
 	}
