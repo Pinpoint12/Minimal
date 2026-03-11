@@ -2,9 +2,16 @@
 #related, #ticket-shelf, #merch-shelf {
   display: none !important;
 }
-#secondary{
+/* - Collapse #secondary unless it contains a playlist - C2 */
+#secondary:not(:has(ytd-playlist-panel-renderer)){
   width: auto!important;
   min-width: 0!important;
+}
+
+/* - Properly display playlist panel when active - C1 U1 */
+#secondary:has(ytd-playlist-panel-renderer){
+  width: 100% !important;
+  max-width: 900px !important;
 }
 .ytd-horizontal-card-list-renderer {
   display: none !important;
@@ -21,6 +28,12 @@
 #primary {
   max-width: 900px !important;
   width: 80% !important;
+}
+
+/* - Constrain comments when playlist is active so playlist stays accessible - C1 U1 */
+#columns:has(ytd-playlist-panel-renderer) ytd-comments#comments {
+  max-height: 500px !important;
+  overflow-y: auto !important;
 }
 
 /* - Fix channel page grid layout - C2 */

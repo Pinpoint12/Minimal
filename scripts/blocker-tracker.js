@@ -93,6 +93,11 @@
 				min-width: revert !important;
 			}
 
+			ytd-comments#comments {
+				max-height: revert !important;
+				overflow-y: revert !important;
+			}
+
 			#contents.ytd-rich-grid-renderer {
 				--ytd-rich-grid-items-per-row: revert !important;
 				display: revert !important;
