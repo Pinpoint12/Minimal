@@ -22,8 +22,8 @@
 	`;
 	(document.head || document.documentElement).appendChild(preloadStyle);
 
-	/* Reveal page function */
-	window.revealPage = function() {
+	/* Reveal page function - namespaced to avoid global conflicts */
+	window.__minimalRevealPage = function() {
 		document.body?.classList.remove('minimal-loading');
 		document.body?.classList.add('minimal-ready');
 		setTimeout(() => {
@@ -32,7 +32,7 @@
 	};
 
 	/* Failsafe: reveal after 2s regardless */
-	setTimeout(window.revealPage, 2000);
+	setTimeout(window.__minimalRevealPage, 2000);
 
 	/* Use theater mode - C1 */
 	function activateTheaterMode() {
@@ -169,7 +169,7 @@
 						}
 						clearInterval(checkInterval);
 					} else if (chatFrame.contentDocument.body.childElementCount > 0) {
-						chatButton.click();
+						chatButton?.click();
 						clearInterval(checkInterval);
 					}
 				}
@@ -193,8 +193,11 @@
 		btn.style.cssText = 'position:fixed;bottom:1em;right:1em;';
 
 		btn.addEventListener('click', (e) => {
-			const isHidden = children[0]?.style.visibility === 'hidden';
-			children.forEach(child => {
+			/* Re-query children on each click to catch dynamically added content */
+			const currentChildren = document.querySelectorAll('[page-subtype="home"]>*');
+			const isHidden = currentChildren[0]?.style.visibility === 'hidden';
+			currentChildren.forEach(child => {
+				if (child === btn) return;
 				child.style.visibility = isHidden ? '' : 'hidden';
 				child.style.height = isHidden ? '' : '0';
 			});
@@ -298,7 +301,7 @@
 		}
 
 		hasExecuted = true;
-		window.revealPage();
+		window.__minimalRevealPage();
 		replaceHomePage();
 		setupTitleObserver();
 		activateTheaterMode();
@@ -330,7 +333,7 @@
 			if (!isEnabled) {
 				/* Minimal is disabled - reveal page and exit */
 				console.log('[minimal] YouTube: Disabled, skipping modifications');
-				window.revealPage();
+				window.__minimalRevealPage();
 				return;
 			}
 
@@ -340,13 +343,17 @@
 
 			execute();
 
-			/* Navigation progress observer */
+			/* Navigation progress observer - reset hasExecuted for SPA navigation */
 			const domInterval = setInterval(() => {
 				const targetNode = document.querySelector('yt-page-navigation-progress');
 				if (targetNode) {
 					const observer = new MutationObserver(mutations => {
 						const observed = mutations[0]?.target?.attributes['aria-valuenow'];
-						if (observed?.nodeValue === '100') execute();
+						if (observed?.nodeValue === '100') {
+							hasExecuted = false;
+							videoToggleRetries = 0;
+							execute();
+						}
 					});
 					observer.observe(targetNode, { attributes: true, attributeFilter: ['aria-valuenow'] });
 					clearInterval(domInterval);
