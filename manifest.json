@@ -95,7 +95,8 @@
 				"*://reddit.com/*"
 			],
 			"css": ["styles/reddit.css"],
-			"js": ["scripts/reddit.js", "scripts/blocker-tracker.js"]
+			"js": ["scripts/reddit.js", "scripts/blocker-tracker.js"],
+			"run_at": "document_start"
 		}
 	],
 
