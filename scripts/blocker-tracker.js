@@ -57,14 +57,88 @@
 			#notification-count, ytd-notification-topbar-button-renderer,
 			.videowall-endscreen,
 			#guide-button, #voice-search-button, ytd-mini-guide-renderer, tp-yt-app-drawer,
-			yt-tab-shape[tab-title="Shorts"] {
+			yt-tab-shape[tab-title="Shorts"],
+			#country-code, #logo-container .content-region,
+			.iv-branding,
+			.ytp-size-button,
+			.ytp-miniplayer-button,
+			.ytp-next-button,
+			.ytd-moving-thumbnail-renderer,
+			button[data-tooltip-target-id="ytp-autonav-toggle-button"],
+			ytd-two-column-search-results-renderer[is-search="true"] .ytd-item-section-renderer[thumbnail-style=""] {
 				display: revert !important;
 			}
 
-			#columns, #primary, #secondary {
+			.ytp-play-button-playlist+.ytp-next-button {
+				display: revert !important;
+			}
+
+			#columns {
 				width: revert !important;
 				max-width: revert !important;
 				min-width: revert !important;
+				display: revert !important;
+				align-items: revert !important;
+				justify-content: revert !important;
+			}
+
+			#primary {
+				max-width: revert !important;
+				width: revert !important;
+			}
+
+			#secondary {
+				width: revert !important;
+				max-width: revert !important;
+				min-width: revert !important;
+			}
+
+			#contents.ytd-rich-grid-renderer {
+				--ytd-rich-grid-items-per-row: revert !important;
+				display: revert !important;
+				grid-template-columns: revert !important;
+				grid-gap: revert !important;
+				max-width: revert !important;
+				margin: revert !important;
+				padding: revert !important;
+			}
+
+			ytd-rich-item-renderer {
+				width: revert !important;
+				margin: revert !important;
+			}
+
+			ytd-browse[page-subtype="channels"] #primary {
+				max-width: revert !important;
+				width: revert !important;
+			}
+
+			#page-manager {
+				margin: revert !important;
+			}
+
+			#logo svg, #logo-container .logo, #footer-logo {
+				filter: revert !important;
+				opacity: revert !important;
+			}
+
+			.ytd-thumbnail img.yt-img-shadow,
+			.ytp-cued-thumbnail-overlay-image {
+				filter: revert !important;
+			}
+
+			button.yt-spec-button-shape-next.yt-spec-button-shape-next--filled.yt-spec-button-shape-next--mono {
+				background-color: revert !important;
+				color: revert !important;
+			}
+
+			#logo, #logo-icon, #logo-icon-container, #masthead-logo, .logo, .ytd-logo {
+				outline: revert !important;
+				-webkit-tap-highlight-color: revert !important;
+			}
+
+			#masthead-logo a, #masthead a, #logo a {
+				outline: revert !important;
 			}
 
 			/* Reddit resets */
@@ -72,6 +146,44 @@
 				width: revert !important;
 				min-width: revert !important;
 				display: revert !important;
+				--expanded: revert !important;
+			}
+
+			#nsfw {
+				display: revert !important;
+			}
+
+			[data-faceplate-tracking-context*='"type":"nsfw"'] {
+				display: revert !important;
+			}
+
+			#hamburger-button-tooltip {
+				display: revert !important;
+			}
+
+			chat-channel-recommendations-wrapper {
+				display: revert !important;
+			}
+
+			.Rz5N3cHNgTGZsIQJqBfgk {
+				display: revert !important;
+			}
+
+			.jEUbSHJJx8vISKpWirlfx {
+				border: revert !important;
+			}
+
+			.jEUbSHJJx8vISKpWirlfx svg {
+				display: revert !important;
+			}
+
+			._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5 {
+				opacity: revert !important;
+				transition: revert !important;
+			}
+
+			.pr-lg.flex.gap-xs.items-center.justify-start {
+				pointer-events: revert !important;
 			}
 
 			/* Twitter resets */
@@ -129,7 +241,10 @@
 
 			/* Hide any Minimal UI elements */
 			#minimal-notification-widget,
-			#minimal-preload-style {
+			#minimal-preload-style,
+			#minimal-reddit-js-styles,
+			#minimal-reddit-homepage,
+			#minimal-youtube-homepage {
 				display: none !important;
 			}
 		`;
@@ -178,20 +293,25 @@
 			document.addEventListener('DOMContentLoaded', applyAndReport);
 		}
 
-		/* Re-apply on DOM changes (for SPAs) */
+		/* Re-apply on DOM changes (for SPAs) - debounced */
+		let debounceTimer = null;
 		const observer = new MutationObserver(() => {
-			chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
-				const hidden = data.hiddenElements[hostname] || [];
-				for (const selector of hidden) {
-					try {
-						document.querySelectorAll(selector).forEach(el => {
-							if (el.style.display !== 'none') {
-								el.style.setProperty('display', 'none', 'important');
-							}
-						});
-					} catch (e) { /* Ignore */ }
-				}
-			});
+			if (debounceTimer) return;
+			debounceTimer = setTimeout(() => {
+				debounceTimer = null;
+				chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
+					const hidden = data.hiddenElements[hostname] || [];
+					for (const selector of hidden) {
+						try {
+							document.querySelectorAll(selector).forEach(el => {
+								if (el.style.display !== 'none') {
+									el.style.setProperty('display', 'none', 'important');
+								}
+							});
+						} catch (e) { /* Ignore */ }
+					}
+				});
+			}, 300);
 		});
 
 		if (document.body) {
