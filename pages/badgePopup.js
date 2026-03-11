@@ -67,19 +67,21 @@ async function loadHiddenElements() {
 			hidden.forEach((selector, index) => {
 				const item = document.createElement('div');
 				item.className = 'hidden-item';
-				item.innerHTML = `
-					<span class="hidden-item-selector" title="${selector}">${truncateSelector(selector)}</span>
-					<button class="hidden-item-remove" data-index="${index}" title="Unhide">×</button>
-				`;
-				hiddenList.appendChild(item);
-			});
-
-			/* Add click handlers for remove buttons */
-			hiddenList.querySelectorAll('.hidden-item-remove').forEach(btn => {
-				btn.addEventListener('click', async (e) => {
-					const index = parseInt(e.target.dataset.index);
+				const span = document.createElement('span');
+				span.className = 'hidden-item-selector';
+				span.setAttribute('title', selector);
+				span.textContent = truncateSelector(selector);
+				const btn = document.createElement('button');
+				btn.className = 'hidden-item-remove';
+				btn.dataset.index = index;
+				btn.setAttribute('title', 'Unhide');
+				btn.textContent = '\u00d7';
+				btn.addEventListener('click', async () => {
 					await removeHiddenElement(index);
 				});
+				item.appendChild(span);
+				item.appendChild(btn);
+				hiddenList.appendChild(item);
 			});
 		}
 
