@@ -277,7 +277,7 @@
 	function hideVoteCounts() {
 		const HIDE_CSS = `
 			faceplate-number { font-size: 0 !important; }
-			faceplate-number::after { content: '···'; font-size: 12px; opacity: 0.4; }
+			faceplate-number::after { content: '···'; font-size: 12px; letter-spacing: 1px; opacity: 0.4; }
 			faceplate-number[data-minimal-dots]::after { content: attr(data-minimal-dots); }
 			faceplate-number:hover { font-size: inherit !important; }
 			faceplate-number:hover::after { display: none; }
