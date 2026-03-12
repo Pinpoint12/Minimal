@@ -277,27 +277,49 @@
 	function hideVoteCounts() {
 		const HIDE_CSS = `
 			faceplate-number { font-size: 0 !important; }
-			faceplate-number::after { content: '···'; font-size: 12px; letter-spacing: 2px; opacity: 0.4; }
+			faceplate-number::after { content: '···'; font-size: 12px; opacity: 0.4; }
+			faceplate-number[data-minimal-dots]::after { content: attr(data-minimal-dots); }
 			faceplate-number:hover { font-size: inherit !important; }
 			faceplate-number:hover::after { display: none; }
 		`;
 
-		/* Inject hiding CSS into shadow roots so it reaches all faceplate-number elements */
-		function injectIntoShadowRoots(root) {
-			root.querySelectorAll('*').forEach(el => {
-				if (el.shadowRoot && !el.shadowRoot.querySelector('#minimal-hide-counts')) {
-					const style = document.createElement('style');
-					style.id = 'minimal-hide-counts';
-					style.textContent = HIDE_CSS;
-					el.shadowRoot.appendChild(style);
-					/* Recurse into nested shadow roots */
-					injectIntoShadowRoots(el.shadowRoot);
+		/* Map number to appropriate dot count to prevent layout shift */
+		function getDots(num) {
+			if (num < 10) return '·';
+			if (num < 100) return '··';
+			if (num < 10000) return '···';
+			return '····';
+		}
+
+		/* Set data-minimal-dots on faceplate-number elements */
+		function setDots(root) {
+			root.querySelectorAll('faceplate-number:not([data-minimal-dots])').forEach(el => {
+				const num = parseInt(el.getAttribute('number'), 10);
+				if (!isNaN(num)) {
+					el.setAttribute('data-minimal-dots', getDots(num));
 				}
 			});
 		}
 
-		/* Inject into existing shadow roots */
-		injectIntoShadowRoots(document);
+		/* Inject hiding CSS into shadow roots and set dot counts */
+		function processTree(root) {
+			setDots(root);
+			root.querySelectorAll('*').forEach(el => {
+				if (el.shadowRoot) {
+					if (!el.shadowRoot.querySelector('#minimal-hide-counts')) {
+						const style = document.createElement('style');
+						style.id = 'minimal-hide-counts';
+						style.textContent = HIDE_CSS;
+						el.shadowRoot.appendChild(style);
+					}
+					setDots(el.shadowRoot);
+					processTree(el.shadowRoot);
+				}
+			});
+		}
+
+		/* Process existing elements */
+		processTree(document);
 
 		/* Watch for new elements (SPA navigation, infinite scroll) */
 		let scanTimer = null;
@@ -305,7 +327,7 @@
 			if (scanTimer) return;
 			scanTimer = setTimeout(() => {
 				scanTimer = null;
-				injectIntoShadowRoots(document);
+				processTree(document);
 			}, 200);
 		});
 

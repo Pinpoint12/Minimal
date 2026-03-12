@@ -75,8 +75,10 @@ faceplate-number {
 faceplate-number::after {
   content: '···';
   font-size: 12px;
-  letter-spacing: 2px;
   opacity: 0.4;
+}
+faceplate-number[data-minimal-dots]::after {
+  content: attr(data-minimal-dots);
 }
 faceplate-number:hover {
   font-size: inherit !important;
