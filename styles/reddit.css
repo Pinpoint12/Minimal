@@ -68,6 +68,23 @@ span[data-part="advertise"] {
   pointer-events: none;
 }
 
+/* - Hide vote/comment counts instantly (non-shadow-DOM elements) - C3 P1 */
+faceplate-number {
+  font-size: 0 !important;
+}
+faceplate-number::after {
+  content: '···';
+  font-size: 12px;
+  letter-spacing: 2px;
+  opacity: 0.4;
+}
+faceplate-number:hover {
+  font-size: inherit !important;
+}
+faceplate-number:hover::after {
+  display: none;
+}
+
 /* - Hide the total karma, on top right corner under username - C3 */
 .Rz5N3cHNgTGZsIQJqBfgk { /* FRAGILE */
   display: none;

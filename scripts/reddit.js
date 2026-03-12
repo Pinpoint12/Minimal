@@ -275,41 +275,29 @@
 
 	/* - Replace vote/comment counts with dots to prevent social proof bias - C3 P1 */
 	function hideVoteCounts() {
-		const DOT_HTML = '<span class="minimal-dots" style="opacity:0.4;letter-spacing:2px;font-size:12px">···</span>';
+		const HIDE_CSS = `
+			faceplate-number { font-size: 0 !important; }
+			faceplate-number::after { content: '···'; font-size: 12px; letter-spacing: 2px; opacity: 0.4; }
+			faceplate-number:hover { font-size: inherit !important; }
+			faceplate-number:hover::after { display: none; }
+		`;
 
-		function processNumber(el) {
-			if (el.dataset.minimalHidden) return;
-			el.dataset.minimalHidden = '1';
-
-			const original = el.textContent.trim();
-			el.dataset.minimalOriginal = original;
-			el.innerHTML = DOT_HTML;
-
-			el.addEventListener('mouseenter', () => {
-				el.textContent = el.dataset.minimalOriginal;
-			});
-			el.addEventListener('mouseleave', () => {
-				el.innerHTML = DOT_HTML;
-			});
-		}
-
-		/* Find faceplate-number elements, including inside shadow DOMs */
-		function findAllFaceplateNumbers(root) {
-			root.querySelectorAll('faceplate-number:not([data-minimal-hidden])').forEach(processNumber);
-			/* Traverse into shadow roots of custom elements */
+		/* Inject hiding CSS into shadow roots so it reaches all faceplate-number elements */
+		function injectIntoShadowRoots(root) {
 			root.querySelectorAll('*').forEach(el => {
-				if (el.shadowRoot) {
-					findAllFaceplateNumbers(el.shadowRoot);
+				if (el.shadowRoot && !el.shadowRoot.querySelector('#minimal-hide-counts')) {
+					const style = document.createElement('style');
+					style.id = 'minimal-hide-counts';
+					style.textContent = HIDE_CSS;
+					el.shadowRoot.appendChild(style);
+					/* Recurse into nested shadow roots */
+					injectIntoShadowRoots(el.shadowRoot);
 				}
 			});
 		}
 
-		function scanAll() {
-			findAllFaceplateNumbers(document);
-		}
-
-		/* Process existing elements */
-		scanAll();
+		/* Inject into existing shadow roots */
+		injectIntoShadowRoots(document);
 
 		/* Watch for new elements (SPA navigation, infinite scroll) */
 		let scanTimer = null;
@@ -317,7 +305,7 @@
 			if (scanTimer) return;
 			scanTimer = setTimeout(() => {
 				scanTimer = null;
-				scanAll();
+				injectIntoShadowRoots(document);
 			}, 200);
 		});
 
