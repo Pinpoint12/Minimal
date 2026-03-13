@@ -88,6 +88,51 @@ faceplate-number:hover::after {
   display: none;
 }
 
+/* - Scroll depth wall to restore natural stopping point - C2 U1 */
+#minimal-scroll-wall {
+  position: relative;
+  padding: 80px 20px 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+#minimal-scroll-wall::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(100% + 8px);
+  width: 40px;
+  height: 1px;
+  background: var(--color-neutral-content-weak, rgba(0, 0, 0, 0.25));
+}
+.minimal-wall-message {
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--color-neutral-content-weak, rgba(0, 0, 0, 0.45));
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+  font-weight: 400;
+}
+.minimal-wall-dismiss {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-neutral-content-weak, rgba(0, 0, 0, 0.2));
+  border-radius: 0;
+  padding: 2px 0;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  color: var(--color-neutral-content-weak, rgba(0, 0, 0, 0.4));
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+  transition: color 200ms, border-color 200ms;
+}
+.minimal-wall-dismiss:hover {
+  color: var(--color-neutral-content, rgba(0, 0, 0, 0.7));
+  border-color: var(--color-neutral-content, rgba(0, 0, 0, 0.5));
+}
+
 /* - Hide the total karma, on top right corner under username - C3 */
 .Rz5N3cHNgTGZsIQJqBfgk { /* FRAGILE */
   display: none;

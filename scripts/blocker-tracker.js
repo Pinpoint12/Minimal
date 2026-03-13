@@ -198,6 +198,10 @@
 				pointer-events: revert !important;
 			}
 
+			#minimal-scroll-wall {
+				display: none !important;
+			}
+
 			/* Twitter resets */
 			div.css-901oao.r-1awozwy>svg {
 				filter: none !important;

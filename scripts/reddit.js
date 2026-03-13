@@ -336,6 +336,148 @@
 		}
 	}
 
+	/* - Scroll depth wall to restore natural stopping point on feeds - C2 U1 */
+	function addScrollDepthWall() {
+		const POST_LIMIT = 25;
+		const POST_SEL = 'shreddit-post';
+		const observed = new WeakSet();
+		let seenCount = 0;
+		let wallShowing = false;
+		let dismissed = false;
+		let lastPath = window.location.pathname;
+		let io = null;
+		let mo = null;
+
+		function shouldApply() {
+			const path = window.location.pathname;
+			if (path === '/') return false;
+			if (path.includes('/comments/')) return false;
+			return true;
+		}
+
+		/* Hide everything after the wall — posts, loaders, spacers — but not the sidebar */
+		function hideContentAfterWall() {
+			const wall = document.getElementById('minimal-scroll-wall');
+			if (!wall) return;
+			let el = wall.nextElementSibling;
+			while (el) {
+				el.style.setProperty('display', 'none', 'important');
+				el.dataset.minimalWallHidden = '1';
+				el = el.nextElementSibling;
+			}
+			/* Walk up and hide siblings of ancestors to catch loaders,
+			   but skip the right sidebar and major layout containers */
+			let parent = wall.parentElement;
+			while (parent && parent !== document.body) {
+				let sib = parent.nextElementSibling;
+				while (sib) {
+					if (sib.id !== 'right-sidebar-container' && !sib.querySelector('#right-sidebar-container')) {
+						sib.style.setProperty('display', 'none', 'important');
+						sib.dataset.minimalWallHidden = '1';
+					}
+					sib = sib.nextElementSibling;
+				}
+				parent = parent.parentElement;
+			}
+		}
+
+		function reset() {
+			seenCount = 0;
+			wallShowing = false;
+			dismissed = false;
+			if (io) io.disconnect();
+			io = null;
+			const existing = document.getElementById('minimal-scroll-wall');
+			if (existing) existing.remove();
+			document.querySelectorAll(`${POST_SEL}[data-minimal-wall-hidden]`).forEach(p => {
+				p.style.removeProperty('display');
+				delete p.dataset.minimalWallHidden;
+			});
+		}
+
+		function showWall(triggerPost) {
+			if (wallShowing || dismissed) return;
+			wallShowing = true;
+			if (io) io.disconnect();
+
+			const wall = document.createElement('div');
+			wall.id = 'minimal-scroll-wall';
+			wall.innerHTML = `
+				<p class="minimal-wall-message">You've scrolled far enough.</p>
+				<button class="minimal-wall-dismiss">Keep going</button>
+			`;
+
+			/* Insert inline after the triggering post */
+			triggerPost.insertAdjacentElement('afterend', wall);
+
+			/* Hide all content after the wall */
+			hideContentAfterWall();
+
+			wall.querySelector('.minimal-wall-dismiss').addEventListener('click', () => {
+				dismissed = true;
+				wall.remove();
+				if (mo) mo.disconnect();
+				/* Unhide everything */
+				document.querySelectorAll('[data-minimal-wall-hidden]').forEach(el => {
+					el.style.removeProperty('display');
+					delete el.dataset.minimalWallHidden;
+				});
+			});
+		}
+
+		function startObserving() {
+			if (!shouldApply()) return;
+
+			io = new IntersectionObserver((entries) => {
+				if (dismissed || wallShowing) return;
+
+				for (const entry of entries) {
+					if (!entry.isIntersecting) continue;
+					seenCount++;
+					io.unobserve(entry.target);
+
+					if (seenCount >= POST_LIMIT) {
+						showWall(entry.target);
+						return;
+					}
+				}
+			}, { threshold: 0.3 });
+
+			function tryObserve(post) {
+				if (observed.has(post)) return;
+				observed.add(post);
+				if (wallShowing && !dismissed) {
+					/* Wall is up — hide this new post immediately */
+					post.style.setProperty('display', 'none', 'important');
+					post.dataset.minimalWallHidden = '1';
+				} else {
+					io.observe(post);
+				}
+			}
+
+			document.querySelectorAll(POST_SEL).forEach(tryObserve);
+
+			mo = new MutationObserver(() => {
+				if (window.location.pathname !== lastPath) {
+					lastPath = window.location.pathname;
+					reset();
+					startObserving();
+					return;
+				}
+				if (wallShowing && !dismissed) {
+					hideContentAfterWall();
+				}
+				document.querySelectorAll(POST_SEL).forEach(tryObserve);
+			});
+
+			if (document.body) {
+				mo.observe(document.body, { childList: true, subtree: true });
+			}
+		}
+
+		startObserving();
+	}
+
 	/* Main initialization - checks enabled state before running modifications */
 	function init() {
 		/* NSFW blocking always runs for safety */
@@ -359,11 +501,13 @@
 					setupLayout();
 					replaceRedditHomePage();
 					hideVoteCounts();
+					addScrollDepthWall();
 				});
 			} else {
 				setupLayout();
 				replaceRedditHomePage();
 				hideVoteCounts();
+				addScrollDepthWall();
 			}
 		});
 	}
