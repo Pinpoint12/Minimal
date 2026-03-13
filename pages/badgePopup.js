@@ -164,6 +164,41 @@ pickElementBtn.addEventListener('click', async () => {
 	}
 });
 
+/* Site-specific options */
+const siteOptionsDiv = document.getElementById("site-options");
+const ytHideViewCounts = document.getElementById("yt-hide-view-counts");
+const ytHideLikeCounts = document.getElementById("yt-hide-like-counts");
+
+/* Load and show site-specific options */
+async function loadSiteOptions() {
+	if (currentSiteName !== 'youtube') {
+		siteOptionsDiv.style.display = 'none';
+		return;
+	}
+
+	siteOptionsDiv.style.display = 'block';
+	document.getElementById('opt-hide-view-counts').style.display = 'flex';
+	document.getElementById('opt-hide-like-counts').style.display = 'flex';
+
+	const data = await chrome.storage.sync.get({
+		yt_hideViewCounts: false,
+		yt_hideLikeCounts: false
+	});
+	ytHideViewCounts.checked = data.yt_hideViewCounts;
+	ytHideLikeCounts.checked = data.yt_hideLikeCounts;
+}
+
+/* Handle YouTube option toggles - C3 P1 */
+ytHideViewCounts.addEventListener('change', async function() {
+	await chrome.storage.sync.set({ yt_hideViewCounts: this.checked });
+	if (currentTabId) await chrome.tabs.reload(currentTabId);
+});
+
+ytHideLikeCounts.addEventListener('change', async function() {
+	await chrome.storage.sync.set({ yt_hideLikeCounts: this.checked });
+	if (currentTabId) await chrome.tabs.reload(currentTabId);
+});
+
 /* Initialize popup */
 async function init() {
 	try {
@@ -206,6 +241,9 @@ async function init() {
 
 		/* Load hidden elements */
 		await loadHiddenElements();
+
+		/* Load site-specific options */
+		await loadSiteOptions();
 
 	} catch (error) {
 		console.error('[minimal] Popup init error:', error);

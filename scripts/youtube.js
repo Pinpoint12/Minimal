@@ -247,6 +247,45 @@
 		removeUnreadCountFromTitle();
 	}
 
+	/* - Apply optional display rules from user settings - C3 P1 */
+	function applyOptionalStyles() {
+		chrome.storage.sync.get({
+			yt_hideViewCounts: false,
+			yt_hideLikeCounts: false
+		}, (data) => {
+			let existing = document.getElementById('minimal-yt-optional-styles');
+			if (existing) existing.remove();
+
+			const rules = [];
+			if (data.yt_hideViewCounts) {
+				/* Hide view counts on search results and video listings */
+				rules.push(`
+					ytd-video-meta-block #metadata-line span.ytd-video-meta-block:first-child,
+					ytd-video-renderer #metadata-line span.ytd-video-meta-block:first-child {
+						display: none !important;
+					}
+				`);
+			}
+			if (data.yt_hideLikeCounts) {
+				/* Hide like/dislike count text on watch page */
+				rules.push(`
+					#top-level-buttons-computed ytd-toggle-button-renderer .yt-spec-button-shape-next__button-text-content,
+					#top-level-buttons-computed ytd-segmented-like-dislike-button-renderer .yt-spec-button-shape-next__button-text-content,
+					segmented-like-dislike-button-view-model .yt-spec-button-shape-next__button-text-content {
+						display: none !important;
+					}
+				`);
+			}
+
+			if (rules.length > 0) {
+				const style = document.createElement('style');
+				style.id = 'minimal-yt-optional-styles';
+				style.textContent = rules.join('\n');
+				document.head.appendChild(style);
+			}
+		});
+	}
+
 	/* Execute modifications for current page state */
 	function execute() {
 		revealPage();
@@ -280,6 +319,7 @@
 
 		interceptTheaterModeKeypress();
 		replaceSubscriptionManager();
+		applyOptionalStyles();
 	}
 
 	/* Main initialization - checks enabled state */

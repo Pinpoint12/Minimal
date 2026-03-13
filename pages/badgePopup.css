@@ -156,6 +156,57 @@ main {
 	font-size: 16px;
 }
 
+/* Site-specific Options */
+.site-options {
+	margin-top: 12px;
+	padding-top: 12px;
+	border-top: 1px solid var(--border-color);
+}
+
+.site-options-header {
+	font-size: 11px;
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin-bottom: 8px;
+}
+
+.option-label {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+	padding: 6px 0;
+}
+
+.option-label span {
+	font-size: 13px;
+	color: var(--text-color);
+}
+
+.option-label input[type="checkbox"] {
+	display: none;
+}
+
+.toggle-switch-sm {
+	width: 36px;
+	height: 20px;
+	border-radius: 10px;
+}
+
+.toggle-switch-sm::after {
+	width: 16px;
+	height: 16px;
+}
+
+.option-label input[type="checkbox"]:checked + .toggle-switch-sm {
+	background: var(--accent-color);
+}
+
+.option-label input[type="checkbox"]:checked + .toggle-switch-sm::after {
+	transform: translateX(16px);
+}
+
 /* Hidden Elements Section */
 .hidden-section {
 	margin-top: 16px;

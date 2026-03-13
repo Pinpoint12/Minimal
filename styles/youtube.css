@@ -2,35 +2,59 @@
 #related, #ticket-shelf, #merch-shelf {
   display: none !important;
 }
-/* - Collapse #secondary unless it contains a playlist - C2 */
-#secondary:not(:has(ytd-playlist-panel-renderer)){
-  width: auto!important;
-  min-width: 0!important;
+/* - Hide #secondary when no playlist - C2 */
+#secondary:not(:has(ytd-playlist-panel-renderer)) {
+  display: none !important;
 }
 
-/* - Properly display playlist panel when active - C1 U1 */
-#secondary:has(ytd-playlist-panel-renderer){
-  width: 100% !important;
-  max-width: 900px !important;
-}
 .ytd-horizontal-card-list-renderer {
   display: none !important;
 }
 
-/* - Center video content with max-width - C2 */
-#columns {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* - Flatten ALL nested scroll containers so the whole page scrolls naturally - C1 U1 */
+ytd-app {
+  overflow-y: scroll !important;
+}
+ytd-page-manager {
+  overflow: visible !important;
+}
+ytd-watch-flexy {
+  overflow: visible !important;
+}
+ytd-watch-flexy[theater] #below {
+  height: auto !important;
+  overflow: visible !important;
+  position: static !important;
+}
+ytd-watch-flexy[theater] #columns {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* - Center video content — single centered column when no playlist - C2 C1 */
+#columns.ytd-watch-flexy {
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
 }
 
 #primary {
   max-width: 900px !important;
-  width: 80% !important;
+  width: 100% !important;
 }
 
-/* - Constrain comments when playlist is active so playlist stays accessible - C1 U1 */
+/* - Playlist active: show sidebar, constrain comments so playlist stays accessible - C1 U1 */
+#secondary:has(ytd-playlist-panel-renderer) {
+  display: block !important;
+  width: 400px !important;
+  min-width: 400px !important;
+}
+
+#columns:has(ytd-playlist-panel-renderer) #primary {
+  max-width: none !important;
+  flex: 1 !important;
+}
+
 #columns:has(ytd-playlist-panel-renderer) ytd-comments#comments {
   max-height: 500px !important;
   overflow-y: auto !important;
@@ -308,6 +332,25 @@ button[data-tooltip-target-id="ytp-autonav-toggle-button"] {
 /* - Remove misleading or unrelated sections from the search page - U2 C3 */
 ytd-two-column-search-results-renderer[is-search="true"] .ytd-item-section-renderer[thumbnail-style=""] {
   display: none !important;
+}
+
+/* - Center and constrain search results column - C1 U1 */
+ytd-search ytd-two-column-search-results-renderer {
+  max-width: 800px !important;
+  margin: 0 auto !important;
+}
+ytd-search #page-manager {
+  display: flex !important;
+  justify-content: center !important;
+}
+/* - Center search filter chips to match results column - C1 */
+ytd-search ytd-search-header-renderer {
+  max-width: 800px !important;
+  margin: 0 auto !important;
+}
+ytd-search ytd-section-list-renderer {
+  max-width: 800px !important;
+  margin: 0 auto !important;
 }
 
 /* - Stop unwanted focus effects - P1 */
