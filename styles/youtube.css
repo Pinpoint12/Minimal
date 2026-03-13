@@ -2,62 +2,25 @@
 #related, #ticket-shelf, #merch-shelf {
   display: none !important;
 }
-/* - Hide #secondary when no playlist - C2 */
-#secondary:not(:has(ytd-playlist-panel-renderer)) {
-  display: none !important;
+#secondary{
+  width: auto!important;
+  min-width: 0!important;
 }
-
 .ytd-horizontal-card-list-renderer {
   display: none !important;
 }
 
-/* - Flatten ALL nested scroll containers so the whole page scrolls naturally - C1 U1 */
-ytd-app {
-  overflow-y: scroll !important;
-}
-ytd-page-manager {
-  overflow: visible !important;
-}
-ytd-watch-flexy {
-  overflow: visible !important;
-}
-ytd-watch-flexy[theater] #below {
-  height: auto !important;
-  overflow: visible !important;
-  position: static !important;
-}
-ytd-watch-flexy[theater] #columns {
-  height: auto !important;
-  overflow: visible !important;
-}
-
-/* - Center video content — single centered column when no playlist - C2 C1 */
-#columns.ytd-watch-flexy {
-  max-width: 900px !important;
-  margin: 0 auto !important;
-  padding: 0 24px !important;
+/* - Center video content with max-width - C2 */
+#columns {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #primary {
   max-width: 900px !important;
-  width: 100% !important;
-}
-
-/* - Playlist active: show sidebar, constrain comments so playlist stays accessible - C1 U1 */
-#secondary:has(ytd-playlist-panel-renderer) {
-  display: block !important;
-  width: 400px !important;
-  min-width: 400px !important;
-}
-
-#columns:has(ytd-playlist-panel-renderer) #primary {
-  max-width: none !important;
-  flex: 1 !important;
-}
-
-#columns:has(ytd-playlist-panel-renderer) ytd-comments#comments {
-  max-height: 500px !important;
-  overflow-y: auto !important;
+  width: 80% !important;
 }
 
 /* - Fix channel page grid layout - C2 */
@@ -301,10 +264,6 @@ button.yt-spec-button-shape-next.yt-spec-button-shape-next--filled.yt-spec-butto
   display: none;
 }
 
-/* - Remove the theater button (we force theater mode) - U2 */
-.ytp-size-button {
-  display: none !important;
-}
 
 /* - Remove the minify button - U2 */
 .ytp-miniplayer-button {
@@ -334,8 +293,8 @@ ytd-two-column-search-results-renderer[is-search="true"] .ytd-item-section-rende
   display: none !important;
 }
 
-/* - Center and constrain search results column - C1 U1 */
-ytd-search ytd-two-column-search-results-renderer {
+/* - Center and constrain search results column (only when no secondary panel) - C1 U1 */
+ytd-search ytd-two-column-search-results-renderer:not(:has(ytd-secondary-search-container-renderer)) {
   max-width: 800px !important;
   margin: 0 auto !important;
 }
@@ -344,11 +303,11 @@ ytd-search #page-manager {
   justify-content: center !important;
 }
 /* - Center search filter chips to match results column - C1 */
-ytd-search ytd-search-header-renderer {
+ytd-search:not(:has(ytd-secondary-search-container-renderer)) ytd-search-header-renderer {
   max-width: 800px !important;
   margin: 0 auto !important;
 }
-ytd-search ytd-section-list-renderer {
+ytd-search:not(:has(ytd-secondary-search-container-renderer)) ytd-section-list-renderer {
   max-width: 800px !important;
   margin: 0 auto !important;
 }

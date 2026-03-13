@@ -45,38 +45,6 @@
 		activeObservers = [];
 	}
 
-	/* - Use theater mode via attribute check instead of fragile SVG path comparison - C1 */
-	function activateTheaterMode() {
-		if (window.location.pathname !== '/watch') return;
-		const player = document.querySelector('ytd-watch-flexy');
-		if (player && !player.hasAttribute('theater')) {
-			const theaterBtn = document.querySelector('.ytp-size-button');
-			if (theaterBtn) theaterBtn.click();
-		}
-	}
-
-	/* - Intercept "t" key to prevent toggling theater mode - U2 */
-	let theaterKeyBound = false;
-	function interceptTheaterModeKeypress() {
-		if (theaterKeyBound) return;
-		theaterKeyBound = true;
-		document.addEventListener('keydown', function(e) {
-			if ((e.key === 't' || e.key === 'T') && window.location.pathname === '/watch') {
-				const active = document.activeElement;
-				const isTyping = active.tagName === 'INPUT' ||
-					active.tagName === 'TEXTAREA' ||
-					active.isContentEditable ||
-					active.getAttribute('role') === 'textbox';
-
-				if (!isTyping) {
-					e.preventDefault();
-					e.stopPropagation();
-					e.stopImmediatePropagation();
-					return false;
-				}
-			}
-		}, true);
-	}
 
 	/* - Remove autoplay "feature" - U1 */
 	function deactivateAutoplay() {
@@ -286,8 +254,16 @@
 		});
 	}
 
-	/* Execute modifications for current page state */
+	/* Execute all modifications */
+	let hasExecuted = false;
 	function execute() {
+		if (hasExecuted) return;
+		if (document.readyState !== 'complete') {
+			setTimeout(execute, 500);
+			return;
+		}
+
+		hasExecuted = true;
 		revealPage();
 
 		/* Homepage handling - non-destructive overlay */
@@ -299,27 +275,25 @@
 
 		setupTitleObserver();
 
-		/* Video page modifications - C1 U1 U2 */
-		if (window.location.pathname === '/watch') {
-			activateTheaterMode();
-			setupAutoplayObserver();
-			if (document.getElementById('chat')) hideLiveChat();
 
-			/* Re-apply on video changes within the same page */
-			const player = document.querySelector('ytd-watch-flexy');
-			if (player) {
-				const obs = new MutationObserver(() => {
-					activateTheaterMode();
-					deactivateAutoplay();
-				});
-				obs.observe(player, { attributes: true, attributeFilter: ['video-id'] });
-				trackObserver(obs);
-			}
-		}
+		setupAutoplayObserver();
 
-		interceptTheaterModeKeypress();
+		if (document.getElementById('chat')) hideLiveChat();
 		replaceSubscriptionManager();
 		applyOptionalStyles();
+
+		/* Watch for video page changes */
+		if (window.location.pathname === '/watch') {
+			const videoPage = document.getElementsByClassName('html5-video-container')[0];
+			if (videoPage) {
+				const observer = new MutationObserver(() => {
+			
+					deactivateAutoplay();
+				});
+				observer.observe(videoPage, { childList: true });
+				trackObserver(observer);
+			}
+		}
 	}
 
 	/* Main initialization - checks enabled state */
@@ -334,15 +308,30 @@
 			console.log('[minimal] YouTube: Enabled, applying modifications');
 			document.body?.classList.add('minimal-loading');
 
-			/* Initial execution when page is ready */
-			if (document.readyState === 'complete') {
-				execute();
-			} else {
-				window.addEventListener('load', execute, { once: true });
-			}
+			execute();
 
-			/* SPA navigation handler — YouTube fires yt-navigate-finish on client-side nav */
+			/* Navigation progress observer for SPA navigation */
+			const domInterval = setInterval(() => {
+				const targetNode = document.querySelector('yt-page-navigation-progress');
+				if (targetNode) {
+					const observer = new MutationObserver(mutations => {
+						const observed = mutations[0]?.target?.attributes['aria-valuenow'];
+						if (observed?.nodeValue === '100') {
+							hasExecuted = false;
+							execute();
+						}
+					});
+					observer.observe(targetNode, { attributes: true, attributeFilter: ['aria-valuenow'] });
+					clearInterval(domInterval);
+				}
+			}, 500);
+
+			setTimeout(execute, 500);
+			window.addEventListener('load', execute);
+
+			/* Also listen for yt-navigate-finish as backup */
 			document.addEventListener('yt-navigate-finish', () => {
+				hasExecuted = false;
 				cleanupObservers();
 				execute();
 			});
