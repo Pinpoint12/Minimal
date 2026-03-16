@@ -226,21 +226,27 @@
 
 			const rules = [];
 			if (data.yt_hideViewCounts) {
-				/* Hide view counts on search results and video listings */
+				/* Hide view count on watch page and search results - C3 P1 */
 				rules.push(`
-					ytd-video-meta-block #metadata-line span.ytd-video-meta-block:first-child,
-					ytd-video-renderer #metadata-line span.ytd-video-meta-block:first-child {
+					ytd-watch-info-text#ytd-watch-info-text {
+						display: none !important;
+					}
+					ytd-video-meta-block #metadata-line span.ytd-video-meta-block:first-child {
 						display: none !important;
 					}
 				`);
 			}
 			if (data.yt_hideLikeCounts) {
-				/* Hide like/dislike count text on watch page */
+				/* Hide like/dislike counts on watch page - C3 P1 */
 				rules.push(`
-					#top-level-buttons-computed ytd-toggle-button-renderer .yt-spec-button-shape-next__button-text-content,
+					segmented-like-dislike-button-view-model .yt-spec-button-shape-next__button-text-content,
 					#top-level-buttons-computed ytd-segmented-like-dislike-button-renderer .yt-spec-button-shape-next__button-text-content,
-					segmented-like-dislike-button-view-model .yt-spec-button-shape-next__button-text-content {
+					#top-level-buttons-computed ytd-toggle-button-renderer .yt-spec-button-shape-next__button-text-content {
 						display: none !important;
+					}
+					segmented-like-dislike-button-view-model button.yt-spec-button-shape-next,
+					#top-level-buttons-computed button.yt-spec-button-shape-next {
+						padding: 0 8px 0 16px !important;
 					}
 				`);
 			}
