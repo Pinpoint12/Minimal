@@ -16,9 +16,24 @@ Minimal is a Chrome/Chromium browser extension (Manifest V3) that removes distra
 - **pages/** - Popup UI for toggling extension per-site (uses messaging API)
 - **_locales/** - i18n translations (en, de, es, fr)
 
+### Site Tiers
+
+**Tier 1 — Full experience** (custom homepage, FOUC prevention, scroll walls, popup options):
+- YouTube - complete
+- Reddit - complete
+- Twitter/X - TODO
+- Facebook - TODO
+- Amazon - TODO
+- LinkedIn - TODO
+
+**Tier 2 — Light touch** (CSS hiding, minimal JS):
+- Netflix
+- Google
+- Yahoo
+
 ### Content Script Patterns
-1. **CSS-only** (Amazon, Google, Yahoo) - Pure display:none hiding
-2. **CSS + Light JS** (Twitter, Facebook, Netflix) - Interval-based DOM monitoring
+1. **CSS-only** (Google, Yahoo) - Pure display:none hiding
+2. **CSS + Light JS** (Netflix) - Interval-based DOM monitoring
 3. **Complex JS** (YouTube, Reddit) - MutationObserver, custom homepage replacement, FOUC prevention
 
 ### Manifest V3 Architecture
@@ -62,6 +77,23 @@ Mark CSS class selectors that may break on site updates:
 /* FRAGILE */ .some-generated-class { display: none; }
 ```
 
+### FOUC Prevention Pattern
+Used on Tier 1 sites. At `document_start`, inject a `<style>` that hides `body` unconditionally (no class needed — body doesn't exist yet at document_start so class-based approaches fail). `revealPage()` removes the style element after the overlay is in place or immediately if disabled. 2-second failsafe timeout.
+
+```javascript
+// Outside IIFE — runs first
+(function() {
+  const s = document.createElement('style');
+  s.id = 'minimal-SITE-preload-style';
+  s.textContent = 'body { visibility: hidden !important; opacity: 0 !important; }';
+  (document.head || document.documentElement).appendChild(s);
+  setTimeout(() => document.getElementById(s.id)?.remove(), 2000);
+})();
+```
+
+### Homepage Overlay Pattern
+Used on Tier 1 sites. Non-destructive: hide the site's app shell (e.g. `shreddit-app`, `#page-manager`), append a `position: fixed; inset: 0; z-index: 2000` overlay with logo + search + hint text. Preserves SPA routing. CSS lives in the static stylesheet, not inline JS.
+
 ### Popup Options System
 - Site-specific toggle options appear in popup when on a supported site
 - YouTube options: "Hide view counts", "Hide like/dislike counts" (off by default)
@@ -72,9 +104,9 @@ Mark CSS class selectors that may break on site updates:
 ## Key Files
 
 - **scripts/youtube.js** (~370 lines) - Non-destructive homepage overlay, SPA navigation via `yt-navigate-finish`, autoplay removal, subscription manager, optional styles
-- **scripts/reddit.js** (~370 lines) - NSFW blocker, custom homepage, sidebar removal, scroll depth wall (IntersectionObserver-based)
-- **styles/youtube.css** - Watch page centering, search results centering (800px), playlist sticky positioning, homepage overlay styles
-- **styles/reddit.css** - Scroll depth wall styling, vote count dot replacement
+- **scripts/reddit.js** (~500 lines) - NSFW blocker, non-destructive homepage overlay, sidebar removal, scroll depth wall (IntersectionObserver-based), FOUC prevention
+- **styles/youtube.css** (~340 lines) - Watch page centering, search results centering (800px), playlist sticky positioning, homepage overlay styles
+- **styles/reddit.css** (~340 lines) - Homepage overlay styles (matching YouTube design language), scroll depth wall styling, vote count dot replacement, dark mode support
 - **pages/badgePopup.html/js/css** - Extension popup with per-site toggle, site-specific options, element picker, hidden elements manager
 - **main.js** - Resource mapping, enable/disable logic, tab lifecycle, context menus, element picker injection
 
