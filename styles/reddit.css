@@ -157,3 +157,186 @@ faceplate-number:hover::after {
 ._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5:hover{ /* FRAGILE */
   opacity:1
 }
+
+/* =============================================
+   MINIMAL REDDIT HOMEPAGE OVERLAY - C2 P1
+   Mirrors YouTube homepage design language
+   ============================================= */
+
+#minimal-reddit-homepage {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-neutral-background, #fff);
+  /* Shift content slightly above geometric center for optical balance */
+  padding-bottom: 12vh;
+}
+
+/* - Brand logo with staggered fade-in - P1 */
+.minimal-reddit-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: minimal-reddit-fadein 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.15s forwards;
+}
+
+.minimal-reddit-logo-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.minimal-reddit-logo-text {
+  height: 24px;
+}
+
+.minimal-reddit-logo-text path {
+  fill: var(--color-neutral-content-strong, #1a1a1b);
+}
+
+/* - Search input matching YouTube's outline style - C2 */
+.minimal-reddit-search {
+  display: flex;
+  align-items: center;
+  width: 560px;
+  max-width: 85vw;
+  position: relative;
+  opacity: 0;
+  animation: minimal-reddit-fadein 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.3s forwards;
+}
+
+.minimal-reddit-search-input {
+  width: 100%;
+  padding: 16px 52px 16px 24px;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  border: 1.5px solid var(--color-neutral-border-weak, #e0e0e0);
+  border-radius: 28px;
+  outline: none;
+  background: transparent;
+  color: var(--color-neutral-content-strong, #1a1a1b);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-sizing: border-box;
+}
+
+.minimal-reddit-search-input:focus {
+  border-color: var(--color-neutral-content-weak, #888);
+  box-shadow: none;
+}
+
+.minimal-reddit-search-input::placeholder {
+  color: var(--color-neutral-content-weak, #999);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+.minimal-reddit-search-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neutral-content-weak, #999);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.minimal-reddit-search-btn:hover {
+  color: var(--color-neutral-content-strong, #333);
+  background: var(--color-secondary-background, rgba(0, 0, 0, 0.04));
+}
+
+/* - Intentionality prompt below search - U1 */
+.minimal-reddit-hint {
+  margin: 18px 0 0;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: var(--color-neutral-content-weak, #999);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+  font-weight: 300;
+  opacity: 0;
+  animation: minimal-reddit-fadein 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.5s forwards;
+}
+
+@keyframes minimal-reddit-fadein {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Dark mode — Reddit uses .theme-dark on <html> */
+html.theme-dark #minimal-reddit-homepage {
+  background: #0f0f0f;
+}
+
+html.theme-dark .minimal-reddit-logo-text path {
+  fill: #e8e8e8;
+}
+
+html.theme-dark .minimal-reddit-search-input {
+  color: #e8e8e8;
+  border-color: #333;
+}
+
+html.theme-dark .minimal-reddit-search-input:focus {
+  border-color: #555;
+}
+
+html.theme-dark .minimal-reddit-search-input::placeholder {
+  color: #666;
+}
+
+html.theme-dark .minimal-reddit-search-btn {
+  color: #666;
+}
+
+html.theme-dark .minimal-reddit-search-btn:hover {
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html.theme-dark .minimal-reddit-hint {
+  color: #555;
+}
+
+/* prefers-color-scheme fallback for when theme class isn't set yet */
+@media (prefers-color-scheme: dark) {
+  html:not(.theme-light) #minimal-reddit-homepage {
+    background: #0f0f0f;
+  }
+  html:not(.theme-light) .minimal-reddit-logo-text path {
+    fill: #e8e8e8;
+  }
+  html:not(.theme-light) .minimal-reddit-search-input {
+    color: #e8e8e8;
+    border-color: #333;
+  }
+  html:not(.theme-light) .minimal-reddit-search-input:focus {
+    border-color: #555;
+  }
+  html:not(.theme-light) .minimal-reddit-search-input::placeholder {
+    color: #666;
+  }
+  html:not(.theme-light) .minimal-reddit-search-btn {
+    color: #666;
+  }
+  html:not(.theme-light) .minimal-reddit-search-btn:hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  html:not(.theme-light) .minimal-reddit-hint {
+    color: #555;
+  }
+}
