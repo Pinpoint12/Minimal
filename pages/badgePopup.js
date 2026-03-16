@@ -168,6 +168,7 @@ pickElementBtn.addEventListener('click', async () => {
 const siteOptionsDiv = document.getElementById("site-options");
 const ytHideViewCounts = document.getElementById("yt-hide-view-counts");
 const ytHideLikeCounts = document.getElementById("yt-hide-like-counts");
+const ytHideComments = document.getElementById("yt-hide-comments");
 
 /* Load and show site-specific options */
 async function loadSiteOptions() {
@@ -179,13 +180,16 @@ async function loadSiteOptions() {
 	siteOptionsDiv.style.display = 'block';
 	document.getElementById('opt-hide-view-counts').style.display = 'flex';
 	document.getElementById('opt-hide-like-counts').style.display = 'flex';
+	document.getElementById('opt-hide-comments').style.display = 'flex';
 
 	const data = await chrome.storage.sync.get({
 		yt_hideViewCounts: false,
-		yt_hideLikeCounts: false
+		yt_hideLikeCounts: false,
+		yt_hideComments: false
 	});
 	ytHideViewCounts.checked = data.yt_hideViewCounts;
 	ytHideLikeCounts.checked = data.yt_hideLikeCounts;
+	ytHideComments.checked = data.yt_hideComments;
 }
 
 /* Handle YouTube option toggles - C3 P1 */
@@ -196,6 +200,11 @@ ytHideViewCounts.addEventListener('change', async function() {
 
 ytHideLikeCounts.addEventListener('change', async function() {
 	await chrome.storage.sync.set({ yt_hideLikeCounts: this.checked });
+	if (currentTabId) await chrome.tabs.reload(currentTabId);
+});
+
+ytHideComments.addEventListener('change', async function() {
+	await chrome.storage.sync.set({ yt_hideComments: this.checked });
 	if (currentTabId) await chrome.tabs.reload(currentTabId);
 });
 

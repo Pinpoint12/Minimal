@@ -219,7 +219,8 @@
 	function applyOptionalStyles() {
 		chrome.storage.sync.get({
 			yt_hideViewCounts: false,
-			yt_hideLikeCounts: false
+			yt_hideLikeCounts: false,
+			yt_hideComments: false
 		}, (data) => {
 			let existing = document.getElementById('minimal-yt-optional-styles');
 			if (existing) existing.remove();
@@ -247,6 +248,14 @@
 					segmented-like-dislike-button-view-model button.yt-spec-button-shape-next,
 					#top-level-buttons-computed button.yt-spec-button-shape-next {
 						padding: 0 8px 0 16px !important;
+					}
+				`);
+			}
+			if (data.yt_hideComments) {
+				/* Hide comments section on watch page - C2 */
+				rules.push(`
+					ytd-comments#comments {
+						display: none !important;
 					}
 				`);
 			}
