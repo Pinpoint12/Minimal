@@ -2,39 +2,22 @@
 /* All modifications gated behind enabled check - C1 C2 P1 */
 
 /* Prevent flash of unstyled content - inject immediately at document_start */
-/* Runs OUTSIDE the IIFE so it executes before anything else */
+/* Hides body unconditionally — no class needed, so no gap between body
+   appearing and class being added. revealPage() removes this style. */
 (function() {
 	const preloadStyle = document.createElement('style');
 	preloadStyle.id = 'minimal-reddit-preload-style';
 	preloadStyle.textContent = `
-		body.minimal-loading {
+		body {
 			visibility: hidden !important;
 			opacity: 0 !important;
-		}
-		body.minimal-ready {
-			visibility: visible !important;
-			opacity: 1 !important;
-			transition: opacity 0.1s ease-in !important;
 		}
 	`;
 	(document.head || document.documentElement).appendChild(preloadStyle);
 
-	/* Add loading class as early as possible */
-	if (document.body) {
-		document.body.classList.add('minimal-loading');
-	} else {
-		document.addEventListener('DOMContentLoaded', () => {
-			document.body.classList.add('minimal-loading');
-		}, { once: true });
-	}
-
 	/* Failsafe: reveal after 2s regardless */
 	setTimeout(() => {
-		document.body?.classList.remove('minimal-loading');
-		document.body?.classList.add('minimal-ready');
-		setTimeout(() => {
-			document.getElementById('minimal-reddit-preload-style')?.remove();
-		}, 300);
+		document.getElementById('minimal-reddit-preload-style')?.remove();
 	}, 2000);
 })();
 
@@ -43,13 +26,9 @@
 
 	const SITE_NAME = 'reddit';
 
-	/* Reveal page - matches YouTube pattern */
+	/* Reveal page - removes the preload style that hides body */
 	function revealPage() {
-		document.body?.classList.remove('minimal-loading');
-		document.body?.classList.add('minimal-ready');
-		setTimeout(() => {
-			document.getElementById('minimal-reddit-preload-style')?.remove();
-		}, 300);
+		document.getElementById('minimal-reddit-preload-style')?.remove();
 	}
 
 	/* NSFW URL blocklist - runs regardless of enabled state for safety */
