@@ -251,11 +251,11 @@
 	/* - Replace vote/comment counts with dots to prevent social proof bias - C3 P1 */
 	function hideVoteCounts() {
 		const HIDE_CSS = `
-			faceplate-number { font-size: 0 !important; }
+			faceplate-number { font-size: 0 !important; cursor: pointer; }
 			faceplate-number::after { content: '···'; font-size: 12px; letter-spacing: 1px; opacity: 0.4; }
 			faceplate-number[data-minimal-dots]::after { content: attr(data-minimal-dots); }
-			faceplate-number:hover { font-size: inherit !important; }
-			faceplate-number:hover::after { display: none; }
+			faceplate-number.minimal-revealed { font-size: inherit !important; cursor: default; }
+			faceplate-number.minimal-revealed::after { display: none; }
 		`;
 
 		/* Map number to appropriate dot count to prevent layout shift */
@@ -266,13 +266,14 @@
 			return '····';
 		}
 
-		/* Set data-minimal-dots on faceplate-number elements */
+		/* Set data-minimal-dots on faceplate-number elements and wire click-to-reveal - U1 */
 		function setDots(root) {
 			root.querySelectorAll('faceplate-number:not([data-minimal-dots])').forEach(el => {
 				const num = parseInt(el.getAttribute('number'), 10);
 				if (!isNaN(num)) {
 					el.setAttribute('data-minimal-dots', getDots(num));
 				}
+				el.addEventListener('click', () => el.classList.add('minimal-revealed'));
 			});
 		}
 
