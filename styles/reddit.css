@@ -68,24 +68,35 @@ span[data-part="advertise"] {
   pointer-events: none;
 }
 
-/* - Hide vote/comment counts instantly (non-shadow-DOM elements) - C3 P1 */
-faceplate-number {
+/* - Vote count styles gated by mode class on <html> - C3 P1 */
+
+/* Dots mode: replace counts with dots, click to reveal */
+html.minimal-vote-dots faceplate-number {
   font-size: 0 !important;
+  cursor: pointer;
 }
-faceplate-number::after {
+html.minimal-vote-dots faceplate-number::after {
   content: '···';
   font-size: 12px;
   letter-spacing: 1px;
   opacity: 0.4;
 }
-faceplate-number[data-minimal-dots]::after {
+html.minimal-vote-dots faceplate-number[data-minimal-dots]::after {
   content: attr(data-minimal-dots);
 }
-faceplate-number.minimal-revealed {
+html.minimal-vote-dots faceplate-number.minimal-revealed {
   font-size: inherit !important;
   cursor: default;
 }
-faceplate-number.minimal-revealed::after {
+html.minimal-vote-dots faceplate-number.minimal-revealed::after {
+  display: none;
+}
+
+/* Hidden mode: counts completely invisible */
+html.minimal-vote-hidden faceplate-number {
+  font-size: 0 !important;
+}
+html.minimal-vote-hidden faceplate-number::after {
   display: none;
 }
 

@@ -248,15 +248,35 @@
 		if (app) app.style.removeProperty('display');
 	}
 
-	/* - Replace vote/comment counts with dots to prevent social proof bias - C3 P1 */
-	function hideVoteCounts() {
-		const HIDE_CSS = `
+	/* - Vote count styling based on user preference - C3 P1 U1 */
+	function applyVoteStyle(mode) {
+		/* Add mode class to <html> for static CSS rules */
+		document.documentElement.classList.remove('minimal-vote-dots', 'minimal-vote-hidden');
+		if (mode === 'dots') {
+			document.documentElement.classList.add('minimal-vote-dots');
+		} else if (mode === 'hidden') {
+			document.documentElement.classList.add('minimal-vote-hidden');
+		}
+
+		/* "visible" needs no further work — static CSS handles nothing */
+		if (mode === 'visible') return;
+
+		const DOTS_CSS = `
 			faceplate-number { font-size: 0 !important; cursor: pointer; }
 			faceplate-number::after { content: '···'; font-size: 12px; letter-spacing: 1px; opacity: 0.4; }
 			faceplate-number[data-minimal-dots]::after { content: attr(data-minimal-dots); }
 			faceplate-number.minimal-revealed { font-size: inherit !important; cursor: default; }
 			faceplate-number.minimal-revealed::after { display: none; }
 		`;
+
+		const HIDDEN_CSS = `
+			faceplate-number { font-size: 0 !important; }
+			faceplate-number::after { display: none; }
+			/* - Collapse icon margin when count is hidden - C3 */
+			.me-\\[var\\(--rem6\\)\\]:has(+ span faceplate-number) { margin-inline-end: 0 !important; }
+		`;
+
+		const SHADOW_CSS = mode === 'dots' ? DOTS_CSS : HIDDEN_CSS;
 
 		/* Map number to appropriate dot count to prevent layout shift */
 		function getDots(num) {
@@ -267,28 +287,31 @@
 		}
 
 		/* Set data-minimal-dots on faceplate-number elements and wire click-to-reveal - U1 */
-		function setDots(root) {
-			root.querySelectorAll('faceplate-number:not([data-minimal-dots])').forEach(el => {
-				const num = parseInt(el.getAttribute('number'), 10);
-				if (!isNaN(num)) {
-					el.setAttribute('data-minimal-dots', getDots(num));
+		function processElements(root) {
+			root.querySelectorAll('faceplate-number:not([data-minimal-processed])').forEach(el => {
+				el.setAttribute('data-minimal-processed', '1');
+				if (mode === 'dots') {
+					const num = parseInt(el.getAttribute('number'), 10);
+					if (!isNaN(num)) {
+						el.setAttribute('data-minimal-dots', getDots(num));
+					}
+					el.addEventListener('click', () => el.classList.add('minimal-revealed'));
 				}
-				el.addEventListener('click', () => el.classList.add('minimal-revealed'));
 			});
 		}
 
-		/* Inject hiding CSS into shadow roots and set dot counts */
+		/* Inject hiding CSS into shadow roots */
 		function processTree(root) {
-			setDots(root);
+			processElements(root);
 			root.querySelectorAll('*').forEach(el => {
 				if (el.shadowRoot) {
 					if (!el.shadowRoot.querySelector('#minimal-hide-counts')) {
 						const style = document.createElement('style');
 						style.id = 'minimal-hide-counts';
-						style.textContent = HIDE_CSS;
+						style.textContent = SHADOW_CSS;
 						el.shadowRoot.appendChild(style);
 					}
-					setDots(el.shadowRoot);
+					processElements(el.shadowRoot);
 					processTree(el.shadowRoot);
 				}
 			});
@@ -460,7 +483,7 @@
 		blockNSFWContent();
 
 		/* Check if Minimal is enabled for Reddit */
-		chrome.storage.sync.get({ [SITE_NAME]: "enabled" }, (data) => {
+		chrome.storage.sync.get({ [SITE_NAME]: "enabled", reddit_voteStyle: "dots" }, (data) => {
 			const isEnabled = data[SITE_NAME] === "enabled";
 
 			if (!isEnabled) {
@@ -472,21 +495,20 @@
 
 			/* Minimal is enabled - run all modifications */
 			console.log('[minimal] Reddit: Enabled, applying modifications');
+			const voteStyle = data.reddit_voteStyle || 'dots';
 
-			if (document.readyState === 'loading') {
-				document.addEventListener('DOMContentLoaded', () => {
-					setupLayout();
-					replaceRedditHomePage();
-					revealPage();
-					hideVoteCounts();
-					addScrollDepthWall();
-				});
-			} else {
+			function applyAll() {
 				setupLayout();
 				replaceRedditHomePage();
 				revealPage();
-				hideVoteCounts();
+				applyVoteStyle(voteStyle);
 				addScrollDepthWall();
+			}
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', applyAll);
+			} else {
+				applyAll();
 			}
 		});
 	}

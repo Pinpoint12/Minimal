@@ -172,24 +172,33 @@ const ytHideComments = document.getElementById("yt-hide-comments");
 
 /* Load and show site-specific options */
 async function loadSiteOptions() {
-	if (currentSiteName !== 'youtube') {
+	if (currentSiteName === 'youtube') {
+		siteOptionsDiv.style.display = 'block';
+		document.getElementById('opt-hide-view-counts').style.display = 'flex';
+		document.getElementById('opt-hide-like-counts').style.display = 'flex';
+		document.getElementById('opt-hide-comments').style.display = 'flex';
+
+		const data = await chrome.storage.sync.get({
+			yt_hideViewCounts: false,
+			yt_hideLikeCounts: false,
+			yt_hideComments: false
+		});
+		ytHideViewCounts.checked = data.yt_hideViewCounts;
+		ytHideLikeCounts.checked = data.yt_hideLikeCounts;
+		ytHideComments.checked = data.yt_hideComments;
+	} else if (currentSiteName === 'reddit') {
+		siteOptionsDiv.style.display = 'block';
+		document.getElementById('opt-reddit-vote-style').style.display = 'flex';
+
+		const data = await chrome.storage.sync.get({ reddit_voteStyle: 'dots' });
+		const current = data.reddit_voteStyle || 'dots';
+		const btns = document.querySelectorAll('#reddit-vote-style .seg-btn');
+		btns.forEach(btn => {
+			btn.classList.toggle('active', btn.dataset.value === current);
+		});
+	} else {
 		siteOptionsDiv.style.display = 'none';
-		return;
 	}
-
-	siteOptionsDiv.style.display = 'block';
-	document.getElementById('opt-hide-view-counts').style.display = 'flex';
-	document.getElementById('opt-hide-like-counts').style.display = 'flex';
-	document.getElementById('opt-hide-comments').style.display = 'flex';
-
-	const data = await chrome.storage.sync.get({
-		yt_hideViewCounts: false,
-		yt_hideLikeCounts: false,
-		yt_hideComments: false
-	});
-	ytHideViewCounts.checked = data.yt_hideViewCounts;
-	ytHideLikeCounts.checked = data.yt_hideLikeCounts;
-	ytHideComments.checked = data.yt_hideComments;
 }
 
 /* Handle YouTube option toggles - C3 P1 */
@@ -206,6 +215,16 @@ ytHideLikeCounts.addEventListener('change', async function() {
 ytHideComments.addEventListener('change', async function() {
 	await chrome.storage.sync.set({ yt_hideComments: this.checked });
 	if (currentTabId) await chrome.tabs.reload(currentTabId);
+});
+
+/* Handle Reddit vote style segmented control - C3 P1 */
+document.querySelectorAll('#reddit-vote-style .seg-btn').forEach(btn => {
+	btn.addEventListener('click', async () => {
+		document.querySelectorAll('#reddit-vote-style .seg-btn').forEach(b => b.classList.remove('active'));
+		btn.classList.add('active');
+		await chrome.storage.sync.set({ reddit_voteStyle: btn.dataset.value });
+		if (currentTabId) await chrome.tabs.reload(currentTabId);
+	});
 });
 
 /* Initialize popup */

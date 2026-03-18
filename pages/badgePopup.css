@@ -207,6 +207,46 @@ main {
 	transform: translateX(16px);
 }
 
+/* Segmented Control */
+.option-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 0;
+}
+
+.option-row span {
+	font-size: 13px;
+	color: var(--text-color);
+}
+
+.segmented-control {
+	display: flex;
+	background: var(--bg-secondary);
+	border-radius: 6px;
+	overflow: hidden;
+	border: 1px solid var(--border-color);
+}
+
+.seg-btn {
+	background: none;
+	border: none;
+	color: var(--text-muted);
+	font-size: 11px;
+	padding: 5px 10px;
+	cursor: pointer;
+	transition: background 0.15s, color 0.15s;
+}
+
+.seg-btn:hover {
+	color: var(--text-color);
+}
+
+.seg-btn.active {
+	background: var(--accent-color);
+	color: #fff;
+}
+
 /* Hidden Elements Section */
 .hidden-section {
 	margin-top: 16px;
