@@ -29,18 +29,268 @@
   overflow: hidden !important;
 }
 
-:root.block-all-content::before {
-  content: "";
-  display: block;
+/* Optional extra belt-and-suspenders: hide body children if flagged */
+body[data-block-on-url] > *:not(#minimal-blocked-overlay) {
+  display: none !important;
+}
+
+/* =============================================
+   MINIMAL REDDIT BLOCKED OVERLAY - C2
+   Mirrors homepage overlay design language
+   ============================================= */
+
+#minimal-blocked-overlay {
+  display: none;
+}
+
+:root.block-all-content #minimal-blocked-overlay {
+  display: flex;
   position: fixed;
   inset: 0;
   z-index: 2147483647;
-  background: #fff;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-neutral-background, #fff);
+  padding-bottom: 12vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
 }
 
-/* Optional extra belt-and-suspenders: hide body children if flagged */
-body[data-block-on-url] > * {
-  display: none !important;
+/* - Brand logo matching homepage - P1 */
+.minimal-blocked-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: minimal-reddit-fadein 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.15s forwards;
+}
+
+.minimal-blocked-logo-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.minimal-blocked-logo-text {
+  height: 24px;
+}
+
+.minimal-blocked-logo-text path {
+  fill: var(--color-neutral-content-strong, #1a1a1b);
+}
+
+/* - Shield + message group - C2 */
+.minimal-blocked-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: minimal-reddit-fadein 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.3s forwards;
+}
+
+.minimal-blocked-shield {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 16px;
+  color: var(--color-neutral-content-weak, #999);
+  overflow: visible;
+}
+
+.minimal-blocked-title {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--color-neutral-content-strong, #1a1a1b);
+  margin: 0 0 6px;
+}
+
+.minimal-blocked-desc {
+  font-size: 12.5px;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: var(--color-neutral-content-weak, #999);
+  margin: 0;
+}
+
+/* - Search input matching homepage pill style - C2 */
+.minimal-blocked-search {
+  display: flex;
+  align-items: center;
+  width: 560px;
+  max-width: 85vw;
+  position: relative;
+  opacity: 0;
+  animation: minimal-reddit-fadein 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.45s forwards;
+}
+
+.minimal-blocked-search-input {
+  width: 100%;
+  padding: 16px 52px 16px 24px;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  border: 1.5px solid var(--color-neutral-border-weak, #e0e0e0);
+  border-radius: 28px;
+  outline: none;
+  background: transparent;
+  color: var(--color-neutral-content-strong, #1a1a1b);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+  transition: border-color 0.25s ease;
+  box-sizing: border-box;
+}
+
+.minimal-blocked-search-input:focus {
+  border-color: var(--color-neutral-content-weak, #888);
+}
+
+.minimal-blocked-search-input::placeholder {
+  color: var(--color-neutral-content-weak, #999);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+.minimal-blocked-search-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neutral-content-weak, #999);
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.minimal-blocked-search-btn:hover {
+  color: var(--color-neutral-content-strong, #333);
+  background: var(--color-secondary-background, rgba(0, 0, 0, 0.04));
+}
+
+/* - Go back link styled as hint text - U1 */
+.minimal-blocked-back {
+  margin: 18px 0 0;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: var(--color-neutral-content-weak, #999);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+  font-weight: 300;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-neutral-content-weak, rgba(0, 0, 0, 0.2));
+  border-radius: 0;
+  padding: 2px 0;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  opacity: 0;
+  animation: minimal-reddit-fadein 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.6s forwards;
+}
+
+.minimal-blocked-back:hover {
+  color: var(--color-neutral-content, rgba(0, 0, 0, 0.7));
+  border-color: var(--color-neutral-content, rgba(0, 0, 0, 0.5));
+}
+
+/* Dark mode — Reddit uses .theme-dark on <html> */
+html.theme-dark #minimal-blocked-overlay {
+  background: #0f0f0f;
+}
+
+html.theme-dark .minimal-blocked-logo-text path {
+  fill: #e8e8e8;
+}
+
+html.theme-dark .minimal-blocked-shield {
+  color: #555;
+}
+
+html.theme-dark .minimal-blocked-title {
+  color: #e8e8e8;
+}
+
+html.theme-dark .minimal-blocked-desc {
+  color: #555;
+}
+
+html.theme-dark .minimal-blocked-search-input {
+  color: #e8e8e8;
+  border-color: #333;
+}
+
+html.theme-dark .minimal-blocked-search-input:focus {
+  border-color: #555;
+}
+
+html.theme-dark .minimal-blocked-search-input::placeholder {
+  color: #666;
+}
+
+html.theme-dark .minimal-blocked-search-btn {
+  color: #666;
+}
+
+html.theme-dark .minimal-blocked-search-btn:hover {
+  color: #ccc;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html.theme-dark .minimal-blocked-back {
+  color: #555;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+html.theme-dark .minimal-blocked-back:hover {
+  color: #888;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* prefers-color-scheme fallback for when theme class isn't set yet */
+@media (prefers-color-scheme: dark) {
+  html:not(.theme-light) #minimal-blocked-overlay {
+    background: #0f0f0f;
+  }
+  html:not(.theme-light) .minimal-blocked-logo-text path {
+    fill: #e8e8e8;
+  }
+  html:not(.theme-light) .minimal-blocked-shield {
+    color: #555;
+  }
+  html:not(.theme-light) .minimal-blocked-title {
+    color: #e8e8e8;
+  }
+  html:not(.theme-light) .minimal-blocked-desc {
+    color: #555;
+  }
+  html:not(.theme-light) .minimal-blocked-search-input {
+    color: #e8e8e8;
+    border-color: #333;
+  }
+  html:not(.theme-light) .minimal-blocked-search-input:focus {
+    border-color: #555;
+  }
+  html:not(.theme-light) .minimal-blocked-search-input::placeholder {
+    color: #666;
+  }
+  html:not(.theme-light) .minimal-blocked-search-btn {
+    color: #666;
+  }
+  html:not(.theme-light) .minimal-blocked-search-btn:hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.06);
+  }
+  html:not(.theme-light) .minimal-blocked-back {
+    color: #555;
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  html:not(.theme-light) .minimal-blocked-back:hover {
+    color: #888;
+    border-color: rgba(255, 255, 255, 0.3);
+  }
 }
 /* Hide menu button */
 #hamburger-button-tooltip {
