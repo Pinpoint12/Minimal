@@ -8,8 +8,8 @@
 .ntk-filmstrip>ul>*,
 .ntk-lead {
     transition: 400ms all ease !important;
-    opacity: 0.15;
-    filter: saturate(0);
+    opacity: 0.15 !important;
+    filter: saturate(0) !important;
 }
 
 #Stream:hover>*,
@@ -17,7 +17,7 @@
 .tdv2-wafer-ntk-desktop:hover>*,
 .aside-sticky-col:hover>*,
 .ntk-filmstrip>ul:hover>* {
-    opacity: 0.3;
+    opacity: 0.3 !important;
 }
 
 #feat-bar:hover,
@@ -27,8 +27,8 @@
 .aside-sticky-col>*:hover,
 .ntk-filmstrip>ul>*:hover,
 .ntk-lead:hover {
-    opacity: 1;
-    filter: saturate(1);
+    opacity: 1 !important;
+    filter: saturate(1) !important;
 }
 
 
@@ -67,6 +67,7 @@ a[data-ylk*=MAIL],
   display: none
 }
 
+/* FRAGILE */
 li._yb_y3byc:nth-child(2) {
   padding-left: 0;
 }

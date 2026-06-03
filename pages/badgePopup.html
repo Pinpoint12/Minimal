@@ -6,9 +6,9 @@
 		<link rel="stylesheet" href="./badgePopup.css"/>
 	</head>
 	<body>
-		<header>
-			<img src="../icons/icon.png" alt="Minimal"/>
-			<h1>Minimal</h1>
+		<header class="popup-header">
+			<img src="../icons/icon.png" alt="" class="popup-logo"/>
+			<h1 class="popup-wordmark">Minimal</h1>
 		</header>
 
 		<main>
@@ -16,58 +16,63 @@
 				<label class="toggle-label" for="enable">
 					<span data-i18n="minimalStyle">Minimal style</span>
 					<input type="checkbox" id="enable">
-					<div class="toggle-switch"></div>
+					<span class="toggle-switch" aria-hidden="true"></span>
 				</label>
 			</div>
-			<div id="status" class="status"></div>
+			<div id="status" class="status" role="status" aria-live="polite"></div>
 
-			<button id="pick-element" class="btn-picker">
-				<span class="picker-icon">◎</span>
-				Pick element to hide
+			<button id="pick-element" class="btn-picker" type="button">
+				<svg class="picker-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+					<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/>
+					<circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+				</svg>
+				<span data-i18n="pickElement">Pick element to hide</span>
 			</button>
 
-			<div id="site-options" class="site-options" style="display:none;">
-				<div class="site-options-header">Options</div>
-				<label class="option-label" id="opt-hide-view-counts" style="display:none;">
-					<span>Hide view counts</span>
+			<div id="site-options" class="site-options" hidden>
+				<div class="site-options-header" data-i18n="optionsHeader">Options</div>
+				<label class="option-label" id="opt-hide-view-counts" for="yt-hide-view-counts" hidden>
+					<span data-i18n="optHideViewCounts">Hide view counts</span>
 					<input type="checkbox" id="yt-hide-view-counts">
-					<div class="toggle-switch toggle-switch-sm"></div>
+					<span class="toggle-switch toggle-switch-sm" aria-hidden="true"></span>
 				</label>
-				<label class="option-label" id="opt-hide-like-counts" style="display:none;">
-					<span>Hide like/dislike counts</span>
+				<label class="option-label" id="opt-hide-like-counts" for="yt-hide-like-counts" hidden>
+					<span data-i18n="optHideLikeCounts">Hide like/dislike counts</span>
 					<input type="checkbox" id="yt-hide-like-counts">
-					<div class="toggle-switch toggle-switch-sm"></div>
+					<span class="toggle-switch toggle-switch-sm" aria-hidden="true"></span>
 				</label>
-				<label class="option-label" id="opt-hide-comments" style="display:none;">
-					<span>Hide comments</span>
+				<label class="option-label" id="opt-hide-comments" for="yt-hide-comments" hidden>
+					<span data-i18n="optHideComments">Hide comments</span>
 					<input type="checkbox" id="yt-hide-comments">
-					<div class="toggle-switch toggle-switch-sm"></div>
+					<span class="toggle-switch toggle-switch-sm" aria-hidden="true"></span>
 				</label>
-				<div class="option-row" id="opt-reddit-vote-style" style="display:none;">
-					<span>Vote counts</span>
-					<div class="segmented-control" id="reddit-vote-style">
-						<button class="seg-btn" data-value="visible">Visible</button>
-						<button class="seg-btn" data-value="dots">Dots</button>
-						<button class="seg-btn" data-value="hidden">Hidden</button>
+				<div class="option-row" id="opt-reddit-vote-style" hidden>
+					<span id="reddit-vote-style-label" data-i18n="optVoteCounts">Vote counts</span>
+					<div class="segmented-control" id="reddit-vote-style" role="radiogroup" aria-labelledby="reddit-vote-style-label">
+						<button class="seg-btn" type="button" role="radio" aria-checked="false" tabindex="-1" data-value="visible" data-i18n="segVisible">Visible</button>
+						<button class="seg-btn" type="button" role="radio" aria-checked="false" tabindex="-1" data-value="dots" data-i18n="segDots">Dots</button>
+						<button class="seg-btn" type="button" role="radio" aria-checked="false" tabindex="-1" data-value="hidden" data-i18n="segHidden">Hidden</button>
 					</div>
 				</div>
 			</div>
 		</main>
 
 		<section id="hidden-section" class="hidden-section">
-			<div class="section-header" id="hidden-header">
-				<span>Hidden Elements</span>
+			<button class="section-header" id="hidden-header" type="button" aria-expanded="false" aria-controls="hidden-content">
+				<span data-i18n="hiddenElements">Hidden elements</span>
 				<span class="badge" id="hidden-count">0</span>
-				<span class="chevron">▼</span>
-			</div>
+				<svg class="chevron" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" focusable="false">
+					<path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+				</svg>
+			</button>
 			<div class="section-content" id="hidden-content">
 				<div id="hidden-list" class="hidden-list"></div>
-				<button id="clear-all-hidden" class="btn-secondary">Clear All</button>
+				<button id="clear-all-hidden" class="btn-secondary" type="button" data-i18n="clearAll">Clear all</button>
 			</div>
 		</section>
 
 		<footer>
-			<span class="version">v1.8.0</span>
+			<span class="version" id="version"></span>
 		</footer>
 
 		<script src="./badgePopup.js"></script>

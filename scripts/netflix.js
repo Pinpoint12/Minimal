@@ -5,39 +5,89 @@
 	'use strict';
 
 	const SITE_NAME = 'netflix';
-	let autoplayInterval = null;
+	const MODAL_VIDEO_SEL = '.previewModal--player_container video';
 
-	/* - Remove homepage tiles audio and video autoplay - C3 */
+	let observer = null;
+	let pollTimer = null;
+	let active = false;
+
+	/* - Mute+pause autoplaying hover-preview trailers - C3 P2 */
 	function removeAutoPlayingTrailer() {
-		document.querySelectorAll(".previewModal--player_container video").forEach(
-			function(player) {
-				if (!player.paused || !player.muted) {
-					player.muted = true;
-					player.pause();
-				}
+		document.querySelectorAll(MODAL_VIDEO_SEL).forEach(function(player) {
+			if (!player.paused || !player.muted) {
+				player.muted = true;
+				player.pause();
 			}
-		);
+		});
+	}
+
+	/* The preview modal is injected on hover and a <video> inside it can begin
+	   playing without any further DOM mutation, so the scoped observer alone can
+	   miss the start of playback. A short poll backstops it, but MUST stay off on
+	   background tabs (M6 L4) — it is started only while the tab is visible and is
+	   torn down on visibilitychange->hidden. */
+	function startPoll() {
+		if (pollTimer || document.visibilityState !== 'visible') return;
+		pollTimer = setInterval(removeAutoPlayingTrailer, 500);
+	}
+
+	function stopPoll() {
+		if (pollTimer) {
+			clearInterval(pollTimer);
+			pollTimer = null;
+		}
+	}
+
+	function onVisibilityChange() {
+		if (!active) return;
+		if (document.visibilityState === 'hidden') {
+			stopPoll();
+		} else {
+			removeAutoPlayingTrailer();
+			startPoll();
+		}
+	}
+
+	function start() {
+		if (active) return;
+		active = true;
+		MinimalCore.debug('Netflix: enabled, watching for autoplaying trailers');
+
+		/* Scoped to the app root, not document.body innerHTML — the modal is
+		   appended near the top of the tree when a tile is hovered. */
+		const root = document.getElementById('appMountPoint') || document.body;
+		observer = new MutationObserver(removeAutoPlayingTrailer);
+		observer.observe(root, { childList: true, subtree: true });
+
+		document.addEventListener('visibilitychange', onVisibilityChange);
+
+		removeAutoPlayingTrailer();
+		startPoll();
+	}
+
+	function teardown() {
+		active = false;
+		stopPoll();
+		if (observer) {
+			observer.disconnect();
+			observer = null;
+		}
+		document.removeEventListener('visibilitychange', onVisibilityChange);
 	}
 
 	/* Main initialization - checks enabled state */
 	function init() {
-		chrome.storage.sync.get({ [SITE_NAME]: 'enabled' }, (data) => {
-			const isEnabled = data[SITE_NAME] === 'enabled';
-
-			if (!isEnabled) {
-				console.log('[minimal] Netflix: Disabled, skipping modifications');
+		MinimalCore.storage({ [SITE_NAME]: 'enabled' }).then((data) => {
+			if (data[SITE_NAME] !== 'enabled') {
+				MinimalCore.debug('Netflix: disabled, skipping modifications');
 				return;
 			}
-
-			console.log('[minimal] Netflix: Enabled, applying modifications');
-			autoplayInterval = setInterval(removeAutoPlayingTrailer, 500);
+			start();
 		});
 	}
 
-	/* Clean up interval when page unloads to prevent memory leaks */
-	window.addEventListener('unload', () => {
-		if (autoplayInterval) clearInterval(autoplayInterval);
-	});
+	/* Clean up observers/timers on pagehide (never the deprecated 'unload'). */
+	MinimalCore.onPageHide(teardown);
 
 	init();
 })();

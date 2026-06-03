@@ -4,25 +4,93 @@
 		"description": "Beschreibung des Add-on."
 	},
 	"pageActionDefaultTitle": {
-		"message": "Website wird von minimal unterstützt.",
+		"message": "Website wird von Minimal unterstützt",
 		"description": "Wird angezeigt, wenn Sie mit der Maus über das Seitenaktions-Emblem fahren."
 	},
-	"toggleOn": {
-		"message": "Einschalten",
-		"description": "Wird bei Deaktivierung in einem Aktivierungs-/Deaktivierungselement angezeigt"
-	},
-	"toggleOff": {
-		"message": "Abbiegen",
-		"description": "Wird in einem Aktivierungs-/Deaktivierungselement angezeigt, wenn es aktiviert ist"
-	},
-	"videoRecommendations": {
-		"message": "Video-Empfehlungen",
-		"description": "Video-Empfehlungen"
-	},
-	"reportIssue": {
-		"message": "Ein Problem melden"
-	},
 	"minimalStyle": {
-		"message": "Minimal stil"
+		"message": "Minimaler Stil",
+		"description": "Beschriftung für den Haupt-Ein-/Ausschalter pro Website."
+	},
+	"statusActive": {
+		"message": "Aktiv auf $SITE$",
+		"description": "Popup-Status, wenn die Erweiterung auf der aktuellen Website aktiviert ist.",
+		"placeholders": {
+			"site": {
+				"content": "$1"
+			}
+		}
+	},
+	"statusDisabled": {
+		"message": "Deaktiviert auf $SITE$",
+		"description": "Popup-Status, wenn die Erweiterung auf der aktuellen Website deaktiviert ist.",
+		"placeholders": {
+			"site": {
+				"content": "$1"
+			}
+		}
+	},
+	"statusUnsupported": {
+		"message": "Website nicht unterstützt",
+		"description": "Popup-Status, wenn die aktuelle Website von Minimal nicht unterstützt wird."
+	},
+	"statusNoAccess": {
+		"message": "Auf diese Seite kann nicht zugegriffen werden",
+		"description": "Popup-Status, wenn die Erweiterung nicht auf die aktuelle Seite zugreifen kann."
+	},
+	"statusError": {
+		"message": "Fehler beim Laden des Status",
+		"description": "Popup-Status, wenn der Website-Status nicht geladen werden konnte."
+	},
+	"pickElement": {
+		"message": "Element zum Ausblenden auswählen",
+		"description": "Schaltfläche, die den Element-Auswähler startet."
+	},
+	"optionsHeader": {
+		"message": "Optionen",
+		"description": "Überschrift für den Bereich mit websitespezifischen Optionen."
+	},
+	"optHideViewCounts": {
+		"message": "Aufrufzahlen ausblenden",
+		"description": "Option zum Ausblenden der Aufrufzahlen."
+	},
+	"optHideLikeCounts": {
+		"message": "Like-/Dislike-Zahlen ausblenden",
+		"description": "Option zum Ausblenden der Like- und Dislike-Zahlen."
+	},
+	"optHideComments": {
+		"message": "Kommentare ausblenden",
+		"description": "Option zum Ausblenden der Kommentare."
+	},
+	"optVoteCounts": {
+		"message": "Bewertungszahlen",
+		"description": "Beschriftung für die Anzeigeoption der Bewertungszahlen."
+	},
+	"segVisible": {
+		"message": "Sichtbar",
+		"description": "Segmentauswahl: Bewertungszahlen sichtbar."
+	},
+	"segDots": {
+		"message": "Punkte",
+		"description": "Segmentauswahl: Bewertungszahlen als Punkte anzeigen."
+	},
+	"segHidden": {
+		"message": "Ausgeblendet",
+		"description": "Segmentauswahl: Bewertungszahlen ausgeblendet."
+	},
+	"hiddenElements": {
+		"message": "Ausgeblendete Elemente",
+		"description": "Überschrift für die Liste der vom Benutzer ausgeblendeten Elemente."
+	},
+	"clearAll": {
+		"message": "Alle einblenden",
+		"description": "Schaltfläche, die alle vom Benutzer ausgeblendeten Elemente wieder einblendet."
+	},
+	"noHidden": {
+		"message": "Keine ausgeblendeten Elemente",
+		"description": "Leerzustandstext, wenn keine Elemente ausgeblendet wurden."
+	},
+	"unhide": {
+		"message": "Einblenden",
+		"description": "Schaltfläche, die ein einzelnes Element wieder einblendet."
 	}
 }

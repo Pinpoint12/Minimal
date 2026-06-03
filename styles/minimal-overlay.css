@@ -1,0 +1,268 @@
+/* ============================================================================
+   MINIMAL — Shared overlay & scroll-wall design system
+   One source of truth for the Tier 1 homepage overlays and scroll walls so
+   every site speaks the same visual language: a calm search portal, not a feed.
+
+   Design intent (MANIFESTO P1, C2, U1): informative not pavlovian. Brand marks
+   are present but quiet; the page is mostly negative space; one clear action.
+   ============================================================================ */
+
+:root {
+	/* Light theme tokens (overridden per-scheme below). Sites paint their own
+	   surface via the native CSS vars in the fallbacks, but these drive the
+	   shared chrome so the overlay looks identical across sites. */
+	--minimal-surface: #ffffff;
+	--minimal-ink-strong: #0f0f0f;
+	--minimal-ink: #3a3a3a;
+	--minimal-ink-weak: #8a8a8a;
+	--minimal-line: #e6e6e6;
+	--minimal-line-strong: #c9c9c9;
+	--minimal-hover: rgba(0, 0, 0, 0.045);
+	--minimal-focus: rgba(0, 0, 0, 0.55);
+	--minimal-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--minimal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Overlay container ───────────────────────────────────────────────────── */
+.minimal-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 2147483000;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	/* Optical balance — sit just above true centre. */
+	padding: 0 24px 12vh;
+	background: var(--minimal-surface);
+	font-family: var(--minimal-font);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+/* ── Brand mark ──────────────────────────────────────────────────────────── */
+.minimal-overlay__logo {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 36px;
+	opacity: 0;
+	transform: translateY(8px);
+	animation: minimal-rise 0.6s var(--minimal-ease) 0.08s forwards;
+}
+.minimal-overlay__logo svg {
+	display: block;
+}
+/* Icon + wordmark sizing — sites pass their own SVGs; these constrain them. */
+.minimal-overlay__logo svg:not([class]),
+.minimal-overlay__logo .minimal-logo-icon {
+	height: 44px;
+	width: auto;
+}
+.minimal-overlay__logo .minimal-logo-text {
+	height: 22px;
+	width: auto;
+}
+/* Wordmark inherits ink colour so it reads as type, not branding. */
+.minimal-overlay__logo .minimal-logo-text path {
+	fill: var(--minimal-ink-strong);
+}
+
+/* ── Search ──────────────────────────────────────────────────────────────── */
+.minimal-overlay__search {
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 560px;
+	max-width: 88vw;
+	opacity: 0;
+	transform: translateY(8px);
+	animation: minimal-rise 0.6s var(--minimal-ease) 0.18s forwards;
+}
+.minimal-overlay__input {
+	width: 100%;
+	padding: 17px 54px 17px 24px;
+	font-family: var(--minimal-font);
+	font-size: 15px;
+	letter-spacing: 0.01em;
+	color: var(--minimal-ink-strong);
+	background: transparent;
+	border: 1.5px solid var(--minimal-line);
+	border-radius: 28px;
+	outline: none;
+	box-sizing: border-box;
+	transition: border-color 0.25s var(--minimal-ease), box-shadow 0.25s var(--minimal-ease);
+}
+.minimal-overlay__input::placeholder {
+	color: var(--minimal-ink-weak);
+	font-weight: 300;
+	letter-spacing: 0.02em;
+}
+.minimal-overlay__input:hover {
+	border-color: var(--minimal-line-strong);
+}
+.minimal-overlay__input:focus {
+	border-color: var(--minimal-focus);
+	box-shadow: 0 0 0 4px var(--minimal-hover);
+}
+.minimal-overlay__btn {
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	color: var(--minimal-ink-weak);
+	background: transparent;
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: color 0.2s var(--minimal-ease), background 0.2s var(--minimal-ease);
+}
+.minimal-overlay__btn:hover {
+	color: var(--minimal-ink-strong);
+	background: var(--minimal-hover);
+}
+.minimal-overlay__btn:focus-visible {
+	outline: 2px solid var(--minimal-focus);
+	outline-offset: 2px;
+}
+
+/* ── Intentionality hint ─────────────────────────────────────────────────── */
+.minimal-overlay__hint {
+	margin: 20px 0 0;
+	font-family: var(--minimal-font);
+	font-size: 12.5px;
+	font-weight: 300;
+	letter-spacing: 0.05em;
+	color: var(--minimal-ink-weak);
+	opacity: 0;
+	transform: translateY(8px);
+	animation: minimal-rise 0.6s var(--minimal-ease) 0.30s forwards;
+}
+
+/* ── Blocked-content variant (shield + message) ──────────────────────────── */
+.minimal-overlay__shield {
+	width: 38px;
+	height: 38px;
+	margin-bottom: 16px;
+	color: var(--minimal-ink-weak);
+	overflow: visible;
+	opacity: 0;
+	transform: translateY(8px);
+	animation: minimal-rise 0.6s var(--minimal-ease) 0.18s forwards;
+}
+.minimal-overlay__title {
+	margin: 0 0 6px;
+	font-size: 17px;
+	font-weight: 500;
+	letter-spacing: -0.005em;
+	color: var(--minimal-ink-strong);
+}
+.minimal-overlay__desc {
+	margin: 0 0 28px;
+	font-size: 12.5px;
+	font-weight: 300;
+	letter-spacing: 0.02em;
+	color: var(--minimal-ink-weak);
+}
+.minimal-overlay__back {
+	margin-top: 20px;
+	padding: 3px 0;
+	font-family: var(--minimal-font);
+	font-size: 12.5px;
+	font-weight: 300;
+	letter-spacing: 0.04em;
+	color: var(--minimal-ink-weak);
+	background: none;
+	border: none;
+	border-bottom: 1px solid var(--minimal-line-strong);
+	border-radius: 0;
+	cursor: pointer;
+	transition: color 0.2s var(--minimal-ease), border-color 0.2s var(--minimal-ease);
+	opacity: 0;
+	animation: minimal-rise 0.6s var(--minimal-ease) 0.42s forwards;
+}
+.minimal-overlay__back:hover {
+	color: var(--minimal-ink);
+	border-color: var(--minimal-focus);
+}
+
+/* ── Scroll-depth wall ───────────────────────────────────────────────────── */
+#minimal-scroll-wall {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 18px;
+	padding: 80px 20px 240px;
+	font-family: var(--minimal-font);
+}
+#minimal-scroll-wall::before {
+	content: '';
+	position: absolute;
+	left: 50%;
+	bottom: calc(100% + 8px);
+	transform: translateX(-50%);
+	width: 40px;
+	height: 1px;
+	background: var(--minimal-line-strong);
+}
+.minimal-wall__message {
+	margin: 0;
+	font-size: 14px;
+	font-weight: 400;
+	letter-spacing: 0.04em;
+	color: var(--minimal-ink-weak);
+}
+.minimal-wall__dismiss {
+	padding: 3px 0;
+	font-family: var(--minimal-font);
+	font-size: 12px;
+	letter-spacing: 0.03em;
+	color: var(--minimal-ink-weak);
+	background: none;
+	border: none;
+	border-bottom: 1px solid var(--minimal-line-strong);
+	border-radius: 0;
+	cursor: pointer;
+	transition: color 0.2s var(--minimal-ease), border-color 0.2s var(--minimal-ease);
+}
+.minimal-wall__dismiss:hover {
+	color: var(--minimal-ink);
+	border-color: var(--minimal-focus);
+}
+
+/* ── Motion ──────────────────────────────────────────────────────────────── */
+@keyframes minimal-rise {
+	from { opacity: 0; transform: translateY(8px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.minimal-overlay__logo,
+	.minimal-overlay__search,
+	.minimal-overlay__hint,
+	.minimal-overlay__shield,
+	.minimal-overlay__back {
+		animation-duration: 0.001s;
+		transform: none;
+	}
+}
+
+/* ── Dark theme ──────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--minimal-surface: #0f0f0f;
+		--minimal-ink-strong: #ededed;
+		--minimal-ink: #c4c4c4;
+		--minimal-ink-weak: #6f6f6f;
+		--minimal-line: #2a2a2a;
+		--minimal-line-strong: #3d3d3d;
+		--minimal-hover: rgba(255, 255, 255, 0.06);
+		--minimal-focus: rgba(255, 255, 255, 0.5);
+	}
+	.minimal-overlay__logo .minimal-logo-text path { fill: var(--minimal-ink-strong); }
+}

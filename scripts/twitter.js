@@ -1,52 +1,77 @@
 /* Twitter/X Content Script - Minimal Extension */
-/* All modifications gated behind enabled check - C3 */
+/* All modifications gated behind enabled check - C1 C2 C3 P1 */
+
+/* ARCHITECTURE NOTE: Twitter/X uses React which constantly reconciles the DOM.
+   Any MutationObserver on React-managed DOM or History API interception causes
+   runaway CPU (200%+ observed). This script is intentionally minimal — CSS does
+   the heavy lifting. JS only handles what CSS cannot: title text and favicon. */
 
 (function() {
 	'use strict';
 
 	const SITE_NAME = 'twitter';
-	let titleInterval = null;
-	let faviconInterval = null;
 
-	/* - Remove the notifier in the page title - C3 */
+	/* - Remove notification count from page title - C3 */
 	function removeNotificationsFromTitle() {
-		const reg = /(\(\d+\) )/g;
-		let originalPageTitle = document.title;
-		let newPageTitle = originalPageTitle.replace(reg, "");
-		document.title = newPageTitle;
+		if (/^\(\d+\)\s/.test(document.title)) {
+			document.title = document.title.replace(/^\(\d+\)\s*/, '');
+		}
 	}
 
-	/* - Replace the "red bubble" notification twitter favicon with the standard one - C3 */
+	/* - Replace notification favicon with standard one - C3 */
 	function keepStandardFavicon() {
-		const faviconLinkTag = document.querySelector("link[rel='shortcut icon']");
-		if (!faviconLinkTag) return; /* Guard against null reference */
-		const currentFavicon = faviconLinkTag.getAttribute("href");
-		if (!currentFavicon) return;
-		let standardFavicon = currentFavicon.replace("twitter-pip.ico", "twitter.ico").replace("twitter-pip.2.ico", "twitter.2.ico");
-		faviconLinkTag.setAttribute("href", standardFavicon);
+		const link = document.querySelector("link[rel='shortcut icon']");
+		if (!link) return;
+		const href = link.getAttribute('href');
+		if (!href) return;
+		const clean = href.replace('twitter-pip.ico', 'twitter.ico')
+		                   .replace('twitter-pip.2.ico', 'twitter.2.ico');
+		if (clean !== href) link.setAttribute('href', clean);
 	}
 
-	/* Main initialization - checks enabled state */
-	function init() {
-		chrome.storage.sync.get({ [SITE_NAME]: 'enabled' }, (data) => {
-			const isEnabled = data[SITE_NAME] === 'enabled';
+	/* - Notification cleanup via targeted <title> observer - C3 */
+	/* IMPORTANT: Only observe the <title> element itself. Never observe <head>
+	   or <body> — React mutates those constantly, causing feedback loops. */
+	function setupNotificationCleanup() {
+		removeNotificationsFromTitle();
+		keepStandardFavicon();
 
-			if (!isEnabled) {
-				console.log('[minimal] Twitter: Disabled, skipping modifications');
-				return;
-			}
+		const titleEl = document.querySelector('title');
+		if (titleEl) {
+			let cleaning = false;
+			const obs = new MutationObserver(() => {
+				if (cleaning) return;
+				cleaning = true;
+				removeNotificationsFromTitle();
+				cleaning = false;
+			});
+			obs.observe(titleEl, { childList: true, characterData: true, subtree: true });
+			MinimalCore.onPageHide(() => obs.disconnect());
+		}
 
-			console.log('[minimal] Twitter: Enabled, applying modifications');
-			titleInterval = setInterval(removeNotificationsFromTitle, 200);
-			faviconInterval = setInterval(keepStandardFavicon, 200);
+		/* Favicon only needs occasional checks — visibility change is enough */
+		document.addEventListener('visibilitychange', () => {
+			if (!document.hidden) keepStandardFavicon();
 		});
 	}
 
-	/* Clean up intervals when page unloads to prevent memory leaks */
-	window.addEventListener('unload', () => {
-		if (titleInterval) clearInterval(titleInterval);
-		if (faviconInterval) clearInterval(faviconInterval);
-	});
+	/* Main initialization */
+	function init() {
+		chrome.storage.sync.get({ [SITE_NAME]: 'enabled' }, (data) => {
+			if (data[SITE_NAME] !== 'enabled') {
+				MinimalCore.debug('Twitter: Disabled, skipping modifications');
+				return;
+			}
+
+			MinimalCore.debug('Twitter: Enabled, applying modifications');
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', setupNotificationCleanup);
+			} else {
+				setupNotificationCleanup();
+			}
+		});
+	}
 
 	init();
 })();

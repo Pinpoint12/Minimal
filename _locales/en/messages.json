@@ -1,28 +1,96 @@
 {
 	"addonDescription": {
-		"message": "A minimal, less attention grabbing, internet experience.",
+		"message": "A minimal, less attention-grabbing internet experience.",
 		"description": "Describe the add-on."
 	},
 	"pageActionDefaultTitle": {
-		"message": "Website supported by minimal",
+		"message": "Website supported by Minimal",
 		"description": "Displayed when hovering the page action badge."
 	},
-	"toggleOn": {
-		"message": "Turn on",
-		"description": "Displayed in an toggle element when turned off"
-	},
-	"toggleOff": {
-		"message": "Turn off",
-		"description": "Displayed in an toggle element when turned on"
-	},
-	"videoRecommendations": {
-		"message": "video recommendations",
-		"description": "Video recommendations"
-	},
-	"reportIssue": {
-		"message": "Report an issue"
-	},
 	"minimalStyle": {
-		"message": "Minimal style"
+		"message": "Minimal style",
+		"description": "Label for the main per-site enable/disable toggle."
+	},
+	"statusActive": {
+		"message": "Active on $SITE$",
+		"description": "Popup status when the extension is enabled on the current site.",
+		"placeholders": {
+			"site": {
+				"content": "$1"
+			}
+		}
+	},
+	"statusDisabled": {
+		"message": "Disabled on $SITE$",
+		"description": "Popup status when the extension is disabled on the current site.",
+		"placeholders": {
+			"site": {
+				"content": "$1"
+			}
+		}
+	},
+	"statusUnsupported": {
+		"message": "Site not supported",
+		"description": "Popup status when the current site has no Minimal support."
+	},
+	"statusNoAccess": {
+		"message": "Can't access this page",
+		"description": "Popup status when the extension cannot access the current page."
+	},
+	"statusError": {
+		"message": "Error loading state",
+		"description": "Popup status when the per-site state failed to load."
+	},
+	"pickElement": {
+		"message": "Pick element to hide",
+		"description": "Button that starts the element picker."
+	},
+	"optionsHeader": {
+		"message": "Options",
+		"description": "Heading for the site-specific options section."
+	},
+	"optHideViewCounts": {
+		"message": "Hide view counts",
+		"description": "Option toggle to hide view counts."
+	},
+	"optHideLikeCounts": {
+		"message": "Hide like/dislike counts",
+		"description": "Option toggle to hide like and dislike counts."
+	},
+	"optHideComments": {
+		"message": "Hide comments",
+		"description": "Option toggle to hide comments."
+	},
+	"optVoteCounts": {
+		"message": "Vote counts",
+		"description": "Label for the vote count display option."
+	},
+	"segVisible": {
+		"message": "Visible",
+		"description": "Segmented control option: vote counts visible."
+	},
+	"segDots": {
+		"message": "Dots",
+		"description": "Segmented control option: vote counts shown as dots."
+	},
+	"segHidden": {
+		"message": "Hidden",
+		"description": "Segmented control option: vote counts hidden."
+	},
+	"hiddenElements": {
+		"message": "Hidden elements",
+		"description": "Heading for the list of user-hidden elements."
+	},
+	"clearAll": {
+		"message": "Clear all",
+		"description": "Button that unhides all user-hidden elements."
+	},
+	"noHidden": {
+		"message": "No hidden elements",
+		"description": "Empty-state text when no elements have been hidden."
+	},
+	"unhide": {
+		"message": "Unhide",
+		"description": "Button that unhides a single element."
 	}
 }

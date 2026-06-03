@@ -4,25 +4,93 @@
 		"description": "Décrit l'extension."
 	},
 	"pageActionDefaultTitle": {
-		"message": "Site web supporté par minimal",
+		"message": "Site web pris en charge par Minimal",
 		"description": "Affiché au survol du badge de l'action de page."
 	},
-	"toggleOn": {
-		"message": "Activer",
-		"description": "Affiché dans un élément d'activation/désactivation quand il est désactivé"
-	},
-	"toggleOff": {
-		"message": "Désactiver",
-		"description": "Affiché dans un élément d'activation/désactivation quand il est activé"
-	},
-	"videoRecommendations": {
-		"message": "les recommandations vidéo",
-		"description": "Les recommandations vidéo"
-	},
-	"reportIssue": {
-		"message": "Signaler un problème"
-	},
 	"minimalStyle": {
-		"message": "Style minimal"
+		"message": "Style minimal",
+		"description": "Libellé du commutateur principal d'activation/désactivation par site."
+	},
+	"statusActive": {
+		"message": "Actif sur $SITE$",
+		"description": "État du popup lorsque l'extension est activée sur le site actuel.",
+		"placeholders": {
+			"site": {
+				"content": "$1"
+			}
+		}
+	},
+	"statusDisabled": {
+		"message": "Désactivé sur $SITE$",
+		"description": "État du popup lorsque l'extension est désactivée sur le site actuel.",
+		"placeholders": {
+			"site": {
+				"content": "$1"
+			}
+		}
+	},
+	"statusUnsupported": {
+		"message": "Site non pris en charge",
+		"description": "État du popup lorsque le site actuel n'est pas pris en charge par Minimal."
+	},
+	"statusNoAccess": {
+		"message": "Impossible d'accéder à cette page",
+		"description": "État du popup lorsque l'extension ne peut pas accéder à la page actuelle."
+	},
+	"statusError": {
+		"message": "Erreur lors du chargement de l'état",
+		"description": "État du popup lorsque l'état du site n'a pas pu être chargé."
+	},
+	"pickElement": {
+		"message": "Choisir un élément à masquer",
+		"description": "Bouton qui lance le sélecteur d'éléments."
+	},
+	"optionsHeader": {
+		"message": "Options",
+		"description": "Titre de la section des options spécifiques au site."
+	},
+	"optHideViewCounts": {
+		"message": "Masquer le nombre de vues",
+		"description": "Option pour masquer le nombre de vues."
+	},
+	"optHideLikeCounts": {
+		"message": "Masquer le nombre de J'aime/Je n'aime pas",
+		"description": "Option pour masquer le nombre de J'aime et de Je n'aime pas."
+	},
+	"optHideComments": {
+		"message": "Masquer les commentaires",
+		"description": "Option pour masquer les commentaires."
+	},
+	"optVoteCounts": {
+		"message": "Nombre de votes",
+		"description": "Libellé de l'option d'affichage du nombre de votes."
+	},
+	"segVisible": {
+		"message": "Visible",
+		"description": "Contrôle segmenté : nombre de votes visible."
+	},
+	"segDots": {
+		"message": "Points",
+		"description": "Contrôle segmenté : nombre de votes affiché sous forme de points."
+	},
+	"segHidden": {
+		"message": "Masqué",
+		"description": "Contrôle segmenté : nombre de votes masqué."
+	},
+	"hiddenElements": {
+		"message": "Éléments masqués",
+		"description": "Titre de la liste des éléments masqués par l'utilisateur."
+	},
+	"clearAll": {
+		"message": "Tout effacer",
+		"description": "Bouton qui réaffiche tous les éléments masqués par l'utilisateur."
+	},
+	"noHidden": {
+		"message": "Aucun élément masqué",
+		"description": "Texte d'état vide lorsqu'aucun élément n'a été masqué."
+	},
+	"unhide": {
+		"message": "Réafficher",
+		"description": "Bouton qui réaffiche un élément donné."
 	}
 }

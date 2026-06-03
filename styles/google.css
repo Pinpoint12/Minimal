@@ -1,14 +1,17 @@
 /* - Make google logo more discrete on search page - P1 */
+/* FRAGILE */ /* .cOl4Id */
 #hplogo, #logo, #navcnt, .cOl4Id{
   filter: grayscale(1)!important;
   opacity: .6;
 }
 
 /* - Use text instead of cards on mobile - U1 */
+/* FRAGILE */ /* .rsGxI.Ww4FFb, .Ww4FFb */
 .rsGxI.Ww4FFb, .Ww4FFb {
   background: transparent;
   box-shadow: none !important;
 }
+/* FRAGILE */ /* .vt6azd */
 .vt6azd {
   margin: 0px;
 }

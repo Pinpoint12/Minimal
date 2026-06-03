@@ -40,7 +40,7 @@ async function setBadgeActive(tabId) {
 /* Update badge to show disabled status */
 async function setBadgeDisabled(tabId) {
 	try {
-		await chrome.action.setBadgeText({ text: '\u2717', tabId });
+		await chrome.action.setBadgeText({ text: '✗', tabId });
 		await chrome.action.setBadgeBackgroundColor({ color: BADGE_COLORS.disabled, tabId });
 		await chrome.action.setTitle({ title: 'Minimal: Disabled', tabId });
 		await chrome.action.setIcon({ path: "./icons/pageAction.png", tabId });
@@ -141,6 +141,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					func: startElementPicker
 				});
 				sendResponse({ success: true });
+			} else {
+				/* - Resolve the sender's promise on unrecognized message types so the response channel never hangs open - U1 */
+				sendResponse({ success: false, error: 'unknown message type' });
 			}
 		} catch (error) {
 			console.error('[minimal] Message error:', error);
@@ -316,16 +319,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 	}
 });
 
-/* Ensure toast animation style exists (shared, not duplicated) */
-function ensureToastStyle(doc) {
-	if (!doc.getElementById('minimal-toast-style')) {
-		const style = doc.createElement('style');
-		style.id = 'minimal-toast-style';
-		style.textContent = '@keyframes minimalFade { 0%,70% { opacity:1 } 100% { opacity:0 } }';
-		doc.head.appendChild(style);
-	}
-}
-
 /* Show toast notification in tab */
 async function showToast(tabId, message) {
 	try {
@@ -460,8 +453,8 @@ function startElementPicker() {
 		`;
 		infoBox.innerHTML = `
 			<div style="display: flex; align-items: center; gap: 10px;">
-				<span style="color: #4CAF50; font-weight: 600;">\u25ce Element Picker</span>
-				<span style="color: #888;">Click to hide \u2022 ESC to cancel \u2022 Scroll to select parent</span>
+				<span style="color: #4CAF50; font-weight: 600;">◎ Element Picker</span>
+				<span style="color: #888;">Click to hide • ESC to cancel • Scroll to select parent</span>
 			</div>
 			<div id="minimal-picker-selector" style="color: #4CAF50; font-family: monospace; font-size: 12px; word-break: break-all;"></div>
 		`;
@@ -512,7 +505,7 @@ function startElementPicker() {
 			const tag = el.tagName.toLowerCase();
 			const classStr = getClassString(el);
 			const classes = classStr ? '.' + classStr.split(' ').filter(c => c).join('.') : '';
-			selectorDisplay.textContent = `<${tag}${el.id ? '#' + el.id : ''}${classes.substring(0, 50)}> \u2192 ${selector.substring(0, 80)}${selector.length > 80 ? '...' : ''}`;
+			selectorDisplay.textContent = `<${tag}${el.id ? '#' + el.id : ''}${classes.substring(0, 50)}> → ${selector.substring(0, 80)}${selector.length > 80 ? '...' : ''}`;
 		}
 	}
 

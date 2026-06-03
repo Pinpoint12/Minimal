@@ -26,6 +26,29 @@ const sitePatterns = {
 	reddit: /reddit\.com/
 };
 
+/* Internal site key -> human display name shown in the status line. The raw key
+   (e.g. "twitter") is never user-facing — branding stays informative. - P1 */
+const siteDisplayNames = {
+	youtube: "YouTube",
+	facebook: "Facebook",
+	twitter: "X",
+	google: "Google",
+	amazon: "Amazon",
+	yahoo: "Yahoo",
+	netflix: "Netflix",
+	reddit: "Reddit"
+};
+
+function displayName(siteName) {
+	return siteDisplayNames[siteName] || siteName;
+}
+
+/* i18n helper — returns empty string for a missing key so callers can fall back
+   to existing DOM text and never blank a control. - U2 */
+function t(key, substitutions) {
+	return chrome.i18n.getMessage(key, substitutions) || "";
+}
+
 function detectSite(url) {
 	for (const [name, pattern] of Object.entries(sitePatterns)) {
 		if (pattern.test(url)) return name;
@@ -47,7 +70,7 @@ function truncateSelector(selector, maxLen = 40) {
 /* Load hidden elements for current hostname */
 async function loadHiddenElements() {
 	if (!currentHostname) {
-		hiddenSection.style.display = 'none';
+		hiddenSection.hidden = true;
 		return;
 	}
 
@@ -58,11 +81,17 @@ async function loadHiddenElements() {
 		hiddenCount.textContent = hidden.length;
 
 		if (hidden.length === 0) {
-			hiddenList.innerHTML = '<div class="empty-state">No hidden elements</div>';
+			hiddenList.innerHTML = '';
+			const empty = document.createElement('div');
+			empty.className = 'empty-state';
+			empty.textContent = t('noHidden') || 'No hidden elements';
+			hiddenList.appendChild(empty);
 			clearAllBtn.disabled = true;
 		} else {
 			hiddenList.innerHTML = '';
 			clearAllBtn.disabled = false;
+
+			const unhideLabel = t('unhide') || 'Unhide';
 
 			hidden.forEach((selector, index) => {
 				const item = document.createElement('div');
@@ -72,10 +101,12 @@ async function loadHiddenElements() {
 				span.setAttribute('title', selector);
 				span.textContent = truncateSelector(selector);
 				const btn = document.createElement('button');
+				btn.type = 'button';
 				btn.className = 'hidden-item-remove';
 				btn.dataset.index = index;
-				btn.setAttribute('title', 'Unhide');
-				btn.textContent = '\u00d7';
+				btn.setAttribute('title', unhideLabel);
+				btn.setAttribute('aria-label', unhideLabel + ': ' + selector);
+				btn.textContent = '×';
 				btn.addEventListener('click', async () => {
 					await removeHiddenElement(index);
 				});
@@ -85,10 +116,10 @@ async function loadHiddenElements() {
 			});
 		}
 
-		hiddenSection.style.display = 'block';
+		hiddenSection.hidden = false;
 	} catch (error) {
 		console.error('[minimal] Error loading hidden elements:', error);
-		hiddenSection.style.display = 'none';
+		hiddenSection.hidden = true;
 	}
 }
 
@@ -140,10 +171,12 @@ async function clearAllHiddenElements() {
 	}
 }
 
-/* Toggle hidden section visibility */
+/* Toggle hidden section visibility — header is a real button, so keyboard
+   activation comes for free; aria-expanded reflects state to assistive tech. - U1 */
 hiddenHeader.addEventListener('click', () => {
-	hiddenHeader.classList.toggle('expanded');
-	hiddenContent.classList.toggle('visible');
+	const expanded = hiddenHeader.getAttribute('aria-expanded') === 'true';
+	hiddenHeader.setAttribute('aria-expanded', String(!expanded));
+	hiddenContent.classList.toggle('visible', !expanded);
 });
 
 /* Clear all button */
@@ -170,13 +203,54 @@ const ytHideViewCounts = document.getElementById("yt-hide-view-counts");
 const ytHideLikeCounts = document.getElementById("yt-hide-like-counts");
 const ytHideComments = document.getElementById("yt-hide-comments");
 
+/* Reddit vote style segmented control — radiogroup semantics: arrow keys move
+   between options, click/space/enter selects. Roving tabindex keeps only the
+   selected radio in the tab order. - C3 P1 U1 */
+const voteStyleBtns = Array.from(document.querySelectorAll('#reddit-vote-style .seg-btn'));
+
+function markVoteStyle(value) {
+	let matched = false;
+	voteStyleBtns.forEach(b => {
+		const on = b.dataset.value === value;
+		if (on) matched = true;
+		b.classList.toggle('active', on);
+		b.setAttribute('aria-checked', String(on));
+		b.tabIndex = on ? 0 : -1;
+	});
+	/* Keep one stop in the tab order even if the stored value is unknown. */
+	if (!matched && voteStyleBtns[0]) voteStyleBtns[0].tabIndex = 0;
+}
+
+async function selectVoteStyle(btn) {
+	markVoteStyle(btn.dataset.value);
+	btn.focus();
+	await chrome.storage.sync.set({ reddit_voteStyle: btn.dataset.value });
+	if (currentTabId) await chrome.tabs.reload(currentTabId);
+}
+
+voteStyleBtns.forEach((btn, i) => {
+	btn.addEventListener('click', () => selectVoteStyle(btn));
+	btn.addEventListener('keydown', (e) => {
+		let next = null;
+		if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+			next = voteStyleBtns[(i + 1) % voteStyleBtns.length];
+		} else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+			next = voteStyleBtns[(i - 1 + voteStyleBtns.length) % voteStyleBtns.length];
+		}
+		if (next) {
+			e.preventDefault();
+			selectVoteStyle(next);
+		}
+	});
+});
+
 /* Load and show site-specific options */
 async function loadSiteOptions() {
 	if (currentSiteName === 'youtube') {
-		siteOptionsDiv.style.display = 'block';
-		document.getElementById('opt-hide-view-counts').style.display = 'flex';
-		document.getElementById('opt-hide-like-counts').style.display = 'flex';
-		document.getElementById('opt-hide-comments').style.display = 'flex';
+		siteOptionsDiv.hidden = false;
+		document.getElementById('opt-hide-view-counts').hidden = false;
+		document.getElementById('opt-hide-like-counts').hidden = false;
+		document.getElementById('opt-hide-comments').hidden = false;
 
 		const data = await chrome.storage.sync.get({
 			yt_hideViewCounts: false,
@@ -187,17 +261,13 @@ async function loadSiteOptions() {
 		ytHideLikeCounts.checked = data.yt_hideLikeCounts;
 		ytHideComments.checked = data.yt_hideComments;
 	} else if (currentSiteName === 'reddit') {
-		siteOptionsDiv.style.display = 'block';
-		document.getElementById('opt-reddit-vote-style').style.display = 'flex';
+		siteOptionsDiv.hidden = false;
+		document.getElementById('opt-reddit-vote-style').hidden = false;
 
 		const data = await chrome.storage.sync.get({ reddit_voteStyle: 'dots' });
-		const current = data.reddit_voteStyle || 'dots';
-		const btns = document.querySelectorAll('#reddit-vote-style .seg-btn');
-		btns.forEach(btn => {
-			btn.classList.toggle('active', btn.dataset.value === current);
-		});
+		markVoteStyle(data.reddit_voteStyle || 'dots');
 	} else {
-		siteOptionsDiv.style.display = 'none';
+		siteOptionsDiv.hidden = true;
 	}
 }
 
@@ -217,24 +287,14 @@ ytHideComments.addEventListener('change', async function() {
 	if (currentTabId) await chrome.tabs.reload(currentTabId);
 });
 
-/* Handle Reddit vote style segmented control - C3 P1 */
-document.querySelectorAll('#reddit-vote-style .seg-btn').forEach(btn => {
-	btn.addEventListener('click', async () => {
-		document.querySelectorAll('#reddit-vote-style .seg-btn').forEach(b => b.classList.remove('active'));
-		btn.classList.add('active');
-		await chrome.storage.sync.set({ reddit_voteStyle: btn.dataset.value });
-		if (currentTabId) await chrome.tabs.reload(currentTabId);
-	});
-});
-
 /* Initialize popup */
 async function init() {
 	try {
 		const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 		if (!tab || !tab.url) {
 			enableCheckbox.disabled = true;
-			updateStatus('Cannot access this page', 'unsupported');
-			hiddenSection.style.display = 'none';
+			updateStatus(t('statusNoAccess') || 'Cannot access this page', 'unsupported');
+			hiddenSection.hidden = true;
 			return;
 		}
 
@@ -249,7 +309,7 @@ async function init() {
 
 		if (!currentSiteName) {
 			enableCheckbox.disabled = true;
-			updateStatus('Site not supported', 'unsupported');
+			updateStatus(t('statusUnsupported') || 'Site not supported', 'unsupported');
 			/* Still show hidden elements for unsupported sites */
 			await loadHiddenElements();
 			return;
@@ -261,10 +321,11 @@ async function init() {
 		enableCheckbox.checked = isEnabled;
 		enableCheckbox.disabled = false;
 
+		const name = displayName(currentSiteName);
 		if (isEnabled) {
-			updateStatus(`Active on ${currentSiteName}`, 'active');
+			updateStatus(t('statusActive', [name]) || ('Active on ' + name), 'active');
 		} else {
-			updateStatus(`Disabled on ${currentSiteName}`, 'disabled');
+			updateStatus(t('statusDisabled', [name]) || ('Disabled on ' + name), 'disabled');
 		}
 
 		/* Load hidden elements */
@@ -276,7 +337,7 @@ async function init() {
 	} catch (error) {
 		console.error('[minimal] Popup init error:', error);
 		enableCheckbox.disabled = true;
-		updateStatus('Error loading state', 'disabled');
+		updateStatus(t('statusError') || 'Error loading state', 'error');
 	}
 }
 
@@ -285,29 +346,43 @@ enableCheckbox.addEventListener("change", async function() {
 	if (!currentTabId || !currentSiteName) return;
 
 	const newState = this.checked ? "enabled" : "disabled";
+	const name = displayName(currentSiteName);
 
 	try {
 		await chrome.storage.sync.set({ [currentSiteName]: newState });
 
 		if (this.checked) {
 			await chrome.runtime.sendMessage({ type: "enable", tabId: currentTabId });
-			updateStatus(`Active on ${currentSiteName}`, 'active');
+			updateStatus(t('statusActive', [name]) || ('Active on ' + name), 'active');
 		} else {
 			await chrome.runtime.sendMessage({ type: "disable", tabId: currentTabId });
-			updateStatus(`Disabled on ${currentSiteName}`, 'disabled');
+			updateStatus(t('statusDisabled', [name]) || ('Disabled on ' + name), 'disabled');
 			setTimeout(() => window.close(), 100);
 		}
 	} catch (error) {
 		console.error('[minimal] Toggle error:', error);
 		this.checked = !this.checked;
-		updateStatus('Error toggling', 'disabled');
+		updateStatus(t('statusError') || 'Error toggling', 'error');
 	}
 });
 
-/* i18n */
-document.querySelectorAll('*[data-i18n]').forEach(el => {
-	const message = chrome.i18n.getMessage(el.dataset.i18n);
-	if (message) el.textContent = message;
-});
+/* Translate all static labels carrying data-i18n; keep DOM fallback text when a
+   locale key is missing. - U2 */
+function applyStaticI18n() {
+	document.querySelectorAll('[data-i18n]').forEach(el => {
+		const message = t(el.dataset.i18n);
+		if (message) el.textContent = message;
+	});
+}
 
+/* Footer version reads the manifest so it never drifts from the real build. - P1 */
+function applyVersion() {
+	const versionEl = document.getElementById('version');
+	if (versionEl) {
+		versionEl.textContent = 'v' + chrome.runtime.getManifest().version;
+	}
+}
+
+applyStaticI18n();
+applyVersion();
 init();

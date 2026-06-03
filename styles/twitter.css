@@ -1,11 +1,175 @@
-/* - Twitter logo is more discrete - P1 */
-div.css-901oao.r-1awozwy>svg{ /* FRAGILE */
-    filter: grayscale(1);
-    opacity: 0.5
+/* ==============================================
+   MINIMAL — Twitter/X  ·  "Quiet Twitter"
+   Pure CSS. Zero JS DOM manipulation.
+
+   Strip the engagement machinery, silence the
+   notifications, remove the algorithmic nudges.
+   What remains is just the conversation.
+   ============================================== */
+
+
+/* ═══════════════════════════════════════════════
+   1. SIDEBAR → Search-only island
+   Nuke everything inside the sidebar except the
+   search form. The sidebar becomes calm negative
+   space with a single search bar.
+   ═══════════════════════════════════════════════ */
+
+/* Hide ALL children of the trending/sidebar content area */
+[aria-label="Trending"] > div > * {
+  display: none !important;
 }
 
-/* - Hide the Home tab's "new content" bubble - C3 */
+/* Carve out ONLY the search form wrapper */
+[aria-label="Trending"] > div > *:has(form[aria-label="Search"]) {
+  display: flex !important;
+}
+
+/* Belt-and-suspenders: hide sidebar footer nav */
+[data-testid="sidebarColumn"] nav[aria-label="Footer"] {
+  display: none !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   2. LEFT NAV → Essentials only
+   Keep: Home, Notifications, Messages, Follow/
+   Connect, Bookmarks, Profile.
+   Hide: Grok, Premium, Explore.
+   ═══════════════════════════════════════════════ */
+
+/* Hide Grok nav item - C2 */
+a[href="/i/grok"] {
+  display: none !important;
+}
+
+/* Hide Premium signup nav item - C2 */
+a[data-testid="premium-signup-tab"] {
+  display: none !important;
+}
+
+/* Hide Explore nav (trending in disguise) - C2 */
+a[data-testid="AppTabBar_Explore_Link"] {
+  display: none !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   3. ENGAGEMENT COUNTS → Whisper at 50%
+   Invisible by default. Fade to 50% on tweet
+   hover. Present if you look, never competing.
+   ═══════════════════════════════════════════════ */
+
+[data-testid="reply"] [data-testid="app-text-transition-container"],
+[data-testid="retweet"] [data-testid="app-text-transition-container"],
+[data-testid="like"] [data-testid="app-text-transition-container"],
+[data-testid="unlike"] [data-testid="app-text-transition-container"],
+a[href*="/analytics"] [data-testid="app-text-transition-container"] {
+  opacity: 0 !important;
+  transition: opacity 0.25s ease !important;
+}
+
+article[data-testid="tweet"]:hover [data-testid="reply"] [data-testid="app-text-transition-container"],
+article[data-testid="tweet"]:hover [data-testid="retweet"] [data-testid="app-text-transition-container"],
+article[data-testid="tweet"]:hover [data-testid="like"] [data-testid="app-text-transition-container"],
+article[data-testid="tweet"]:hover [data-testid="unlike"] [data-testid="app-text-transition-container"],
+article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-transition-container"] {
+  opacity: 0.5 !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   4. PROMOTED TWEETS → Gone
+   ═══════════════════════════════════════════════ */
+
+[data-testid="placementTracking"] {
+  display: none !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   5. VERIFIED BADGES → Near-invisible
+   Blue checks are a paid product, not a trust
+   signal. Pure visual noise.
+   ═══════════════════════════════════════════════ */
+
+[data-testid="icon-verified"] {
+  opacity: 0.15 !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   6. COMPOSE TOOLBAR → Trim the fat
+   Keep: media, GIF, emoji, location, post.
+   Hide: Grok image gen, polls, schedule,
+   content disclosure.
+   ═══════════════════════════════════════════════ */
+
+[data-testid="grokImgGen"] {
+  display: none !important;
+}
+[data-testid="createPollButton"] {
+  display: none !important;
+}
+[data-testid="scheduleOption"] {
+  display: none !important;
+}
+[data-testid="contentDisclosureButton"] {
+  display: none !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   7. "FOR YOU" TAB → Dimmed
+   De-emphasize the algorithmic feed tab when
+   not selected. "Following" is the human feed.
+   ═══════════════════════════════════════════════ */
+
+[data-testid="ScrollSnap-List"] > div:first-child [role="tab"]:not([aria-selected="true"]) {
+  opacity: 0.35 !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   8. SOCIAL CONTEXT → Quieter
+   "X liked" / "X reposted" banners above tweets.
+   Social proof nudging — de-emphasize so you read
+   tweets on their merit.
+   ═══════════════════════════════════════════════ */
+
+[data-testid="socialContext"] {
+  opacity: 0.35 !important;
+}
+
+
+/* ═══════════════════════════════════════════════
+   9. NOTIFICATION BADGES → Silenced
+   No attention-grabbing counts on nav items.
+   ═══════════════════════════════════════════════ */
+
+/* Hide notification count badge */
+[data-testid="AppTabBar_Notifications_Link"] [aria-live="polite"] {
+  display: none !important;
+}
+
+/* Hide DM count badge */
+[data-testid="AppTabBar_DirectMessage_Link"] [aria-live="polite"] {
+  display: none !important;
+}
+
+/* Hide Home tab "new posts" blue dot */
+/* FRAGILE */ /* positional div>div>div — no stable hook for the dot */
 a[data-testid="AppTabBar_Home_Link"] div div div {
-    display: none;
+  display: none !important;
 }
 
+
+/* ═══════════════════════════════════════════════
+   10. GROK / CHAT DRAWERS → Gone
+   ═══════════════════════════════════════════════ */
+
+[data-testid="GrokDrawer"],
+[data-testid="GrokDrawerHeader"],
+[data-testid="chat-drawer-root"] {
+  display: none !important;
+}

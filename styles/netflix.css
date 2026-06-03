@@ -9,15 +9,19 @@
     background-color: white;
 }
 /* On Player */
+/* FRAGILE */ /* emotion-hashed class names — change on Netflix rebuilds */
 .ltr-1xfifdu { /* current-progress */
     background: white;
 }
+/* FRAGILE */
 .ltr-1gidbvb { /* scrubber-head */
     background: white;
 }
+/* FRAGILE */
 .ltr-1jssjem { /* cached */
     background: grey;
 }
+/* FRAGILE */
 .ltr-yzurhj { /* bar */
     background: #444;
 }

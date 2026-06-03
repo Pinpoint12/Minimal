@@ -11,25 +11,37 @@ Minimal is a Chrome/Chromium browser extension (Manifest V3) that removes distra
 ### Extension Structure
 - **manifest.json** - Extension configuration (MV3), content script injection rules, permissions
 - **main.js** - Service worker handling enable/disable state, tab tracking, messaging
+- **scripts/minimal-core.js** - Shared content-script helpers on `window.MinimalCore`. Loaded FIRST in every content_scripts entry (all files in an entry share one isolated-world `window`). See "Shared Core" below.
+- **scripts/blocker-tracker.js** - Runs on every supported site: applies user-hidden elements, reports the badge count, and (when disabled) toggles off Minimal's own injected stylesheets.
 - **scripts/*.js** - Site-specific content scripts (YouTube, Reddit, Twitter, Facebook, Netflix)
+- **styles/minimal-overlay.css** - Shared design system for the homepage/blocked overlays + scroll wall (BEM `minimal-overlay__*` / `minimal-wall__*`). Injected on Tier 1 sites; site CSS no longer duplicates overlay rules.
 - **styles/*.css** - Site-specific stylesheets (YouTube, Reddit, Twitter, Facebook, Netflix, Amazon, Google, Yahoo)
-- **pages/** - Popup UI for toggling extension per-site (uses messaging API)
+- **pages/** - Popup UI for toggling extension per-site (uses messaging API). Full light/dark via `prefers-color-scheme`, localized via `data-i18n`.
 - **_locales/** - i18n translations (en, de, es, fr)
+
+### Shared Core (`scripts/minimal-core.js`)
+Site scripts MUST build on these instead of re-implementing them (each re-implementation re-introduced the same audited bugs):
+- `installFoucPreload()` / `revealPage()` — unconditional `document_start` body-hide + 2s failsafe.
+- `onSpaNavigate(cb, {events})` — safe SPA-nav detection (pushState + popstate + site events, gated on pathname change). NEVER patches `replaceState`, NEVER observes `document.body`.
+- `mountSearchOverlay({id, appShellSelectors, logoHTML, placeholder, hint, buildSearchUrl})` → `{el, remove}` — non-destructive homepage overlay.
+- `createScrollWall({postSelector, limit, container, protect, message, dismissLabel})` → `{destroy}` — IntersectionObserver wall; `destroy()` disconnects BOTH observers (call it on SPA nav so observers never leak).
+- `onPageHide(fn)` — teardown on `pagehide` (never the deprecated `unload`).
+- `storage(defaults)` → Promise; `debug(...)` — gated on `localStorage.minimalDebug === '1'`.
 
 ### Site Tiers
 
 **Tier 1 — Full experience** (custom homepage, FOUC prevention, scroll walls, popup options):
 - YouTube - complete
 - Reddit - complete
-- Twitter/X - TODO
-- Facebook - TODO
+- Twitter/X - **CSS-only by design** (no overlay/scroll wall). React reconciles the DOM constantly, so JS is kept to title/favicon cleanup only; CSS does the heavy lifting. Do NOT add observers/overlays here.
+- Facebook - TODO (currently light JS: Messenger relink via event delegation)
 - Amazon - TODO
-- LinkedIn - TODO
 
 **Tier 2 — Light touch** (CSS hiding, minimal JS):
 - Netflix
 - Google
 - Yahoo
+- LinkedIn
 
 ### Content Script Patterns
 1. **CSS-only** (Google, Yahoo) - Pure display:none hiding
@@ -47,6 +59,7 @@ Minimal is a Chrome/Chromium browser extension (Manifest V3) that removes distra
 - Per-site enabled/disabled state stored in `chrome.storage.sync`
 - Tab metadata stored in `chrome.storage.session` (survives service worker restarts)
 - Messaging-based communication between popup and service worker
+- **Disabled state:** site CSS is injected unconditionally via the manifest, so when a site is disabled `blocker-tracker.js` toggles `sheet.disabled = true` on every stylesheet whose href is under the extension's `styles/` dir. This fully reverts Minimal's styling without a brittle hand-written reset block. JS content scripts additionally self-gate on the stored enabled flag.
 
 ## Build & Install
 
@@ -92,7 +105,20 @@ Used on Tier 1 sites. At `document_start`, inject a `<style>` that hides `body` 
 ```
 
 ### Homepage Overlay Pattern
-Used on Tier 1 sites. Non-destructive: hide the site's app shell (e.g. `shreddit-app`, `#page-manager`), append a `position: fixed; inset: 0; z-index: 2000` overlay with logo + search + hint text. Preserves SPA routing. CSS lives in the static stylesheet, not inline JS.
+Used on Tier 1 sites. Non-destructive: hide the site's app shell (e.g. `shreddit-app`, `#page-manager`, `#react-root`), append a `position: fixed; inset: 0; z-index: 2000` overlay with logo + search + hint text. Preserves SPA routing. CSS lives in the static stylesheet, not inline JS.
+
+### SPA Navigation Detection (CRITICAL)
+**NEVER intercept `history.replaceState`.** React Router (and similar frameworks) call `replaceState` hundreds of times per second for scroll position, state hydration, and internal bookkeeping. Intercepting it causes runaway CPU usage (144%+ observed on X/Twitter, crashing the shared worker blob).
+
+Safe SPA navigation detection, in order of preference:
+1. **Site-specific events** — e.g. YouTube's `yt-navigate-finish` (best: zero overhead)
+2. **`popstate` + `pushState` interception** — covers back/forward and link clicks. Always gate the callback on `pathname !== lastPath` to ignore same-page state changes
+3. **MutationObserver on a narrow DOM scope** — e.g. `[data-testid="primaryColumn"]`, NOT `document.body`. Throttle the callback with a timer
+
+**NEVER use:**
+- `history.replaceState` interception (CPU bomb on React sites)
+- `MutationObserver` on `document.body` with `subtree: true` on React/SPA sites (fires on every reconciliation)
+- Unguarded `setInterval` polling (runs forever even on background tabs)
 
 ### Popup Options System
 - Site-specific toggle options appear in popup when on a supported site
@@ -105,8 +131,10 @@ Used on Tier 1 sites. Non-destructive: hide the site's app shell (e.g. `shreddit
 
 - **scripts/youtube.js** (~370 lines) - Non-destructive homepage overlay, SPA navigation via `yt-navigate-finish`, autoplay removal, subscription manager, optional styles
 - **scripts/reddit.js** (~500 lines) - NSFW blocker, non-destructive homepage overlay, sidebar removal, scroll depth wall (IntersectionObserver-based), FOUC prevention
+- **scripts/twitter.js** (~280 lines) - Non-destructive homepage overlay on /home, FOUC prevention, scroll depth wall, notification cleanup, SPA nav via pushState+popstate
 - **styles/youtube.css** (~340 lines) - Watch page centering, search results centering (800px), playlist sticky positioning, homepage overlay styles
 - **styles/reddit.css** (~340 lines) - Homepage overlay styles (matching YouTube design language), scroll depth wall styling, vote count dot replacement, dark mode support
+- **styles/twitter.css** (~200 lines) - Homepage overlay, scroll wall, sidebar trending/who-to-follow hiding, dark mode via prefers-color-scheme
 - **pages/badgePopup.html/js/css** - Extension popup with per-site toggle, site-specific options, element picker, hidden elements manager
 - **main.js** - Resource mapping, enable/disable logic, tab lifecycle, context menus, element picker injection
 

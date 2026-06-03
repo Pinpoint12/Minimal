@@ -6,6 +6,8 @@
 	if (window.minimalBlockerTracker) return;
 	window.minimalBlockerTracker = true;
 
+	const Core = window.MinimalCore;
+
 	/* Site detection */
 	const sitePatterns = {
 		youtube: /youtube\.com/,
@@ -33,264 +35,80 @@
 	chrome.storage.sync.get({ [currentSite]: "enabled" }, (data) => {
 		const isEnabled = data[currentSite] === "enabled";
 
-		if (!isEnabled) {
-			/* Inject reset CSS to undo all Minimal styling */
-			injectResetCSS();
-			return;
-		}
+		/* - Toggle Minimal's own injected stylesheets instead of injecting a brittle
+		   per-site reset block; lets the user fully opt out per site - U1 */
+		setMinimalStyleSheets(isEnabled);
+
+		if (!isEnabled) return;
 
 		/* Minimal is enabled - apply user hidden elements and track */
 		initUserHiddenElements();
 	});
 
-	/* Reset CSS that undoes all Minimal styling when disabled */
-	function injectResetCSS() {
-		const resetStyle = document.createElement('style');
-		resetStyle.id = 'minimal-reset-css';
-		resetStyle.textContent = `
-			/* Reset all Minimal CSS when disabled */
-
-			/* YouTube resets */
-			#related, #ticket-shelf, #merch-shelf,
-			.ytd-horizontal-card-list-renderer,
-			ytd-reel-shelf-renderer,
-			#notification-count, ytd-notification-topbar-button-renderer,
-			.videowall-endscreen,
-			#guide-button, #voice-search-button, ytd-mini-guide-renderer, tp-yt-app-drawer,
-			yt-tab-shape[tab-title="Shorts"],
-			#country-code, #logo-container .content-region,
-			.iv-branding,
-			.ytp-size-button,
-			.ytp-miniplayer-button,
-			.ytp-next-button,
-			.ytd-moving-thumbnail-renderer,
-			button[data-tooltip-target-id="ytp-autonav-toggle-button"],
-			ytd-two-column-search-results-renderer[is-search="true"] .ytd-item-section-renderer[thumbnail-style=""] {
-				display: revert !important;
-			}
-
-			.ytp-play-button-playlist+.ytp-next-button {
-				display: revert !important;
-			}
-
-			#columns {
-				width: revert !important;
-				max-width: revert !important;
-				min-width: revert !important;
-				display: revert !important;
-				align-items: revert !important;
-				justify-content: revert !important;
-			}
-
-			#primary {
-				max-width: revert !important;
-				width: revert !important;
-			}
-
-			#secondary {
-				width: revert !important;
-				max-width: revert !important;
-				min-width: revert !important;
-			}
-
-			ytd-comments#comments {
-				max-height: revert !important;
-				overflow-y: revert !important;
-			}
-
-			#contents.ytd-rich-grid-renderer {
-				--ytd-rich-grid-items-per-row: revert !important;
-				display: revert !important;
-				grid-template-columns: revert !important;
-				grid-gap: revert !important;
-				max-width: revert !important;
-				margin: revert !important;
-				padding: revert !important;
-			}
-
-			ytd-rich-item-renderer {
-				width: revert !important;
-				margin: revert !important;
-			}
-
-			ytd-browse[page-subtype="channels"] #primary {
-				max-width: revert !important;
-				width: revert !important;
-			}
-
-			#page-manager {
-				margin: revert !important;
-			}
-
-			#logo svg, #logo-container .logo, #footer-logo {
-				filter: revert !important;
-				opacity: revert !important;
-			}
-
-			.ytd-thumbnail img.yt-img-shadow,
-			.ytp-cued-thumbnail-overlay-image {
-				filter: revert !important;
-			}
-
-			button.yt-spec-button-shape-next.yt-spec-button-shape-next--filled.yt-spec-button-shape-next--mono {
-				background-color: revert !important;
-				color: revert !important;
-			}
-
-			#logo, #logo-icon, #logo-icon-container, #masthead-logo, .logo, .ytd-logo {
-				outline: revert !important;
-				-webkit-tap-highlight-color: revert !important;
-			}
-
-			#masthead-logo a, #masthead a, #logo a {
-				outline: revert !important;
-			}
-
-			/* Reddit resets */
-			faceplate-number {
-				font-size: revert !important;
-			}
-			faceplate-number::after {
-				content: none !important;
-			}
-
-			#left-sidebar-container {
-				width: revert !important;
-				min-width: revert !important;
-				display: revert !important;
-				--expanded: revert !important;
-			}
-
-			#nsfw {
-				display: revert !important;
-			}
-
-			[data-faceplate-tracking-context*='"type":"nsfw"'] {
-				display: revert !important;
-			}
-
-			#hamburger-button-tooltip {
-				display: revert !important;
-			}
-
-			chat-channel-recommendations-wrapper {
-				display: revert !important;
-			}
-
-			.Rz5N3cHNgTGZsIQJqBfgk {
-				display: revert !important;
-			}
-
-			.jEUbSHJJx8vISKpWirlfx {
-				border: revert !important;
-			}
-
-			.jEUbSHJJx8vISKpWirlfx svg {
-				display: revert !important;
-			}
-
-			._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5 {
-				opacity: revert !important;
-				transition: revert !important;
-			}
-
-			.pr-lg.flex.gap-xs.items-center.justify-start {
-				pointer-events: revert !important;
-			}
-
-			#minimal-scroll-wall {
-				display: none !important;
-			}
-
-			/* Twitter resets */
-			div.css-901oao.r-1awozwy>svg {
-				filter: none !important;
-				opacity: 1 !important;
-			}
-
-			a[data-testid="AppTabBar_Home_Link"] div div div {
-				display: revert !important;
-			}
-
-			/* Facebook resets */
-			#stories_pagelet_rhc,
-			#createNav,
-			div[aria-label="Messenger"][role="dialog"],
-			a[data-testid="left_nav_item_Watch"],
-			a[data-testid="left_nav_item_Marketplace"],
-			a[data-testid="left_nav_item_Messenger"] {
-				display: revert !important;
-			}
-
-			/* Amazon resets */
-			#nav-swmslot, #desktop-banner,
-			div[data-feature-name="similarities"],
-			#sims-consolidated-1_feature_div,
-			#sims-consolidated-2_feature_div,
-			#rhf {
-				display: revert !important;
-			}
-
-			#navbar *, #nav-belt, #nav-main, #nav-subnav {
-				background-color: revert !important;
-				color: revert !important;
-			}
-
-			/* Netflix resets */
-			.billboard-row, .lolomoBigRow {
-				display: revert !important;
-			}
-
-			/* Google resets */
-			#hplogo, #logo, #navcnt, .cOl4Id {
-				filter: none !important;
-				opacity: 1 !important;
-			}
-
-			/* Yahoo resets */
-			#feat-bar, #Stream>*, .stream-items>*,
-			.tdv2-wafer-ntk-desktop>*, .aside-sticky-col>*,
-			.ntk-filmstrip>ul>*, .ntk-lead {
-				opacity: 1 !important;
-				filter: none !important;
-			}
-
-			/* Hide any Minimal UI elements */
-			#minimal-notification-widget,
-			#minimal-preload-style,
-			#minimal-reddit-js-styles,
-			#minimal-reddit-homepage,
-			#minimal-youtube-homepage {
-				display: none !important;
-			}
-		`;
-
-		/* Insert at highest priority */
-		if (document.head) {
-			document.head.appendChild(resetStyle);
-		} else {
-			document.addEventListener('DOMContentLoaded', () => {
-				document.head.appendChild(resetStyle);
-			});
+	/* Enable/disable only Minimal's own injected stylesheets (those served from
+	   the extension's styles/ directory). When disabled, the site renders as the
+	   author intended; when enabled, ensures our sheets are active. Stylesheets
+	   may not be parsed yet at document_start, so re-run on DOMContentLoaded and
+	   briefly retry. */
+	function setMinimalStyleSheets(enabled) {
+		let stylesPrefix;
+		try {
+			stylesPrefix = chrome.runtime.getURL('styles/');
+		} catch (e) {
+			Core?.debug('getURL failed', e);
+			return;
 		}
+
+		const apply = () => {
+			let matched = 0;
+			for (const sheet of document.styleSheets) {
+				if (sheet.href && sheet.href.startsWith(stylesPrefix)) {
+					sheet.disabled = !enabled;
+					matched++;
+				}
+			}
+			Core?.debug('setMinimalStyleSheets', { enabled, matched });
+			return matched;
+		};
+
+		apply();
+
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', apply, { once: true });
+		}
+
+		/* Sheets injected via insertCSS can appear after our first pass; retry a
+		   few times so a disabled site never flashes Minimal's styling. */
+		let tries = 0;
+		const retry = setInterval(() => {
+			tries++;
+			apply();
+			if (tries >= 5) clearInterval(retry);
+		}, 200);
 	}
 
 	/* Apply user-hidden elements and report count to badge */
 	function initUserHiddenElements() {
 		const hostname = window.location.hostname;
 
-		function applyAndReport() {
+		function applyHidden(hidden) {
+			for (const selector of hidden) {
+				try {
+					document.querySelectorAll(selector).forEach(el => {
+						if (el.style.display !== 'none') {
+							el.style.setProperty('display', 'none', 'important');
+						}
+					});
+				} catch (e) { /* Ignore invalid selectors */ }
+			}
+		}
+
+		function start() {
 			chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
 				const hidden = data.hiddenElements[hostname] || [];
 
-				/* Apply hidden elements */
-				for (const selector of hidden) {
-					try {
-						document.querySelectorAll(selector).forEach(el => {
-							el.style.setProperty('display', 'none', 'important');
-						});
-					} catch (e) { /* Ignore invalid selectors */ }
-				}
+				/* - Hide elements the user explicitly chose to remove - U1 C2 */
+				applyHidden(hidden);
 
 				/* Report user-hidden count to badge (0 means no badge) */
 				try {
@@ -299,39 +117,40 @@
 						count: hidden.length
 					});
 				} catch (e) { /* Ignore */ }
+
+				/* Only attach the re-apply observer when the user actually hid
+				   something. An always-on document.body subtree observer is a CPU
+				   bomb on React/SPA sites; attaching it here is justified because the
+				   user opted in by hiding elements, and we tear it down on pagehide. */
+				if (hidden.length === 0) return;
+
+				let debounceTimer = null;
+				const observer = new MutationObserver(() => {
+					if (debounceTimer) return;
+					debounceTimer = setTimeout(() => {
+						debounceTimer = null;
+						chrome.storage.sync.get({ hiddenElements: {} }, (d) => {
+							applyHidden(d.hiddenElements[hostname] || []);
+						});
+					}, 300);
+				});
+				observer.observe(document.body, { childList: true, subtree: true });
+
+				const teardown = () => {
+					if (debounceTimer) { clearTimeout(debounceTimer); debounceTimer = null; }
+					observer.disconnect();
+				};
+				if (Core?.onPageHide) Core.onPageHide(teardown);
+				else window.addEventListener('pagehide', teardown);
 			});
 		}
 
-		/* Apply on load */
+		/* document.body may not exist at document_start on Reddit/YouTube — fall
+		   back to DOMContentLoaded so the apply + observer attach isn't missed. */
 		if (document.body) {
-			applyAndReport();
+			start();
 		} else {
-			document.addEventListener('DOMContentLoaded', applyAndReport);
-		}
-
-		/* Re-apply on DOM changes (for SPAs) - debounced */
-		let debounceTimer = null;
-		const observer = new MutationObserver(() => {
-			if (debounceTimer) return;
-			debounceTimer = setTimeout(() => {
-				debounceTimer = null;
-				chrome.storage.sync.get({ hiddenElements: {} }, (data) => {
-					const hidden = data.hiddenElements[hostname] || [];
-					for (const selector of hidden) {
-						try {
-							document.querySelectorAll(selector).forEach(el => {
-								if (el.style.display !== 'none') {
-									el.style.setProperty('display', 'none', 'important');
-								}
-							});
-						} catch (e) { /* Ignore */ }
-					}
-				});
-			}, 300);
-		});
-
-		if (document.body) {
-			observer.observe(document.body, { childList: true, subtree: true });
+			document.addEventListener('DOMContentLoaded', start, { once: true });
 		}
 	}
 

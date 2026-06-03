@@ -1,4 +1,5 @@
 /* - Remove messaging sidebar and popups from all pages - U2 */
+/* FRAGILE */ /* generated atomic class names — change on Facebook rebuilds */
 .poy2od1o.i09qtzwb.n7fi1qx3{
 	display: none;
 }
@@ -23,19 +24,6 @@ a[data-testid="left_nav_item_Marketplace"],
 a[data-testid="left_nav_item_Messenger"],
 #userNav{
   display: none!important;
-}
-
-/* - Hide the textarea to create a post until you click on "create a post" - U1 */
-._3u13._3e9r ._4zoz._5xv3._4cw._4-u3, ._3u13._3e9r  form{
-  display: none
-}
-._3u13._3e9r._3u14._1b3n ._4zoz._5xv3._4cw._4-u3{
-  display: block
-}
-
-/* - Remove messenger button on mobile browsers - U1 */
-#header ._4g34:nth-child(3){
-  display: none
 }
 
 /* - Make Facebook logo more discrete - P1 */

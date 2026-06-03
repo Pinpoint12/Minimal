@@ -1,11 +1,11 @@
 {
 	"manifest_version": 3,
 	"name": "minimal",
-	"version": "1.8.0",
+	"version": "1.9.0",
 
 	"default_locale": "en",
 
-	"description": "A browser extension that simplifies popular websites by removing distracting elements and focusing on core content",
+	"description": "__MSG_addonDescription__",
 
 	"icons": {
 		"48": "icons/icon.png",
@@ -24,19 +24,19 @@
 	"content_scripts": [
 		{
 			"matches": ["*://*.youtube.com/*"],
-			"css": ["styles/youtube.css"],
-			"js": ["scripts/youtube.js", "scripts/blocker-tracker.js"],
+			"css": ["styles/youtube.css", "styles/minimal-overlay.css"],
+			"js": ["scripts/minimal-core.js", "scripts/youtube.js", "scripts/blocker-tracker.js"],
 			"run_at": "document_start"
 		},
 		{
 			"matches": ["*://*.facebook.com/*"],
 			"css": ["styles/facebook.css"],
-			"js": ["scripts/facebook.js", "scripts/blocker-tracker.js"]
+			"js": ["scripts/minimal-core.js", "scripts/facebook.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": ["*://*.twitter.com/*", "*://*.x.com/*"],
 			"css": ["styles/twitter.css"],
-			"js": ["scripts/twitter.js", "scripts/blocker-tracker.js"]
+			"js": ["scripts/minimal-core.js", "scripts/twitter.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": [
@@ -56,7 +56,7 @@
 				"*://*.amazon.nl/*"
 			],
 			"css": ["styles/amazon.css"],
-			"js": ["scripts/blocker-tracker.js"]
+			"js": ["scripts/minimal-core.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": [
@@ -77,25 +77,25 @@
 				"*://*.google.cn/*"
 			],
 			"css": ["styles/google.css"],
-			"js": ["scripts/blocker-tracker.js"]
+			"js": ["scripts/minimal-core.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": ["*://*.yahoo.com/*"],
 			"css": ["styles/yahoo.css"],
-			"js": ["scripts/blocker-tracker.js"]
+			"js": ["scripts/minimal-core.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": ["*://*.netflix.com/*"],
 			"css": ["styles/netflix.css"],
-			"js": ["scripts/netflix.js", "scripts/blocker-tracker.js"]
+			"js": ["scripts/minimal-core.js", "scripts/netflix.js", "scripts/blocker-tracker.js"]
 		},
 		{
 			"matches": [
 				"*://*.reddit.com/*",
 				"*://reddit.com/*"
 			],
-			"css": ["styles/reddit.css"],
-			"js": ["scripts/reddit.js", "scripts/blocker-tracker.js"],
+			"css": ["styles/reddit.css", "styles/minimal-overlay.css"],
+			"js": ["scripts/minimal-core.js", "scripts/reddit.js", "scripts/blocker-tracker.js"],
 			"run_at": "document_start"
 		}
 	],

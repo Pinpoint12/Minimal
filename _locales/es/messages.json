@@ -1,28 +1,96 @@
 {
 	"addonDescription": {
-		"message": "Una experiencia mínima del internet que atrae menos la atención",
-		"description": "Describe la extensión"
+		"message": "Una experiencia de internet mínima que atrae menos la atención.",
+		"description": "Describe la extensión."
 	},
 	"pageActionDefaultTitle": {
-		"message": "Sitio web soportado por minimal",
-		"description": "Visualizado sobre el icono de la extensión"
-	},
-	"toggleOn": {
-		"message": "Activar",
-		"description": "Se muestra en un elemento de conmutación cuando se apaga"
-	},
-	"toggleOff": {
-		"message": "Desactivar",
-		"description": "Se muestra en un elemento de conmutación cuando se activa"
-	},
-	"videoRecommendations": {
-		"message": "recomendaciones de vídeo",
-		"description": "Recomendaciones de vídeo"
-	},
-	"reportIssue": {
-		"message": "Notificar un problema"
+		"message": "Sitio web compatible con Minimal",
+		"description": "Visualizado sobre el icono de la extensión."
 	},
 	"minimalStyle": {
-		"message": "Estilo minimal"
+		"message": "Estilo minimalista",
+		"description": "Etiqueta del interruptor principal de activación/desactivación por sitio."
+	},
+	"statusActive": {
+		"message": "Activo en $SITE$",
+		"description": "Estado del popup cuando la extensión está activada en el sitio actual.",
+		"placeholders": {
+			"site": {
+				"content": "$1"
+			}
+		}
+	},
+	"statusDisabled": {
+		"message": "Desactivado en $SITE$",
+		"description": "Estado del popup cuando la extensión está desactivada en el sitio actual.",
+		"placeholders": {
+			"site": {
+				"content": "$1"
+			}
+		}
+	},
+	"statusUnsupported": {
+		"message": "Sitio no compatible",
+		"description": "Estado del popup cuando el sitio actual no es compatible con Minimal."
+	},
+	"statusNoAccess": {
+		"message": "No se puede acceder a esta página",
+		"description": "Estado del popup cuando la extensión no puede acceder a la página actual."
+	},
+	"statusError": {
+		"message": "Error al cargar el estado",
+		"description": "Estado del popup cuando no se pudo cargar el estado del sitio."
+	},
+	"pickElement": {
+		"message": "Elegir elemento para ocultar",
+		"description": "Botón que inicia el selector de elementos."
+	},
+	"optionsHeader": {
+		"message": "Opciones",
+		"description": "Encabezado de la sección de opciones específicas del sitio."
+	},
+	"optHideViewCounts": {
+		"message": "Ocultar recuentos de visualizaciones",
+		"description": "Opción para ocultar los recuentos de visualizaciones."
+	},
+	"optHideLikeCounts": {
+		"message": "Ocultar recuentos de me gusta/no me gusta",
+		"description": "Opción para ocultar los recuentos de me gusta y no me gusta."
+	},
+	"optHideComments": {
+		"message": "Ocultar comentarios",
+		"description": "Opción para ocultar los comentarios."
+	},
+	"optVoteCounts": {
+		"message": "Recuentos de votos",
+		"description": "Etiqueta de la opción de visualización de recuentos de votos."
+	},
+	"segVisible": {
+		"message": "Visible",
+		"description": "Control segmentado: recuentos de votos visibles."
+	},
+	"segDots": {
+		"message": "Puntos",
+		"description": "Control segmentado: recuentos de votos mostrados como puntos."
+	},
+	"segHidden": {
+		"message": "Ocultos",
+		"description": "Control segmentado: recuentos de votos ocultos."
+	},
+	"hiddenElements": {
+		"message": "Elementos ocultos",
+		"description": "Encabezado de la lista de elementos ocultados por el usuario."
+	},
+	"clearAll": {
+		"message": "Borrar todo",
+		"description": "Botón que vuelve a mostrar todos los elementos ocultados por el usuario."
+	},
+	"noHidden": {
+		"message": "No hay elementos ocultos",
+		"description": "Texto de estado vacío cuando no se ha ocultado ningún elemento."
+	},
+	"unhide": {
+		"message": "Mostrar",
+		"description": "Botón que vuelve a mostrar un elemento concreto."
 	}
 }
