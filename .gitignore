@@ -3,3 +3,4 @@
 preprocessing/preprocess
 preprocessing/*.o
 build/
+.claude/
