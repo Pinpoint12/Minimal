@@ -87,8 +87,12 @@ html.minimal-on tp-yt-app-drawer {
   display: none !important;
 }
 
+/* Only set the right margin — the `margin` shorthand would zero margin-top and,
+   now that the html.minimal-on gate raises this rule's specificity above
+   YouTube's own `ytd-page-manager#page-manager` masthead clearance, that pulled
+   the watch player up under the fixed header. - C2 */
 html.minimal-on #page-manager {
-  margin: 0 24px 0 0;
+  margin-right: 24px;
 }
 
 /* - Simplify youtube logo to make it more discrete - P1 */
