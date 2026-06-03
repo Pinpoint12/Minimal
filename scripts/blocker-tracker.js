@@ -35,57 +35,19 @@
 	chrome.storage.sync.get({ [currentSite]: "enabled" }, (data) => {
 		const isEnabled = data[currentSite] === "enabled";
 
-		/* - Toggle Minimal's own injected stylesheets instead of injecting a brittle
-		   per-site reset block; lets the user fully opt out per site - U1 */
-		setMinimalStyleSheets(isEnabled);
+		/* - Gate all of Minimal's site CSS behind html.minimal-on so disabling a
+		   site fully reverts its styling. Manifest-injected content-script CSS
+		   can't be removed/disabled at runtime (it isn't in document.styleSheets),
+		   so this class gate is the reliable opt-out mechanism. Runs on every site
+		   including Tier 2 ones that have no dedicated site script. - U1 */
+		if (Core) Core.setEnabled(isEnabled);
+		else document.documentElement.classList.toggle('minimal-on', isEnabled);
 
 		if (!isEnabled) return;
 
 		/* Minimal is enabled - apply user hidden elements and track */
 		initUserHiddenElements();
 	});
-
-	/* Enable/disable only Minimal's own injected stylesheets (those served from
-	   the extension's styles/ directory). When disabled, the site renders as the
-	   author intended; when enabled, ensures our sheets are active. Stylesheets
-	   may not be parsed yet at document_start, so re-run on DOMContentLoaded and
-	   briefly retry. */
-	function setMinimalStyleSheets(enabled) {
-		let stylesPrefix;
-		try {
-			stylesPrefix = chrome.runtime.getURL('styles/');
-		} catch (e) {
-			Core?.debug('getURL failed', e);
-			return;
-		}
-
-		const apply = () => {
-			let matched = 0;
-			for (const sheet of document.styleSheets) {
-				if (sheet.href && sheet.href.startsWith(stylesPrefix)) {
-					sheet.disabled = !enabled;
-					matched++;
-				}
-			}
-			Core?.debug('setMinimalStyleSheets', { enabled, matched });
-			return matched;
-		};
-
-		apply();
-
-		if (document.readyState === 'loading') {
-			document.addEventListener('DOMContentLoaded', apply, { once: true });
-		}
-
-		/* Sheets injected via insertCSS can appear after our first pass; retry a
-		   few times so a disabled site never flashes Minimal's styling. */
-		let tries = 0;
-		const retry = setInterval(() => {
-			tries++;
-			apply();
-			if (tries >= 5) clearInterval(retry);
-		}, 200);
-	}
 
 	/* Apply user-hidden elements and report count to badge */
 	function initUserHiddenElements() {

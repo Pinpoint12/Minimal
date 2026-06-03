@@ -16,17 +16,17 @@
    ═══════════════════════════════════════════════ */
 
 /* Hide ALL children of the trending/sidebar content area */
-[aria-label="Trending"] > div > * {
+html.minimal-on [aria-label="Trending"] > div > * {
   display: none !important;
 }
 
 /* Carve out ONLY the search form wrapper */
-[aria-label="Trending"] > div > *:has(form[aria-label="Search"]) {
+html.minimal-on [aria-label="Trending"] > div > *:has(form[aria-label="Search"]) {
   display: flex !important;
 }
 
 /* Belt-and-suspenders: hide sidebar footer nav */
-[data-testid="sidebarColumn"] nav[aria-label="Footer"] {
+html.minimal-on [data-testid="sidebarColumn"] nav[aria-label="Footer"] {
   display: none !important;
 }
 
@@ -39,17 +39,17 @@
    ═══════════════════════════════════════════════ */
 
 /* Hide Grok nav item - C2 */
-a[href="/i/grok"] {
+html.minimal-on a[href="/i/grok"] {
   display: none !important;
 }
 
 /* Hide Premium signup nav item - C2 */
-a[data-testid="premium-signup-tab"] {
+html.minimal-on a[data-testid="premium-signup-tab"] {
   display: none !important;
 }
 
 /* Hide Explore nav (trending in disguise) - C2 */
-a[data-testid="AppTabBar_Explore_Link"] {
+html.minimal-on a[data-testid="AppTabBar_Explore_Link"] {
   display: none !important;
 }
 
@@ -60,20 +60,20 @@ a[data-testid="AppTabBar_Explore_Link"] {
    hover. Present if you look, never competing.
    ═══════════════════════════════════════════════ */
 
-[data-testid="reply"] [data-testid="app-text-transition-container"],
-[data-testid="retweet"] [data-testid="app-text-transition-container"],
-[data-testid="like"] [data-testid="app-text-transition-container"],
-[data-testid="unlike"] [data-testid="app-text-transition-container"],
-a[href*="/analytics"] [data-testid="app-text-transition-container"] {
+html.minimal-on [data-testid="reply"] [data-testid="app-text-transition-container"],
+html.minimal-on [data-testid="retweet"] [data-testid="app-text-transition-container"],
+html.minimal-on [data-testid="like"] [data-testid="app-text-transition-container"],
+html.minimal-on [data-testid="unlike"] [data-testid="app-text-transition-container"],
+html.minimal-on a[href*="/analytics"] [data-testid="app-text-transition-container"] {
   opacity: 0 !important;
   transition: opacity 0.25s ease !important;
 }
 
-article[data-testid="tweet"]:hover [data-testid="reply"] [data-testid="app-text-transition-container"],
-article[data-testid="tweet"]:hover [data-testid="retweet"] [data-testid="app-text-transition-container"],
-article[data-testid="tweet"]:hover [data-testid="like"] [data-testid="app-text-transition-container"],
-article[data-testid="tweet"]:hover [data-testid="unlike"] [data-testid="app-text-transition-container"],
-article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-transition-container"] {
+html.minimal-on article[data-testid="tweet"]:hover [data-testid="reply"] [data-testid="app-text-transition-container"],
+html.minimal-on article[data-testid="tweet"]:hover [data-testid="retweet"] [data-testid="app-text-transition-container"],
+html.minimal-on article[data-testid="tweet"]:hover [data-testid="like"] [data-testid="app-text-transition-container"],
+html.minimal-on article[data-testid="tweet"]:hover [data-testid="unlike"] [data-testid="app-text-transition-container"],
+html.minimal-on article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-transition-container"] {
   opacity: 0.5 !important;
 }
 
@@ -82,7 +82,7 @@ article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-
    4. PROMOTED TWEETS → Gone
    ═══════════════════════════════════════════════ */
 
-[data-testid="placementTracking"] {
+html.minimal-on [data-testid="placementTracking"] {
   display: none !important;
 }
 
@@ -93,7 +93,7 @@ article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-
    signal. Pure visual noise.
    ═══════════════════════════════════════════════ */
 
-[data-testid="icon-verified"] {
+html.minimal-on [data-testid="icon-verified"] {
   opacity: 0.15 !important;
 }
 
@@ -105,16 +105,16 @@ article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-
    content disclosure.
    ═══════════════════════════════════════════════ */
 
-[data-testid="grokImgGen"] {
+html.minimal-on [data-testid="grokImgGen"] {
   display: none !important;
 }
-[data-testid="createPollButton"] {
+html.minimal-on [data-testid="createPollButton"] {
   display: none !important;
 }
-[data-testid="scheduleOption"] {
+html.minimal-on [data-testid="scheduleOption"] {
   display: none !important;
 }
-[data-testid="contentDisclosureButton"] {
+html.minimal-on [data-testid="contentDisclosureButton"] {
   display: none !important;
 }
 
@@ -125,7 +125,7 @@ article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-
    not selected. "Following" is the human feed.
    ═══════════════════════════════════════════════ */
 
-[data-testid="ScrollSnap-List"] > div:first-child [role="tab"]:not([aria-selected="true"]) {
+html.minimal-on [data-testid="ScrollSnap-List"] > div:first-child [role="tab"]:not([aria-selected="true"]) {
   opacity: 0.35 !important;
 }
 
@@ -137,7 +137,7 @@ article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-
    tweets on their merit.
    ═══════════════════════════════════════════════ */
 
-[data-testid="socialContext"] {
+html.minimal-on [data-testid="socialContext"] {
   opacity: 0.35 !important;
 }
 
@@ -148,18 +148,18 @@ article[data-testid="tweet"]:hover a[href*="/analytics"] [data-testid="app-text-
    ═══════════════════════════════════════════════ */
 
 /* Hide notification count badge */
-[data-testid="AppTabBar_Notifications_Link"] [aria-live="polite"] {
+html.minimal-on [data-testid="AppTabBar_Notifications_Link"] [aria-live="polite"] {
   display: none !important;
 }
 
 /* Hide DM count badge */
-[data-testid="AppTabBar_DirectMessage_Link"] [aria-live="polite"] {
+html.minimal-on [data-testid="AppTabBar_DirectMessage_Link"] [aria-live="polite"] {
   display: none !important;
 }
 
 /* Hide Home tab "new posts" blue dot */
 /* FRAGILE */ /* positional div>div>div — no stable hook for the dot */
-a[data-testid="AppTabBar_Home_Link"] div div div {
+html.minimal-on a[data-testid="AppTabBar_Home_Link"] div div div {
   display: none !important;
 }
 
@@ -168,8 +168,8 @@ a[data-testid="AppTabBar_Home_Link"] div div div {
    10. GROK / CHAT DRAWERS → Gone
    ═══════════════════════════════════════════════ */
 
-[data-testid="GrokDrawer"],
-[data-testid="GrokDrawerHeader"],
-[data-testid="chat-drawer-root"] {
+html.minimal-on [data-testid="GrokDrawer"],
+html.minimal-on [data-testid="GrokDrawerHeader"],
+html.minimal-on [data-testid="chat-drawer-root"] {
   display: none !important;
 }

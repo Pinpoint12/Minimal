@@ -1,37 +1,37 @@
 /* - Remove messaging sidebar and popups from all pages - U2 */
 /* FRAGILE */ /* generated atomic class names — change on Facebook rebuilds */
-.poy2od1o.i09qtzwb.n7fi1qx3{
+html.minimal-on .poy2od1o.i09qtzwb.n7fi1qx3 {
 	display: none;
 }
 
-div[aria-label="Messenger"][role="dialog"]{
+html.minimal-on div[aria-label="Messenger"][role="dialog"] {
     display: none !important;
 }
 
 /* - Remove stories block - C1 */
-#stories_pagelet_rhc{
+html.minimal-on #stories_pagelet_rhc {
   height: 0;
   overflow: hidden;
   margin-bottom: -12px;
 }
 
 /* - Remove unnecessary links in left column - U3 */
-#createNav{
+html.minimal-on #createNav {
   display: none;
 }
-a[data-testid="left_nav_item_Watch"],
-a[data-testid="left_nav_item_Marketplace"],
-a[data-testid="left_nav_item_Messenger"],
-#userNav{
+html.minimal-on a[data-testid="left_nav_item_Watch"],
+html.minimal-on a[data-testid="left_nav_item_Marketplace"],
+html.minimal-on a[data-testid="left_nav_item_Messenger"],
+html.minimal-on #userNav {
   display: none!important;
 }
 
 /* - Make Facebook logo more discrete - P1 */
-a[aria-label="Facebook"][role="link"] svg{
+html.minimal-on a[aria-label="Facebook"][role="link"] svg {
     filter: opacity(85%) grayscale(100%);
 }
 
 /* - Remove presentation mode on video click - U3 */
-div[data-instancekey] div[role=presentation]{
+html.minimal-on div[data-instancekey] div[role=presentation] {
   display: none !important;
 }

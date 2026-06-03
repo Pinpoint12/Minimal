@@ -1,7 +1,7 @@
 /* Hide most UI - focus on single post */
 
 /* Hide and collapse left sidebar */
-#left-sidebar-container {
+html.minimal-on #left-sidebar-container {
   width: 0 !important;
   min-width: 0 !important;
   display: none !important;
@@ -9,10 +9,10 @@
 }
 
 /* Hide NSFW content toggles */
-#nsfw {
+html.minimal-on #nsfw {
   display: none !important;
 }
-[data-faceplate-tracking-context*='"type":"nsfw"'] {
+html.minimal-on [data-faceplate-tracking-context*='"type":"nsfw"'] {
   display: none !important;
 }
 
@@ -36,28 +36,28 @@ body[data-block-on-url] > *:not(#minimal-blocked-overlay) {
 }
 
 /* Hide menu button */
-#hamburger-button-tooltip {
+html.minimal-on #hamburger-button-tooltip {
   display: none !important;
 }
 
-chat-channel-recommendations-wrapper {
+html.minimal-on chat-channel-recommendations-wrapper {
   display: none !important;
 }
 
-div.pt-\[6px\].px-md.xs\:px-0 { /* FRAGILE */
+html.minimal-on div.pt-\[6px\].px-md.xs\:px-0 { /* FRAGILE */
   display: none !important;
 }
 
-div:has(label[data-testid="is-nsfw-shown"]) {
+html.minimal-on div:has(label[data-testid="is-nsfw-shown"]) {
   display: none !important;
 }
 
 /* Hide advertising elements */
-span[data-part="advertise"] {
+html.minimal-on span[data-part="advertise"] {
   display: none !important;
 }
 
-.pr-lg.flex.gap-xs.items-center.justify-start{ /* FRAGILE */
+html.minimal-on .pr-lg.flex.gap-xs.items-center.justify-start { /* FRAGILE */
   pointer-events: none;
 }
 
@@ -94,15 +94,15 @@ html.minimal-vote-hidden faceplate-number::after {
 }
 
 /* - Hide the total karma, on top right corner under username - C3 */
-.Rz5N3cHNgTGZsIQJqBfgk { /* FRAGILE */
+html.minimal-on .Rz5N3cHNgTGZsIQJqBfgk { /* FRAGILE */
   display: none;
 }
 
 /* - De-emphasize the "Get coin" button, on the top right corner - U1*/
-.jEUbSHJJx8vISKpWirlfx { /* FRAGILE */
+html.minimal-on .jEUbSHJJx8vISKpWirlfx { /* FRAGILE */
   border: none;
 }
-.jEUbSHJJx8vISKpWirlfx svg{ /* FRAGILE */
+html.minimal-on .jEUbSHJJx8vISKpWirlfx svg { /* FRAGILE */
   display: none;
 }
 
@@ -110,10 +110,10 @@ html.minimal-vote-hidden faceplate-number::after {
    Reddit's default responsive behavior work after sidebar removal */
 
 /* - Hide the right panel until hover - C2 P2 */
-._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5{ /* FRAGILE */
+html.minimal-on ._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5 { /* FRAGILE */
   opacity:0.2;
   transition: 200ms all ease;
 }
-._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5:hover{ /* FRAGILE */
+html.minimal-on ._1FUNcfOeszr8eruqLxCMcR._10wb7d3rGvj56Gcs4IQWL5:hover { /* FRAGILE */
   opacity:1
 }

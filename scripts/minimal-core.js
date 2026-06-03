@@ -266,6 +266,17 @@
 		return { destroy };
 	}
 
+	/* ---- Enabled gate ----
+	   Site CSS hides/restyles page elements only under `html.minimal-on`. The
+	   class is added here when Minimal is enabled and removed when disabled, so
+	   turning a site off fully reverts its styling. (Manifest-injected
+	   content-script CSS cannot be toggled via document.styleSheets — it doesn't
+	   appear there — so a class gate is the reliable mechanism.) Call BEFORE
+	   revealPage() on FOUC sites so the styled page is never shown ungated. */
+	function setEnabled(on) {
+		document.documentElement.classList.toggle('minimal-on', !!on);
+	}
+
 	/* ---- Lifecycle ---- */
 	function onPageHide(fn) {
 		/* Use pagehide, never the deprecated/unreliable unload event. */
@@ -296,6 +307,7 @@
 		debug,
 		installFoucPreload,
 		revealPage,
+		setEnabled,
 		onSpaNavigate,
 		mountSearchOverlay,
 		createScrollWall,

@@ -273,11 +273,14 @@ MinimalCore.installFoucPreload();
 		chrome.storage.sync.get({ [SITE_NAME]: 'enabled' }, (data) => {
 			if (data[SITE_NAME] !== 'enabled') {
 				MinimalCore.debug('YouTube: disabled, skipping modifications');
+				MinimalCore.setEnabled(false);
 				MinimalCore.revealPage();
 				return;
 			}
 
 			MinimalCore.debug('YouTube: enabled, applying modifications');
+			/* Add the CSS gate BEFORE revealing so the page never shows ungated. */
+			MinimalCore.setEnabled(true);
 
 			execute();
 			setTimeout(execute, 500);

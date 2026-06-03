@@ -1,45 +1,47 @@
 /* - Remove useless suggestion around the video description - C2 */
-#related, #ticket-shelf, #merch-shelf {
+html.minimal-on #related,
+html.minimal-on #ticket-shelf,
+html.minimal-on #merch-shelf {
   display: none !important;
 }
 /* - Hide #secondary unless it contains an active (not hidden) playlist - C2 */
-#secondary:not(:has(ytd-playlist-panel-renderer:not([hidden]))) {
+html.minimal-on #secondary:not(:has(ytd-playlist-panel-renderer:not([hidden]))) {
   display: none !important;
 }
 
 /* - Properly display playlist panel when active - C1 U1 */
-#secondary:has(ytd-playlist-panel-renderer:not([hidden])) {
+html.minimal-on #secondary:has(ytd-playlist-panel-renderer:not([hidden])) {
   width: 100% !important;
   max-width: 900px !important;
 }
-.ytd-horizontal-card-list-renderer {
+html.minimal-on .ytd-horizontal-card-list-renderer {
   display: none !important;
 }
 
 /* - Center video content with max-width - C2 */
-#columns {
+html.minimal-on #columns {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-#primary {
+html.minimal-on #primary {
   max-width: 900px !important;
   width: 80% !important;
 }
 
 /* - Keep playlist pinned to top when comments load - C1 U1 */
-#columns:has(ytd-playlist-panel-renderer:not([hidden])) {
+html.minimal-on #columns:has(ytd-playlist-panel-renderer:not([hidden])) {
   align-items: flex-start !important;
 }
-#secondary:has(ytd-playlist-panel-renderer:not([hidden])) {
+html.minimal-on #secondary:has(ytd-playlist-panel-renderer:not([hidden])) {
   position: sticky !important;
   top: 56px !important;
 }
 
 /* - Fix channel page grid layout - C2 */
-#contents.ytd-rich-grid-renderer {
+html.minimal-on #contents.ytd-rich-grid-renderer {
   --ytd-rich-grid-items-per-row: 4 !important;
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
@@ -50,128 +52,142 @@
 }
 
 /* - Hide the "Shorts" button on channel pages - C2 */
-yt-tab-shape[tab-title="Shorts"] {
+html.minimal-on yt-tab-shape[tab-title="Shorts"] {
   display: none !important;
 }
 
 /* - Ensure grid items have appropriate sizing - C2 */
-ytd-rich-item-renderer {
+html.minimal-on ytd-rich-item-renderer {
   width: 100% !important;
   margin: 0 !important;
 }
 
 /* - Make channel page container wider - C2 */
-ytd-browse[page-subtype="channels"] #primary {
+html.minimal-on ytd-browse[page-subtype="channels"] #primary {
   max-width: 1284px !important;
   width: 100% !important;
 }
 
 /* - Hide notification bell - U2 P1 */
-#notification-count, ytd-notification-topbar-button-renderer {
+html.minimal-on #notification-count,
+html.minimal-on ytd-notification-topbar-button-renderer {
   display: none !important;
 }
 
 /* - Hide reel shelf - U2 P1 */
-ytd-reel-shelf-renderer {
+html.minimal-on ytd-reel-shelf-renderer {
   display: none !important;
 }
 
 /* - Hide guide, voice search, mini guide, app drawer - U2 */
-#guide-button, #voice-search-button, ytd-mini-guide-renderer, tp-yt-app-drawer {
+html.minimal-on #guide-button,
+html.minimal-on #voice-search-button,
+html.minimal-on ytd-mini-guide-renderer,
+html.minimal-on tp-yt-app-drawer {
   display: none !important;
 }
 
-#page-manager {
+html.minimal-on #page-manager {
   margin: 0 24px 0 0;
 }
 
 /* - Simplify youtube logo to make it more discrete - P1 */
-#country-code, #logo-container .content-region {
+html.minimal-on #country-code,
+html.minimal-on #logo-container .content-region {
   display: none !important;
 }
-#logo svg, #logo-container .logo, #footer-logo {
+html.minimal-on #logo svg,
+html.minimal-on #logo-container .logo,
+html.minimal-on #footer-logo {
   filter: grayscale(0);
   opacity: 1;
 }
 
 /* - Remove end screen video suggestions - P2 C1 */
-.videowall-endscreen {
+html.minimal-on .videowall-endscreen {
   display: none !important;
 }
 
 /* - Desaturate thumbnails - U1 */
-.ytd-thumbnail img.yt-img-shadow,
-.ytp-cued-thumbnail-overlay-image {
+html.minimal-on .ytd-thumbnail img.yt-img-shadow,
+html.minimal-on .ytp-cued-thumbnail-overlay-image {
   filter: saturate(0.8) contrast(0.8);
 }
 
 /* - Use a neutral color for the subscribe button - P1 C3 */
 /* FRAGILE */
-button.yt-spec-button-shape-next.yt-spec-button-shape-next--filled.yt-spec-button-shape-next--mono {
+html.minimal-on button.yt-spec-button-shape-next.yt-spec-button-shape-next--filled.yt-spec-button-shape-next--mono {
   background-color: grey;
   color: white;
 }
 
 /* - Remove bottom right video branding - U3 */
-.iv-branding {
+html.minimal-on .iv-branding {
   display: none;
 }
 
 
 /* - Remove the minify button - U2 */
-.ytp-miniplayer-button {
+html.minimal-on .ytp-miniplayer-button {
   display: none !important;
 }
 
 /* - Remove the "next video" button when the video is not in a playlist - C2 C3 */
-.ytp-next-button {
+html.minimal-on .ytp-next-button {
   display: none !important;
 }
-.ytp-play-button-playlist+.ytp-next-button {
+html.minimal-on .ytp-play-button-playlist+.ytp-next-button {
   display: inline-block !important;
 }
 
 /* - Remove video thumbnail autoplay - C3 */
-.ytd-moving-thumbnail-renderer {
+html.minimal-on .ytd-moving-thumbnail-renderer {
   display: none !important;
 }
 
 /* - Remove autoplay toggle button - C3 */
-button[data-tooltip-target-id="ytp-autonav-toggle-button"] {
+html.minimal-on button[data-tooltip-target-id="ytp-autonav-toggle-button"] {
   display: none !important;
 }
 
 /* - Remove misleading or unrelated sections from the search page - U2 C3 */
 /* FRAGILE */
-ytd-two-column-search-results-renderer[is-search="true"] .ytd-item-section-renderer[thumbnail-style=""] {
+html.minimal-on ytd-two-column-search-results-renderer[is-search="true"] .ytd-item-section-renderer[thumbnail-style=""] {
   display: none !important;
 }
 
 /* - Center and constrain search results column (only when no secondary panel) - C1 U1 */
-ytd-search ytd-two-column-search-results-renderer:not(:has(ytd-secondary-search-container-renderer)) {
+html.minimal-on ytd-search ytd-two-column-search-results-renderer:not(:has(ytd-secondary-search-container-renderer)) {
   max-width: 800px !important;
   margin: 0 auto !important;
 }
-ytd-search #page-manager {
+html.minimal-on ytd-search #page-manager {
   display: flex !important;
   justify-content: center !important;
 }
 /* - Center search filter chips to match results column - C1 */
-ytd-search:not(:has(ytd-secondary-search-container-renderer)) ytd-search-header-renderer {
+html.minimal-on ytd-search:not(:has(ytd-secondary-search-container-renderer)) ytd-search-header-renderer {
   max-width: 800px !important;
   margin: 0 auto !important;
 }
-ytd-search:not(:has(ytd-secondary-search-container-renderer)) ytd-section-list-renderer {
+html.minimal-on ytd-search:not(:has(ytd-secondary-search-container-renderer)) ytd-section-list-renderer {
   max-width: 800px !important;
   margin: 0 auto !important;
 }
 
 /* - Stop unwanted focus effects - P1 */
-#logo, #logo-icon, #logo-icon-container, #masthead-logo, .logo, .ytd-logo {
+html.minimal-on #logo,
+html.minimal-on #logo-icon,
+html.minimal-on #logo-icon-container,
+html.minimal-on #masthead-logo,
+html.minimal-on .logo,
+html.minimal-on .ytd-logo {
   outline: none !important;
   -webkit-tap-highlight-color: transparent !important;
 }
 
-#masthead-logo a, #masthead a, #logo a {
+html.minimal-on #masthead-logo a,
+html.minimal-on #masthead a,
+html.minimal-on #logo a {
   outline: none !important;
 }

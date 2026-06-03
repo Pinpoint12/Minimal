@@ -387,6 +387,7 @@ MinimalCore.installFoucPreload();
 
 			if (!isEnabled) {
 				MinimalCore.debug('Reddit: Disabled, skipping modifications');
+				MinimalCore.setEnabled(false);
 				MinimalCore.revealPage();
 				/* Re-run the NSFW check on SPA navigation even when disabled. - C2 */
 				MinimalCore.onSpaNavigate(() => applyBlockState());
@@ -394,6 +395,8 @@ MinimalCore.installFoucPreload();
 			}
 
 			MinimalCore.debug('Reddit: Enabled, applying modifications');
+			/* Add the CSS gate BEFORE revealing so the page never shows ungated. */
+			MinimalCore.setEnabled(true);
 			const voteStyle = data.reddit_voteStyle || 'dots';
 
 			function applyAll() {

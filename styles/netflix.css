@@ -1,42 +1,43 @@
 /* - Desaturate logo - P1 */
-.pinning-header .main-header .logo {
+html.minimal-on .pinning-header .main-header .logo {
     color: lightgrey;
 }
 
 /* - Use neutral color for progression bars - P1 */
 /* On Homepage */
-.progress-completed {
+html.minimal-on .progress-completed {
     background-color: white;
 }
 /* On Player */
 /* FRAGILE */ /* emotion-hashed class names — change on Netflix rebuilds */
-.ltr-1xfifdu { /* current-progress */
+html.minimal-on .ltr-1xfifdu { /* current-progress */
     background: white;
 }
 /* FRAGILE */
-.ltr-1gidbvb { /* scrubber-head */
+html.minimal-on .ltr-1gidbvb { /* scrubber-head */
     background: white;
 }
 /* FRAGILE */
-.ltr-1jssjem { /* cached */
+html.minimal-on .ltr-1jssjem { /* cached */
     background: grey;
 }
 /* FRAGILE */
-.ltr-yzurhj { /* bar */
+html.minimal-on .ltr-yzurhj { /* bar */
     background: #444;
 }
 
 /* - Remove full width suggestions - U1 */
-.billboard-row, .lolomoBigRow{
+html.minimal-on .billboard-row,
+html.minimal-on .lolomoBigRow {
     display: none !important
 }
 
 /* - Make homepage tiles more sober - U1 */
-.title-card{
+html.minimal-on .title-card {
     transition: 400ms all ease;
     opacity:  0.8
 }
-.title-card.is-bob-open{
+html.minimal-on .title-card.is-bob-open {
     opacity: 1
 }
 
