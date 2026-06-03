@@ -59,7 +59,7 @@ Site scripts MUST build on these instead of re-implementing them (each re-implem
 - Per-site enabled/disabled state stored in `chrome.storage.sync`
 - Tab metadata stored in `chrome.storage.session` (survives service worker restarts)
 - Messaging-based communication between popup and service worker
-- **Disabled state:** site CSS is injected unconditionally via the manifest, so when a site is disabled `blocker-tracker.js` toggles `sheet.disabled = true` on every stylesheet whose href is under the extension's `styles/` dir. This fully reverts Minimal's styling without a brittle hand-written reset block. JS content scripts additionally self-gate on the stored enabled flag.
+- **Disabled state:** all site CSS rules are gated behind `html.minimal-on`. The content scripts add that class only when enabled (`MinimalCore.setEnabled` — set before `revealPage()` on FOUC sites; set by `blocker-tracker.js` on every site incl. Tier 2). Disabled → class absent → rules don't match → full revert. NOTE: manifest-injected content-script CSS does NOT appear in `document.styleSheets`, so it can't be toggled via `sheet.disabled` — the class gate is the reliable mechanism. Rules left ungated: Reddit NSFW-safety (`:root.block-all-content`, `body[data-block-on-url]`) and `html.minimal-vote-*` (only match a JS class added when enabled). JS content scripts additionally self-gate on the stored enabled flag.
 
 ## Build & Install
 
