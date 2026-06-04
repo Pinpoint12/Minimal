@@ -300,10 +300,25 @@ MinimalCore.installFoucPreload();
 				if (mode === 'dots') {
 					const num = parseInt(el.getAttribute('number'), 10);
 					if (!isNaN(num)) el.setAttribute('data-minimal-dots', getDots(num));
-					el.addEventListener('click', () => el.classList.add('minimal-revealed'));
 				}
 			});
 		};
+
+		/* Click-to-reveal is delegated from the document instead of bound per
+		   element. A per-element listener never attaches to faceplate-numbers that
+		   Reddit renders into shadow roots AFTER their host was added (virtual
+		   scroll, re-render on vote) — those mutations don't reach our light-DOM
+		   observer. A composed-path click bubbles through shadow boundaries, so one
+		   listener reveals any count regardless of when or where it appeared. - U1 */
+		if (mode === 'dots' && !document.documentElement.hasAttribute('data-minimal-vote-click')) {
+			document.documentElement.setAttribute('data-minimal-vote-click', '1');
+			document.addEventListener('click', (e) => {
+				const fn = e.composedPath().find(
+					(el) => el.nodeType === Node.ELEMENT_NODE && el.tagName === 'FACEPLATE-NUMBER'
+				);
+				if (fn) fn.classList.add('minimal-revealed');
+			}, true);
+		}
 
 		const injectShadow = (host) => {
 			if (!host.shadowRoot || injectedRoots.has(host.shadowRoot)) return;
