@@ -294,14 +294,20 @@ MinimalCore.installFoucPreload();
 		/* Shadow roots already given the hiding <style>, so we don't re-inject. */
 		const injectedRoots = new WeakSet();
 
+		const tagOne = (el) => {
+			if (el.hasAttribute('data-minimal-processed')) return;
+			el.setAttribute('data-minimal-processed', '1');
+			if (mode === 'dots') {
+				const num = parseInt(el.getAttribute('number'), 10);
+				if (!isNaN(num)) el.setAttribute('data-minimal-dots', getDots(num));
+			}
+		};
+
+		/* Tag the root itself (a directly-added faceplate-number won't be returned
+		   by its own querySelectorAll) plus every descendant. - U1 */
 		const tagFaceplate = (root) => {
-			root.querySelectorAll('faceplate-number:not([data-minimal-processed])').forEach(el => {
-				el.setAttribute('data-minimal-processed', '1');
-				if (mode === 'dots') {
-					const num = parseInt(el.getAttribute('number'), 10);
-					if (!isNaN(num)) el.setAttribute('data-minimal-dots', getDots(num));
-				}
-			});
+			if (root.nodeType === Node.ELEMENT_NODE && root.tagName === 'FACEPLATE-NUMBER') tagOne(root);
+			root.querySelectorAll('faceplate-number:not([data-minimal-processed])').forEach(tagOne);
 		};
 
 		/* Click-to-reveal is delegated from the document instead of bound per
@@ -320,38 +326,48 @@ MinimalCore.installFoucPreload();
 			}, true);
 		}
 
-		const injectShadow = (host) => {
-			if (!host.shadowRoot || injectedRoots.has(host.shadowRoot)) return;
-			injectedRoots.add(host.shadowRoot);
-			if (!host.shadowRoot.querySelector('#minimal-hide-counts')) {
-				const style = document.createElement('style');
-				style.id = 'minimal-hide-counts';
-				style.textContent = SHADOW_CSS;
-				host.shadowRoot.appendChild(style);
-			}
-			tagFaceplate(host.shadowRoot);
-			/* Recurse into nested shadow hosts within this root. */
-			host.shadowRoot.querySelectorAll('*').forEach(injectShadow);
-		};
-
-		/* Process a single newly-added node subtree: inject CSS into any shadow
-		   roots it contains and tag faceplate-numbers for dots/reveal. - U1 */
-		function processNode(node) {
-			if (node.nodeType !== Node.ELEMENT_NODE) return;
-			tagFaceplate(node);
-			if (node.shadowRoot) injectShadow(node);
-			node.querySelectorAll('*').forEach(injectShadow);
-		}
-
-		/* One-time pass over what's already in the document. */
-		processNode(document.documentElement);
-
-		/* Process ONLY added nodes — never re-scan the whole document per tick. */
 		const observer = new MutationObserver((mutations) => {
 			for (const m of mutations) {
 				for (const node of m.addedNodes) processNode(node);
 			}
 		});
+
+		const injectShadow = (host) => {
+			const root = host.shadowRoot;
+			if (!root || injectedRoots.has(root)) return;
+			injectedRoots.add(root);
+			if (!root.querySelector('#minimal-hide-counts')) {
+				const style = document.createElement('style');
+				style.id = 'minimal-hide-counts';
+				style.textContent = SHADOW_CSS;
+				root.appendChild(style);
+			}
+			tagFaceplate(root);
+			/* Watch this shadow root directly: faceplate-numbers it renders later
+			   (lazy hydration, comment expansion) never reach the light-DOM
+			   observer, so without this they'd show the real count untagged. - U1 */
+			root.querySelectorAll('*').forEach(injectShadow);
+			observer.observe(root, { childList: true, subtree: true });
+		};
+
+		/* Process a single node subtree: tag faceplate-numbers and inject CSS into
+		   any shadow roots it (or its descendants) host. - U1 */
+		function processNode(node) {
+			if (node.nodeType !== Node.ELEMENT_NODE && node.nodeType !== Node.DOCUMENT_FRAGMENT_NODE) return;
+			tagFaceplate(node);
+			if (node.shadowRoot) injectShadow(node);
+			node.querySelectorAll('*').forEach(injectShadow);
+		}
+
+		/* `shreddit-*` hosts are server-rendered into light DOM, then their shadow
+		   roots attach during client hydration — AFTER this first pass, and without
+		   firing any light-DOM mutation. So a one-shot sweep misses every initial
+		   post's score. Re-sweep across the hydration window (WeakSet keeps each
+		   root injected exactly once) to catch them, then stop. - U1 C3 */
+		const sweep = () => processNode(document.documentElement);
+		sweep();
+		[150, 500, 1200, 2500].forEach((ms) => setTimeout(sweep, ms));
+
 		if (document.body) {
 			observer.observe(document.body, { childList: true, subtree: true });
 			MinimalCore.onPageHide(() => observer.disconnect());
