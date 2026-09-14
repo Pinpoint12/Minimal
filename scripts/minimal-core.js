@@ -141,6 +141,45 @@
 		}
 	}
 
+	/* ---- Full-site block overlay ----
+	   For sites Minimal blocks outright rather than decluttering (e.g. X,
+	   Instagram): mounts once and stays — no SPA-nav re-render needed, since
+	   the block never lifts on its own. `minimal-blocked` on <html> and
+	   `data-minimal-blocked` on <body> (styled in minimal-overlay.css) hide
+	   every real child as a belt-and-suspenders under the overlay's own
+	   full-viewport coverage.
+
+	   config:
+	     id        required unique element id for the overlay container
+	     logoHTML  markup for the brand mark (inline SVG)
+	     title     headline (default 'Minimal')
+	     message   supporting line
+	   Returns { el }. Idempotent. */
+	function mountBlockOverlay(config) {
+		const existing = document.getElementById(config.id);
+		if (existing) return { el: existing };
+
+		document.documentElement.classList.add('minimal-blocked');
+		document.body?.setAttribute('data-minimal-blocked', '1');
+
+		const overlay = document.createElement('div');
+		overlay.className = 'minimal-overlay';
+		overlay.id = config.id;
+		overlay.setAttribute('data-minimal-block-overlay', '1');
+		overlay.innerHTML = `
+			<div class="minimal-overlay__logo">${config.logoHTML || ''}</div>
+			<svg class="minimal-overlay__shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5Z"/>
+				<path d="M9 13l2 2 4-4"/>
+			</svg>
+			<p class="minimal-overlay__title">${escapeHtml(config.title || 'Minimal')}</p>
+			<p class="minimal-overlay__desc">${escapeHtml(config.message || 'This site is off right now.')}</p>
+		`;
+		(document.body || document.documentElement).appendChild(overlay);
+
+		return { el: overlay };
+	}
+
 	/* ---- Scroll depth wall ----
 	   Restores a natural stopping point on infinite feeds. Counts posts the user
 	   actually scrolls past (IntersectionObserver), and once the limit is hit
@@ -266,6 +305,29 @@
 		return { destroy };
 	}
 
+	/* ---- Title notification-count guard ----
+	   Some sites (X, Instagram) write an unread-count prefix into the tab
+	   title, e.g. "(9) X". The interception itself CANNOT live here: content
+	   scripts run in an isolated world, so a document.title override installed
+	   from this world never applies to the site's own bundle, which writes the
+	   title through the main world's view of that property. The stripping runs
+	   in scripts/title-guard-main.js ("world": "MAIN"); this side only decides
+	   whether it should be stripping, and publishes that on
+	   <html data-minimal-title-guard> — the one channel both worlds share.
+
+	   Call synchronously at document_start. The guard strips while the state is
+	   'pending', so the count can't paint during the async enabled check (that
+	   window is what made it flash). Then call the returned resolve(active)
+	   once chrome.storage answers: resolve(false) stands the guard down and
+	   puts the real count back, so the title behaves normally again. */
+	function guardTitleCount() {
+		const root = document.documentElement;
+		root.dataset.minimalTitleGuard = 'pending';
+		return function resolve(active) {
+			root.dataset.minimalTitleGuard = active ? 'on' : 'off';
+		};
+	}
+
 	/* ---- Enabled gate ----
 	   Site CSS hides/restyles page elements only under `html.minimal-on`. The
 	   class is added here when Minimal is enabled and removed when disabled, so
@@ -310,6 +372,8 @@
 		setEnabled,
 		onSpaNavigate,
 		mountSearchOverlay,
+		mountBlockOverlay,
+		guardTitleCount,
 		createScrollWall,
 		onPageHide,
 		storage,

@@ -67,7 +67,7 @@ MinimalCore.installFoucPreload();
 			<div class="minimal-overlay__logo">${REDDIT_LOGO_HTML}</div>
 			<svg class="minimal-overlay__shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5Z"/>
-				<path d="M9 12l2 2 4-4"/>
+				<path d="M9 13l2 2 4-4"/>
 			</svg>
 			<p class="minimal-overlay__title">Content Blocked</p>
 			<p class="minimal-overlay__desc">This content was blocked by Minimal</p>

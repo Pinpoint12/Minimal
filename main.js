@@ -9,7 +9,8 @@ const BADGE_COLORS = {
 const resources = [
 	{"name": "youtube", "url": /youtube\.com/, "style": "styles/youtube.css", "script": "scripts/youtube.js"},
 	{"name": "facebook", "url": /facebook\.com/, "style": "styles/facebook.css", "script": "scripts/facebook.js"},
-	{"name": "twitter", "url": /(twitter\.com|x\.com)/, "style": "styles/twitter.css", "script": "scripts/twitter.js"},
+	{"name": "twitter", "url": /(twitter\.com|x\.com)/, "style": "styles/minimal-overlay.css", "script": "scripts/twitter.js"},
+	{"name": "instagram", "url": /instagram\.com/, "style": "styles/minimal-overlay.css", "script": "scripts/instagram.js"},
 	{"name": "google", "url": /google\./, "style": "styles/google.css", "script": null},
 	{"name": "amazon", "url": /amazon\./, "style": "styles/amazon.css", "script": null},
 	{"name": "yahoo", "url": /yahoo\.com/, "style": "styles/yahoo.css", "script": null},

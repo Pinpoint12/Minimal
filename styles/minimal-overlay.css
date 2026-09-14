@@ -122,6 +122,11 @@
 	cursor: pointer;
 	transition: color 0.2s var(--minimal-ease), background 0.2s var(--minimal-ease);
 }
+.minimal-overlay__btn svg {
+	/* Optical centering — the magnifying-glass handle pulls the glyph's visual
+	   weight down-right of its true geometric center. */
+	transform: translateY(-4px);
+}
 .minimal-overlay__btn:hover {
 	color: var(--minimal-ink-strong);
 	background: var(--minimal-hover);
@@ -189,6 +194,17 @@
 .minimal-overlay__back:hover {
 	color: var(--minimal-ink);
 	border-color: var(--minimal-focus);
+}
+
+/* ── Full-site block state ───────────────────────────────────────────────
+   Set by MinimalCore.mountBlockOverlay() for sites Minimal blocks outright.
+   The overlay already covers the viewport; this is belt-and-suspenders so
+   nothing underneath can scroll or receive input. */
+:root.minimal-blocked {
+	overflow: hidden !important;
+}
+body[data-minimal-blocked] > *:not([data-minimal-block-overlay]) {
+	display: none !important;
 }
 
 /* ── Scroll-depth wall ───────────────────────────────────────────────────── */

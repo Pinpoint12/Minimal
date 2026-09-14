@@ -17,7 +17,8 @@
 		amazon: /amazon\./,
 		yahoo: /yahoo\.com/,
 		netflix: /netflix\.com/,
-		reddit: /reddit\.com/
+		reddit: /reddit\.com/,
+		instagram: /instagram\.com/
 	};
 
 	function getCurrentSite() {

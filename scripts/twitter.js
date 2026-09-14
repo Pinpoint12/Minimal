@@ -1,74 +1,57 @@
-/* Twitter/X Content Script - Minimal Extension */
-/* All modifications gated behind enabled check - C1 C2 C3 P1 */
+/* X (Twitter) Content Script - Minimal Extension */
+/* Minimal blocks X outright rather than decluttering the feed - C1 C2 P1 */
 
-/* ARCHITECTURE NOTE: Twitter/X uses React which constantly reconciles the DOM.
-   Any MutationObserver on React-managed DOM or History API interception causes
-   runaway CPU (200%+ observed). This script is intentionally minimal — CSS does
-   the heavy lifting. JS only handles what CSS cannot: title text and favicon. */
+/* Prevent flash of unstyled content - inject immediately at document_start - C2 */
+MinimalCore.installFoucPreload();
+
+/* Arm the tab-title unread-count guard before the async enabled/disabled check
+   below - that check is the race window that lets a "(9) X" prefix flash. The
+   interception itself runs in the page's MAIN world (title-guard-main.js),
+   since an isolated-world override of document.title is invisible to X's own
+   bundle; this only publishes the decision to it. */
+const resolveTitleGuard = MinimalCore.guardTitleCount();
 
 (function() {
 	'use strict';
 
 	const SITE_NAME = 'twitter';
 
-	/* - Remove notification count from page title - C3 */
-	function removeNotificationsFromTitle() {
-		if (/^\(\d+\)\s/.test(document.title)) {
-			document.title = document.title.replace(/^\(\d+\)\s*/, '');
-		}
-	}
+	/* Official X mark. Single glyph, no wordmark needed - P1 */
+	const X_LOGO_HTML = `
+		<svg viewBox="0 0 1200 1227" fill="var(--minimal-ink-strong)" focusable="false" aria-hidden="true">
+			<path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/>
+		</svg>
+	`;
 
-	/* - Replace notification favicon with standard one - C3 */
-	function keepStandardFavicon() {
-		const link = document.querySelector("link[rel='shortcut icon']");
-		if (!link) return;
-		const href = link.getAttribute('href');
-		if (!href) return;
-		const clean = href.replace('twitter-pip.ico', 'twitter.ico')
-		                   .replace('twitter-pip.2.ico', 'twitter.2.ico');
-		if (clean !== href) link.setAttribute('href', clean);
-	}
-
-	/* - Notification cleanup via targeted <title> observer - C3 */
-	/* IMPORTANT: Only observe the <title> element itself. Never observe <head>
-	   or <body> — React mutates those constantly, causing feedback loops. */
-	function setupNotificationCleanup() {
-		removeNotificationsFromTitle();
-		keepStandardFavicon();
-
-		const titleEl = document.querySelector('title');
-		if (titleEl) {
-			let cleaning = false;
-			const obs = new MutationObserver(() => {
-				if (cleaning) return;
-				cleaning = true;
-				removeNotificationsFromTitle();
-				cleaning = false;
-			});
-			obs.observe(titleEl, { childList: true, characterData: true, subtree: true });
-			MinimalCore.onPageHide(() => obs.disconnect());
-		}
-
-		/* Favicon only needs occasional checks — visibility change is enough */
-		document.addEventListener('visibilitychange', () => {
-			if (!document.hidden) keepStandardFavicon();
+	function mountBlock() {
+		MinimalCore.mountBlockOverlay({
+			id: 'minimal-x-block',
+			logoHTML: X_LOGO_HTML,
+			title: 'X is off',
+			message: 'Nothing here was worth the scroll.',
 		});
+		MinimalCore.revealPage();
 	}
 
 	/* Main initialization */
 	function init() {
 		chrome.storage.sync.get({ [SITE_NAME]: 'enabled' }, (data) => {
 			if (data[SITE_NAME] !== 'enabled') {
-				MinimalCore.debug('Twitter: Disabled, skipping modifications');
+				MinimalCore.debug('X: Disabled, allowing normal use');
+				MinimalCore.setEnabled(false);
+				resolveTitleGuard(false);
+				MinimalCore.revealPage();
 				return;
 			}
 
-			MinimalCore.debug('Twitter: Enabled, applying modifications');
+			MinimalCore.debug('X: Enabled, blocking');
+			MinimalCore.setEnabled(true);
+			resolveTitleGuard(true);
 
-			if (document.readyState === 'loading') {
-				document.addEventListener('DOMContentLoaded', setupNotificationCleanup);
+			if (document.body) {
+				mountBlock();
 			} else {
-				setupNotificationCleanup();
+				document.addEventListener('DOMContentLoaded', mountBlock, { once: true });
 			}
 		});
 	}

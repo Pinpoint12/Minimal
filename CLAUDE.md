@@ -12,10 +12,11 @@ Minimal is a Chrome/Chromium browser extension (Manifest V3) that removes distra
 - **manifest.json** - Extension configuration (MV3), content script injection rules, permissions
 - **main.js** - Service worker handling enable/disable state, tab tracking, messaging
 - **scripts/minimal-core.js** - Shared content-script helpers on `window.MinimalCore`. Loaded FIRST in every content_scripts entry (all files in an entry share one isolated-world `window`). See "Shared Core" below.
+- **scripts/title-guard-main.js** - The ONLY file injected with `"world": "MAIN"`. Strips the `"(N) "` unread-count prefix from the tab title on X/Instagram. It has to run in the page's own world: content scripts are isolated, so a `document.title` setter override installed from a content script never applies to the site's bundle. It has no `chrome.*` access, so it reads the enabled decision off `<html data-minimal-title-guard>` (written by `MinimalCore.guardTitleCount()`).
 - **scripts/blocker-tracker.js** - Runs on every supported site: applies user-hidden elements, reports the badge count, and (when disabled) toggles off Minimal's own injected stylesheets.
-- **scripts/*.js** - Site-specific content scripts (YouTube, Reddit, Twitter, Facebook, Netflix)
-- **styles/minimal-overlay.css** - Shared design system for the homepage/blocked overlays + scroll wall (BEM `minimal-overlay__*` / `minimal-wall__*`). Injected on Tier 1 sites; site CSS no longer duplicates overlay rules.
-- **styles/*.css** - Site-specific stylesheets (YouTube, Reddit, Twitter, Facebook, Netflix, Amazon, Google, Yahoo)
+- **scripts/*.js** - Site-specific content scripts (YouTube, Reddit, Twitter, Instagram, Facebook, Netflix)
+- **styles/minimal-overlay.css** - Shared design system for the homepage/blocked overlays + scroll wall (BEM `minimal-overlay__*` / `minimal-wall__*`). Injected on every site with an overlay (Tier 1's homepage overlays, Tier 0's full-page block); site CSS no longer duplicates overlay rules.
+- **styles/*.css** - Site-specific stylesheets (YouTube, Reddit, Facebook, Netflix, Amazon, Google, Yahoo). Twitter and Instagram have none — they're blocked outright by JS + the shared overlay CSS, nothing left to style.
 - **pages/** - Popup UI for toggling extension per-site (uses messaging API). Full light/dark via `prefers-color-scheme`, localized via `data-i18n`.
 - **_locales/** - i18n translations (en, de, es, fr)
 
@@ -24,16 +25,21 @@ Site scripts MUST build on these instead of re-implementing them (each re-implem
 - `installFoucPreload()` / `revealPage()` — unconditional `document_start` body-hide + 2s failsafe.
 - `onSpaNavigate(cb, {events})` — safe SPA-nav detection (pushState + popstate + site events, gated on pathname change). NEVER patches `replaceState`, NEVER observes `document.body`.
 - `mountSearchOverlay({id, appShellSelectors, logoHTML, placeholder, hint, buildSearchUrl})` → `{el, remove}` — non-destructive homepage overlay.
+- `mountBlockOverlay({id, logoHTML, title, message})` → `{el}` — full-site block page (Tier 0). Mounts once, no SPA-nav re-render needed since the block never lifts on its own; sets `minimal-blocked` on `<html>` and `data-minimal-blocked` on `<body>`, styled in `minimal-overlay.css`, to hide everything else underneath.
+- `guardTitleCount()` → `resolve(active)` — arms the tab-title unread-count guard, which strips a `"(N) "` prefix before it's ever painted. The stripping itself lives in `scripts/title-guard-main.js` (MAIN world); this helper only publishes the enabled decision on `<html data-minimal-title-guard>` (`pending` → `on`/`off`). Call synchronously at the top of the script, before the async enabled/disabled check — anything but `off` strips, so nothing can paint while the check is in flight; then call `resolve(true|false)` in both branches of that check.
 - `createScrollWall({postSelector, limit, container, protect, message, dismissLabel})` → `{destroy}` — IntersectionObserver wall; `destroy()` disconnects BOTH observers (call it on SPA nav so observers never leak).
 - `onPageHide(fn)` — teardown on `pagehide` (never the deprecated `unload`).
 - `storage(defaults)` → Promise; `debug(...)` — gated on `localStorage.minimalDebug === '1'`.
 
 ### Site Tiers
 
+**Tier 0 — Blocked outright** (FOUC prevention, static block overlay, no feed ever renders):
+- Twitter/X - blocks unconditionally when enabled via `MinimalCore.mountBlockOverlay()`. No MutationObserver, no SPA-nav handling needed — the block never lifts on its own, so there's nothing to react to.
+- Instagram - same pattern as X.
+
 **Tier 1 — Full experience** (custom homepage, FOUC prevention, scroll walls, popup options):
 - YouTube - complete
 - Reddit - complete
-- Twitter/X - **CSS-only by design** (no overlay/scroll wall). React reconciles the DOM constantly, so JS is kept to title/favicon cleanup only; CSS does the heavy lifting. Do NOT add observers/overlays here.
 - Facebook - TODO (currently light JS: Messenger relink via event delegation)
 - Amazon - TODO
 
@@ -44,9 +50,10 @@ Site scripts MUST build on these instead of re-implementing them (each re-implem
 - LinkedIn
 
 ### Content Script Patterns
-1. **CSS-only** (Google, Yahoo) - Pure display:none hiding
-2. **CSS + Light JS** (Netflix) - Interval-based DOM monitoring
-3. **Complex JS** (YouTube, Reddit) - MutationObserver, custom homepage replacement, FOUC prevention
+1. **Full block** (Twitter/X, Instagram) - `installFoucPreload()` + `mountBlockOverlay()`, no CSS file of their own
+2. **CSS-only** (Google, Yahoo) - Pure display:none hiding
+3. **CSS + Light JS** (Netflix) - Interval-based DOM monitoring
+4. **Complex JS** (YouTube, Reddit) - MutationObserver, custom homepage replacement, FOUC prevention
 
 ### Manifest V3 Architecture
 - Service worker (`main.js`) instead of persistent background page
@@ -131,10 +138,9 @@ Safe SPA navigation detection, in order of preference:
 
 - **scripts/youtube.js** (~370 lines) - Non-destructive homepage overlay, SPA navigation via `yt-navigate-finish`, autoplay removal, subscription manager, optional styles
 - **scripts/reddit.js** (~500 lines) - NSFW blocker, non-destructive homepage overlay, sidebar removal, scroll depth wall (IntersectionObserver-based), FOUC prevention
-- **scripts/twitter.js** (~280 lines) - Non-destructive homepage overlay on /home, FOUC prevention, scroll depth wall, notification cleanup, SPA nav via pushState+popstate
+- **scripts/twitter.js** / **scripts/instagram.js** - Tier 0 full block: FOUC prevention + `mountBlockOverlay()`, no CSS file of their own
 - **styles/youtube.css** (~340 lines) - Watch page centering, search results centering (800px), playlist sticky positioning, homepage overlay styles
 - **styles/reddit.css** (~340 lines) - Homepage overlay styles (matching YouTube design language), scroll depth wall styling, vote count dot replacement, dark mode support
-- **styles/twitter.css** (~200 lines) - Homepage overlay, scroll wall, sidebar trending/who-to-follow hiding, dark mode via prefers-color-scheme
 - **pages/badgePopup.html/js/css** - Extension popup with per-site toggle, site-specific options, element picker, hidden elements manager
 - **main.js** - Resource mapping, enable/disable logic, tab lifecycle, context menus, element picker injection
 

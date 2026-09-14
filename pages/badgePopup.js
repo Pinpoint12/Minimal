@@ -23,7 +23,8 @@ const sitePatterns = {
 	amazon: /amazon\./,
 	yahoo: /yahoo\.com/,
 	netflix: /netflix\.com/,
-	reddit: /reddit\.com/
+	reddit: /reddit\.com/,
+	instagram: /instagram\.com/
 };
 
 /* Internal site key -> human display name shown in the status line. The raw key
@@ -36,7 +37,8 @@ const siteDisplayNames = {
 	amazon: "Amazon",
 	yahoo: "Yahoo",
 	netflix: "Netflix",
-	reddit: "Reddit"
+	reddit: "Reddit",
+	instagram: "Instagram"
 };
 
 function displayName(siteName) {
